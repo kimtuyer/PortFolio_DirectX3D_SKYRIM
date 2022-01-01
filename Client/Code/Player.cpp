@@ -27,7 +27,9 @@ HRESULT CPlayer::Ready_Object(void)
 	FAILED_CHECK_RETURN(CGameObject::Ready_Object(), E_FAIL);
 
 	m_pTransformCom->Set_Scale(0.01f, 0.01f, 0.01f);
-	m_pTransformCom->Set_Pos(16.04, 7, 33.15);
+	//m_pTransformCom->Set_Pos(16.04, 7, 33.15);
+	m_pTransformCom->Set_Pos(17.04, 7, 33.15);
+
 	//m_pTransformCom->Rotation(ROT_X, D3DXToRadian(180.f));
 
 	
