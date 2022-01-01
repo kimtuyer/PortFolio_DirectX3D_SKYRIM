@@ -1,0 +1,32 @@
+companion
+
+wrstatisplatform >>2층올라가 바로 오른쪽,컴패니언 연결
+
+da
+greathouse2 >>그레이메인 집 2층 올라가자마자
+
+greathouse1 >>배틀본집 카를로타집 옆
+
+wcommonhouse >>그레이메인 집 옆, 할로우데드,템플 연결
+
+hallowdead
+
+	
+wrshacksbase 1 >> 2번의 오른쪽, 아카디아 왼쪽
+
+
+wrshacksbase 2 >>breez 바로뒤
+
+
+wrulfberhp >>헤임스카 연설, 2층들가서 오른편
+
+
+
+-mainloadmarket, 0.012
+
+rock 나머지 추출
+
+빌딩 추출
+
+마운틴 추출
+

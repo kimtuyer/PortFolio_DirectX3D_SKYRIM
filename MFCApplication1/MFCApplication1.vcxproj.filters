@@ -1,0 +1,222 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="소스 파일">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="헤더 파일">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="리소스 파일">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="01.View">
+      <UniqueIdentifier>{53f7dec6-ff7e-472f-a712-4489731bcc47}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.Document">
+      <UniqueIdentifier>{5ece6969-411b-4704-9b5d-d614c3204880}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="03.Graphic_Device">
+      <UniqueIdentifier>{fbc19b1c-ab61-4bba-ab56-5ac5e0f6a62b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="04.Texture">
+      <UniqueIdentifier>{f312f168-134e-48e7-9330-57ef8e4edf12}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="01.View\Form">
+      <UniqueIdentifier>{e7f2c549-4cf3-4451-a7d5-635104e75fd5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="00.MainFrame">
+      <UniqueIdentifier>{300c2749-fef7-447c-9365-c7be8361432c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="05.Terrain">
+      <UniqueIdentifier>{82b7d390-8d20-411d-9b40-897d768fd593}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="01.View\Scene">
+      <UniqueIdentifier>{6941d1cf-5352-402d-8203-1bcfae28a01b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="06.Camera">
+      <UniqueIdentifier>{5b87605e-2da7-4453-9fdc-b911d5adb9f1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="07.FIle">
+      <UniqueIdentifier>{8861c3cd-6a61-4e30-acae-6474f94eaa89}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="08.Object">
+      <UniqueIdentifier>{ecb0a5e7-b220-40bd-9970-e464aea2aef6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="08.Object\Static">
+      <UniqueIdentifier>{32e7b140-9ee4-44c7-9908-a2f0a2c707f3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="09.Calculator">
+      <UniqueIdentifier>{dd4dd8cb-a201-48d5-8262-b57c240bcd54}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="08.Object\Collider">
+      <UniqueIdentifier>{4bd44719-408c-4c13-b1e4-674fe50af5ea}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="MFCApplication1.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="framework.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="targetver.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Resource.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="pch.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="MainFrm.h">
+      <Filter>00.MainFrame</Filter>
+    </ClInclude>
+    <ClInclude Include="MFCApplication1View.h">
+      <Filter>01.View</Filter>
+    </ClInclude>
+    <ClInclude Include="MFCApplication1Doc.h">
+      <Filter>02.Document</Filter>
+    </ClInclude>
+    <ClInclude Include="CGraphic_Device.h">
+      <Filter>03.Graphic_Device</Filter>
+    </ClInclude>
+    <ClInclude Include="define.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="MFC_Terrain.h">
+      <Filter>05.Terrain</Filter>
+    </ClInclude>
+    <ClInclude Include="Scene1.h">
+      <Filter>01.View\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="DynamicCamera.h">
+      <Filter>06.Camera</Filter>
+    </ClInclude>
+    <ClInclude Include="MFC_TerrainTex.h">
+      <Filter>04.Texture</Filter>
+    </ClInclude>
+    <ClInclude Include="CForm.h">
+      <Filter>01.View\Form</Filter>
+    </ClInclude>
+    <ClInclude Include="CTab_Terrain.h">
+      <Filter>01.View\Form</Filter>
+    </ClInclude>
+    <ClInclude Include="CTab_Mesh.h">
+      <Filter>01.View\Form</Filter>
+    </ClInclude>
+    <ClInclude Include="FileInfo.h">
+      <Filter>07.FIle</Filter>
+    </ClInclude>
+    <ClInclude Include="Monster_draugr.h">
+      <Filter>08.Object</Filter>
+    </ClInclude>
+    <ClInclude Include="Stone.h">
+      <Filter>08.Object\Static</Filter>
+    </ClInclude>
+    <ClInclude Include="CStatic_Object.h">
+      <Filter>08.Object\Static</Filter>
+    </ClInclude>
+    <ClInclude Include="Player.h">
+      <Filter>08.Object</Filter>
+    </ClInclude>
+    <ClInclude Include="MFC_Calculator.h">
+      <Filter>09.Calculator</Filter>
+    </ClInclude>
+    <ClInclude Include="MFC_ColliderSphere.h">
+      <Filter>08.Object\Collider</Filter>
+    </ClInclude>
+    <ClInclude Include="CTab_Navi.h">
+      <Filter>01.View\Form</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="MFCApplication1.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="pch.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="MainFrm.cpp">
+      <Filter>00.MainFrame</Filter>
+    </ClCompile>
+    <ClCompile Include="MFCApplication1View.cpp">
+      <Filter>01.View</Filter>
+    </ClCompile>
+    <ClCompile Include="MFCApplication1Doc.cpp">
+      <Filter>02.Document</Filter>
+    </ClCompile>
+    <ClCompile Include="CGraphic_Device.cpp">
+      <Filter>03.Graphic_Device</Filter>
+    </ClCompile>
+    <ClCompile Include="MFC_Terrain.cpp">
+      <Filter>05.Terrain</Filter>
+    </ClCompile>
+    <ClCompile Include="Scene1.cpp">
+      <Filter>01.View\Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="DynamicCamera.cpp">
+      <Filter>06.Camera</Filter>
+    </ClCompile>
+    <ClCompile Include="MFC_TerrainTex.cpp">
+      <Filter>04.Texture</Filter>
+    </ClCompile>
+    <ClCompile Include="CForm.cpp">
+      <Filter>01.View\Form</Filter>
+    </ClCompile>
+    <ClCompile Include="CTab_Terrain.cpp">
+      <Filter>01.View\Form</Filter>
+    </ClCompile>
+    <ClCompile Include="CTab_Mesh.cpp">
+      <Filter>01.View\Form</Filter>
+    </ClCompile>
+    <ClCompile Include="FileInfo.cpp">
+      <Filter>07.FIle</Filter>
+    </ClCompile>
+    <ClCompile Include="Monster_draugr.cpp">
+      <Filter>08.Object</Filter>
+    </ClCompile>
+    <ClCompile Include="Stone.cpp">
+      <Filter>08.Object\Static</Filter>
+    </ClCompile>
+    <ClCompile Include="CStatic_Object.cpp">
+      <Filter>08.Object\Static</Filter>
+    </ClCompile>
+    <ClCompile Include="Player.cpp">
+      <Filter>08.Object</Filter>
+    </ClCompile>
+    <ClCompile Include="MFC_Calculator.cpp">
+      <Filter>09.Calculator</Filter>
+    </ClCompile>
+    <ClCompile Include="MFC_ColliderSphere.cpp">
+      <Filter>08.Object\Collider</Filter>
+    </ClCompile>
+    <ClCompile Include="CTab_Navi.cpp">
+      <Filter>01.View\Form</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="MFCApplication1.rc">
+      <Filter>리소스 파일</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="res\MFCApplication1.rc2">
+      <Filter>리소스 파일</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="res\MFCApplication1Doc.ico">
+      <Filter>리소스 파일</Filter>
+    </Image>
+    <Image Include="res\MFCApplication1.ico">
+      <Filter>리소스 파일</Filter>
+    </Image>
+    <Image Include="res\Toolbar.bmp">
+      <Filter>리소스 파일</Filter>
+    </Image>
+  </ItemGroup>
+</Project>

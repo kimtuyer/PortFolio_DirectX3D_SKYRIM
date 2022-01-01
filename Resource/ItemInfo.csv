@@ -1,0 +1,12 @@
+Name,Code,Type,Weight,Value,Stat
+Hide Armor,0,1,5,50,20
+Hide Boots,1,1,1,10,5
+Hide Bracers,2,1,1,10,5
+Iron Helmet,3,1,5,60,15
+Imperial Sword,4,0,10,23,8
+Elven GreatSword,5,0,20,470,20
+Imperial Boots,6,1,8,20,10
+Imperial Armor,7,1,35,100,25
+Imperial Bracers,8,1,4,15,10
+Imperial Helmet,9,1,4,30,17
+General Tullius Armor,10,1,40,165,62
