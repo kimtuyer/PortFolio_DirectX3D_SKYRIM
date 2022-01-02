@@ -160,8 +160,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Code\BackGround.h" />
-    <ClInclude Include="..\Code\BarkeeperNPC.h" />
-    <ClInclude Include="..\Code\BlacksmithNPC.h" />
     <ClInclude Include="..\Code\Breath.h" />
     <ClInclude Include="..\Code\CItem.h" />
     <ClInclude Include="..\Code\CItemObject.h" />
@@ -180,7 +178,6 @@
     <ClInclude Include="..\Code\Loading.h" />
     <ClInclude Include="..\Code\Logo.h" />
     <ClInclude Include="..\Code\MainApp.h" />
-    <ClInclude Include="..\Code\MarketNPC.h" />
     <ClInclude Include="..\Code\Monster.h" />
     <ClInclude Include="..\Code\MonsterBar.h" />
     <ClInclude Include="..\Code\MonsterHP.h" />
@@ -211,8 +208,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\Code\BackGround.cpp" />
-    <ClCompile Include="..\Code\BarkeeperNPC.cpp" />
-    <ClCompile Include="..\Code\BlacksmithNPC.cpp" />
     <ClCompile Include="..\Code\Breath.cpp" />
     <ClCompile Include="..\Code\CItem.cpp" />
     <ClCompile Include="..\Code\CItemObject.cpp" />
@@ -230,7 +225,6 @@
     <ClCompile Include="..\Code\Loading.cpp" />
     <ClCompile Include="..\Code\Logo.cpp" />
     <ClCompile Include="..\Code\MainApp.cpp" />
-    <ClCompile Include="..\Code\MarketNPC.cpp" />
     <ClCompile Include="..\Code\Monster.cpp" />
     <ClCompile Include="..\Code\MonsterBar.cpp" />
     <ClCompile Include="..\Code\MonsterHP.cpp" />

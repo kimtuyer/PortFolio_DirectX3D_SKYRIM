@@ -492,7 +492,9 @@ Engine::_int CGuardMan::Update_Object(const _float& fTimeDelta)
 
 		//Key_Input(fTimeDelta);
 
-		
+		m_bDraw = m_pOptimizationCom->Isin_FrustumForObject(&vPos);
+		if (false == m_bDraw)
+			return 0;
 
 		Add_RenderGroup(RENDER_NONALPHA, this);
 	}
@@ -504,6 +506,9 @@ void CGuardMan::Render_Object(void)
 {
 	if (m_bRenderOn)
 	{
+
+		
+
 		m_pMeshCom->Play_Animation(m_fAniTime);
 		m_fAniTime = 0.f;
 
@@ -574,6 +579,11 @@ HRESULT CGuardMan::Add_Component(wstring Mesh)
 	pComponent = m_pColliderCom = CColliderSphere::Create(m_pGraphicDev);
 	NULL_CHECK_RETURN(pComponent, E_FAIL);
 	m_mapComponent[ID_STATIC].emplace(L"Com_Collider", pComponent);
+	
+	pComponent = m_pOptimizationCom = dynamic_cast<COptimization*>(Clone_Proto(L"Proto_Optimization"));
+	NULL_CHECK_RETURN(pComponent, E_FAIL);
+	m_mapComponent[ID_STATIC].emplace(L"Com_Optimization", pComponent);
+
 	return S_OK;
 	
 }

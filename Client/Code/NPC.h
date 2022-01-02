@@ -13,6 +13,7 @@ class CCalculator;
 class CCollider;
 class CNaviMesh;
 class CColliderSphere;
+class COptimization;
 
 END
 class CNPC : public CGameObject
@@ -69,6 +70,7 @@ private:
 	CRenderer*				m_pRendererCom = nullptr;
 	CCalculator*			m_pCalculatorCom = nullptr;
 	CColliderSphere*		m_pColliderCom = nullptr;
+	COptimization*			m_pOptimizationCom = nullptr;
 
 	_vec3					m_vDir;
 	CGameObject*			m_pPlayer;
@@ -79,7 +81,9 @@ private:
 
 	int				m_iNPC_type = NPC_Type::NPC_END;
 	wstring			m_wNPC_Name;
+
 	_bool					m_bRenderOn = false;
+	_bool					m_bDraw = false;
 
 
 public:

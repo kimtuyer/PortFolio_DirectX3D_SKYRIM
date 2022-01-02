@@ -2443,24 +2443,24 @@ Engine::_int CStage::Update_Scene(const _float& fTimeDelta)
 					for (; iter1 != pNPClist.end(); iter1++)
 					{
 						int Naviindex = dynamic_cast<CNPC*>(*iter1)->Get_NaviCom()->Get_CurrentIndex();
-
+					
 						if (!Object_Culling(Naviindex, m_iCurrentArea))
 							dynamic_cast<CNPC*>(*iter1)->Set_RenderOn(false);
 						else
 							dynamic_cast<CNPC*>(*iter1)->Set_RenderOn(true);
-
-
+					
+					
 					}
 					for (; iter2 != pGuardlist.end(); iter2++)
 					{
 						int Naviindex2 = dynamic_cast<CGuardMan*>(*iter2)->Get_NaviCom()->Get_CurrentIndex();
 						
 						
-
+					
 						if (!Object_Culling(Naviindex2, m_iCurrentArea))
 						{
 							dynamic_cast<CGuardMan*>(*iter2)->Set_RenderOn(false);
-
+					
 						}
 							//dynamic_cast<CGuardMan*>(*iter2)->Set_RenderOn(false);
 						else

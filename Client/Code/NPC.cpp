@@ -148,7 +148,9 @@ Engine::_int CNPC::Update_Object(const _float& fTimeDelta)
 
 
 
-
+		m_bDraw = m_pOptimizationCom->Isin_FrustumForObject(&vPos);
+		if (false == m_bDraw)
+			return 0;
 
 		m_pMeshCom->Play_Animation(fTimeDelta);
 
@@ -161,6 +163,10 @@ void CNPC::Render_Object(void)
 {
 	if (m_bRenderOn)
 	{
+
+
+		
+
 
 	//m_pColliderCom->Render_ColliderSphere(COLLTYPE(false), m_pColliderCom->Get_CollWorldMatrix());
 
@@ -212,8 +218,13 @@ HRESULT CNPC::Add_Component(wstring Mesh)
 	pComponent = m_pColliderCom = CColliderSphere::Create(m_pGraphicDev);
 	NULL_CHECK_RETURN(pComponent, E_FAIL);
 	m_mapComponent[ID_STATIC].emplace(L"Com_Collider", pComponent);
-	return S_OK;
 	
+	pComponent = m_pOptimizationCom = dynamic_cast<COptimization*>(Clone_Proto(L"Proto_Optimization"));
+	NULL_CHECK_RETURN(pComponent, E_FAIL);
+	m_mapComponent[ID_STATIC].emplace(L"Com_Optimization", pComponent);
+
+	return S_OK;
+
 }
 
 void CNPC::Key_Input(const _float& fTimeDelta)

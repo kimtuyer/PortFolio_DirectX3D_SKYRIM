@@ -165,9 +165,6 @@
     <ClInclude Include="..\Code\CStatic_Object.h">
       <Filter>02. GameObject\09. Map</Filter>
     </ClInclude>
-    <ClInclude Include="..\Code\BlacksmithNPC.h">
-      <Filter>02. GameObject\02. Monster\00.NPC</Filter>
-    </ClInclude>
     <ClInclude Include="..\Code\GuardMan.h">
       <Filter>02. GameObject\02. Monster\00.NPC</Filter>
     </ClInclude>
@@ -194,12 +191,6 @@
     </ClInclude>
     <ClInclude Include="..\Code\MonsterHP.h">
       <Filter>02. GameObject\10.UI\Monster</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Code\BarkeeperNPC.h">
-      <Filter>02. GameObject\02. Monster\00.NPC</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Code\MarketNPC.h">
-      <Filter>02. GameObject\02. Monster\00.NPC</Filter>
     </ClInclude>
     <ClInclude Include="..\Code\Font_texture.h">
       <Filter>02. GameObject\10.UI\Font</Filter>
@@ -305,9 +296,6 @@
     <ClCompile Include="..\Code\CStatic_Object.cpp">
       <Filter>02. GameObject\09. Map</Filter>
     </ClCompile>
-    <ClCompile Include="..\Code\BlacksmithNPC.cpp">
-      <Filter>02. GameObject\02. Monster\00.NPC</Filter>
-    </ClCompile>
     <ClCompile Include="..\Code\GuardMan.cpp">
       <Filter>02. GameObject\02. Monster\00.NPC</Filter>
     </ClCompile>
@@ -334,12 +322,6 @@
     </ClCompile>
     <ClCompile Include="..\Code\MonsterHP.cpp">
       <Filter>02. GameObject\10.UI\Monster</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Code\BarkeeperNPC.cpp">
-      <Filter>02. GameObject\02. Monster\00.NPC</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Code\MarketNPC.cpp">
-      <Filter>02. GameObject\02. Monster\00.NPC</Filter>
     </ClCompile>
     <ClCompile Include="..\Code\Font_texture.cpp">
       <Filter>02. GameObject\10.UI\Font</Filter>

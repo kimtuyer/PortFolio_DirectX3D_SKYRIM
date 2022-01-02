@@ -14,6 +14,7 @@ class CCalculator;
 class CCollider;
 class CNaviMesh;
 class CColliderSphere;
+class COptimization;
 
 END
 class CGuardMan : public CGameObject
@@ -82,6 +83,7 @@ private:
 	CRenderer*				m_pRendererCom = nullptr;
 	CCalculator*			m_pCalculatorCom = nullptr;
 	CColliderSphere*		m_pColliderCom = nullptr;
+	COptimization*			m_pOptimizationCom = nullptr;
 
 	_vec3					m_vDir;
 	CGameObject*			m_pSword;
@@ -100,6 +102,8 @@ private:
 
 	int						m_iID = -1;
 	_bool					m_bRenderOn = false;
+	_bool					m_bDraw = false;
+
 	int						m_Cellindex = 0;
 	int						m_iStart = 0;
 
