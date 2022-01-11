@@ -78,7 +78,12 @@ public:
 
 	_bool	Collison_Scene(const _float& ftimeDelta);
 	int		Battle_Scene(const _float& ftimeDelta);
+
+
+
 	void	Change_BGM(const _float& ftimeDelta);
+	void	Update_GageBar(const _float& ftimeDelta);
+
 
 
 
@@ -90,6 +95,21 @@ public:
 	//_int				Update_QuestState(const _float& fTimeDelta);
 	_int				Update_SmithingWindow(const _float& fTimeDelta);
 	_int				Update_Monster_InventoryWindow(const _float& fTimeDelta);
+
+	void				Update_QuestState();
+	void				Update_QuestLocation(int iNpcCode);
+	void				Update_Input(const float& fTimeDelta);
+	void				Update_InvenWindowSelect(int InvenWindowNumber,int InvenType);
+
+	void				Update_CraftWindowOn(const _float& fTimeDelta);
+	void				Update_InvenWindowOn(const _float& fTimeDelta);
+	void				Update_ObjectCulling(const _float& fTimeDelta);
+
+	void				Render_InvenWindow();
+	void				Render_CraftWindow();
+	void				Render_QuestWindow();
+	void				Render_Dialog();
+
 
 
 	bool			Get_DialogCheck() { return DialogCheck; }
@@ -103,43 +123,16 @@ public:
 
 	void			Set_PullOn1(_bool check) { PullOn1 = check; }
 
-	bool Object_Culling(int Naviindex, int CurrentArea)
-	{
-		int Area = 0;
 
-		m_iCurrentArea = CurrentArea;
-
-		if (Naviindex >= 0 && Naviindex <= 18 || Naviindex >= 182 && Naviindex <= 199)
-		{
-			Area = 1;
-
-
-		}
-		else if (Naviindex >= 19 && Naviindex <= 73)
-		{
-			Area = 2;
-
-
-		}
-		else if (Naviindex >= 74 && Naviindex <= 128)
-		{
-			Area = 3;
-
-
-		}
-		else if (Naviindex >= 129 && Naviindex <= 181)
-		{
-			Area = 4;
-
-
-		}
-
-		if (m_iCurrentArea == Area)
-			return true;
-		else
-			return false;
-
-	}
+	int				Get_CurrentArea(int Naviindex);
+	//bool			Object_Culling(int ObjectArea, int PlayerArea)
+	//{
+	//	if (m_iCurrentArea == ObjectArea)
+	//		return true;
+	//	else
+	//		return false;
+	//
+	//}
 	void Set_CurrentArea(int i)
 	{
 		m_iCurrentArea = i;
@@ -241,7 +234,7 @@ private:
 	CGameObject*			m_pDialog;	//대화창 클래스 보유해 대화창의 몇번 대화문 선택했는지 전달해주기 위해 보유
 
 
-
+	
 public:
 	static CStage*		Create(LPDIRECT3DDEVICE9 pGraphicDev);
 

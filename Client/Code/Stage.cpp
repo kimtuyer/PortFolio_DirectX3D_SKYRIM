@@ -84,10 +84,7 @@ HRESULT CStage::Ready_Scene(void)
 
 	}
 
-	
-
 	Load_ItemInfo();
-
 	Load_QuestInfo();
 
 
@@ -104,2405 +101,51 @@ Engine::_int CStage::Update_Scene(const _float& fTimeDelta)
 	PullDelayTime += fTimeDelta;
 
 	Collison_Scene(fTimeDelta);
-
 	Change_BGM(fTimeDelta);
 
-
-	_vec3 vPos;
-	float radian;
-	list<CGameObject*> pNPClist = CManagement::GetInstance()->Get_Scene()->Get_Layer(L"GameLogic")->Get_ObjectList(OBJECT_NPC);
-
-	vector<QuestInfo> vecQuest = dynamic_cast<CDialog*>(m_pDialog)->Get_Questlist();
-	int Next_QuestID = -1;
-	int Next_NpcCode = -1;
-	for (auto p : vecQuest)
-	{
-
-
-
-		if (p.Quest_State == Quest_ON)
-		{
-			Next_QuestID = p.Quest_ID + 1;
-		}
-		if (Next_QuestID == p.Quest_ID)
-			Next_NpcCode = p.NPC_Code;
-
-	}
-	
-
-	for (auto p : pNPClist)
-		if (dynamic_cast<CNPC*>(p)->Get_NPC_Type() == Next_NpcCode)
-		{
-			CGameObject* pMap = CManagement::GetInstance()->Get_Scene()->Get_Layer(L"UI")->Get_Object(OBJECT_QuestBarMARKER);
-			dynamic_cast<CUI*>(pMap)->Set_RenderOn(true);
-
-			vPos = dynamic_cast<CNPC*>(p)->Get_Transform()->m_vInfo[INFO::INFO_POS];
-			
-			_vec3 vUp = { 0,1,0 };
-
-			_vec3 vPlayer = dynamic_cast<CPlayer*>(Get_Object(L"GameLogic", OBJECT_PLAYER))->Get_Transform()->m_vInfo[INFO::INFO_POS];
-			_vec3 vPlayerRight; 
-			D3DXVec3Cross(&vPlayerRight,&vUp,&dynamic_cast<CPlayer*>(Get_Object(L"GameLogic", OBJECT_PLAYER))->Get_Transform()->m_vInfo[INFO::INFO_LOOK]) ;
-			_vec3 vDir = vPlayer - vPos;
-			//D3DXVec3Normalize(&vDir, &vDir);
-
-			 radian = acos(D3DXVec3Dot(&vDir, &vPlayerRight))*(180 / 3.14f);
-				
-			 if (radian >= 70 && radian <= 120)
-			 {
-				 pMap = CManagement::GetInstance()->Get_Scene()->Get_Layer(L"UI")->Get_Object(OBJECT_DIR);
-				 dynamic_cast<CUI*>(pMap)->Set_RenderOn(true);
-				 dynamic_cast<CUI*>(pMap)->Set_TexIndex(3);
-				 dynamic_cast<CUI*>(pMap)->Set_SizeX(8);
-				 dynamic_cast<CUI*>(pMap)->Set_SizeY(15);	
-
-			 }
-			 if (radian >= 0 && radian < 70)
-			 {
-				 pMap = CManagement::GetInstance()->Get_Scene()->Get_Layer(L"UI")->Get_Object(OBJECT_DIR);
-				 dynamic_cast<CUI*>(pMap)->Set_RenderOn(true);
-				 dynamic_cast<CUI*>(pMap)->Set_TexIndex(0);
-
-				 dynamic_cast<CUI*>(pMap)->Set_SizeX(6);
-				 dynamic_cast<CUI*>(pMap)->Set_SizeY(15);
-			 }
-			 if (radian > 120 && radian <= 180)
-			 {
-				 pMap = CManagement::GetInstance()->Get_Scene()->Get_Layer(L"UI")->Get_Object(OBJECT_DIR);
-				 dynamic_cast<CUI*>(pMap)->Set_RenderOn(true);
-				 dynamic_cast<CUI*>(pMap)->Set_TexIndex(1);
-					
-				 dynamic_cast<CUI*>(pMap)->Set_SizeX(12);
-				 dynamic_cast<CUI*>(pMap)->Set_SizeY(15);
-			 }
-			 if ((vDir.x+vDir.z<0))
-			 {
-				 //if(radian >= 70 && radian <= 120)
-				 //
-				 //dynamic_cast<CUI*>(pMap)->Set_TexIndex(3);
-				 //
-				 //dynamic_cast<CUI*>(pMap)->Set_SizeX(8);
-				 //dynamic_cast<CUI*>(pMap)->Set_SizeY(15);
-			 }
-
-
-		}
-
-
-	
-
-
-
-
-	//m_pDialog
-	if (GetAsyncKeyState('I') & 0x0001) //인벤토리 키가 눌렸을 경우
-	{
-		CSoundMgr::Get_Instance()->PlaySound(L"ui_menu_cancel.wav", CSoundMgr::UI);
-
-		m_nIkey = true;
-		Update_InventoryScene(fTimeDelta);
-
-
-
-
-
-	}
-	if (dynamic_cast<CDialog*>(m_pDialog)->Get_InvenEnterKey()) //npc 대화문에서 인벤창보기 클릭시 !
-	{
-		Update_NPC_InventoryScene(fTimeDelta);
-		dynamic_cast<CDialog*>(m_pDialog)->Set_InvenEnterKey(false);
-
-	}
-
-	//퀘스트 창 현황 보기 !
-	if (GetAsyncKeyState('Q') & 0x0001)
-	{
-		CSoundMgr::Get_Instance()->PlaySound(L"ui_menu_cancel.wav", CSoundMgr::UI);
-
-		Update_QuestWindow(fTimeDelta);
-	}
-	if (!InvenKey &&   !CraftKey && GetAsyncKeyState('E') & 0x0001)
-	{
-		if (PullOn1 || PullOn2 || PullOn3)
-		{
-			list<CGameObject*> pList = Get_Layer(L"Environment")->Get_ObjectList(OBJECT_WALL);
-
-		
-			//obj_pullchain_down_01
-
-			int i = 0;
-			for (auto&p : pList)
-			{
-
-				if (i == 0 && PullOn1)
-				{
-					dynamic_cast<CStone*>(p)->Set_ID(OBJECT_WALL);
-					CSoundMgr::Get_Instance()->PlaySound(L"obj_pullchain_down_01.wav", CSoundMgr::UI);
-
-				}
-				if (i == 1 && PullOn2)
-				{
-					dynamic_cast<CStone*>(p)->Set_ID(OBJECT_WALL);
-					CSoundMgr::Get_Instance()->PlaySound(L"obj_pullchain_down_01.wav", CSoundMgr::UI);
-
-				}
-				if (i == 2 && PullOn3)
-				{
-					dynamic_cast<CStone*>(p)->Set_ID(OBJECT_WALL);
-					CSoundMgr::Get_Instance()->PlaySound(L"obj_pullchain_down_01.wav", CSoundMgr::UI);
-
-				}
-
-				i++;
-			}
-			//if (PullDelayTime >= 2)
-			{
-				dynamic_cast<CDynamicCamera*>(Get_Object(L"Environment", OBJECT_CAMERA))
-					->Set_POV(OBJECT_DRAGON);
-				dynamic_cast<CDragon*>(Get_Object(L"GameLogic", OBJECT_DRAGON))
-					->Set_Lever(true);
-
-			}
-
-		
-
-
-
-		}
-
-	}
-
-
-	//Smthing 제련 창 키
-	if (CraftOn &&  GetAsyncKeyState('C') & 0x0001)
-	{
-		CSoundMgr::Get_Instance()->PlaySound(L"ui_menu_cancel.wav", CSoundMgr::UI);
-		Update_SmithingWindow(fTimeDelta);
-
-	}
-	if (CraftKey) //
-
-	{
-		CLayer*	pUILayer = Get_Layer(L"UI_Inventory");
-		//dynamic_cast<CUI*>(Get_Layer(L"UI_Inventory")->Get_UI_InvenObject(UI_INVENTORY_Window0))
-
-		CGameObject*	pGameObject = nullptr;
-		if (GetAsyncKeyState(VK_UP) & 0x0001)
-		{
-
-			// if (Inven_Window_SelectKey == UI_INVENTORY_Window1)//윈도우 1번창 에서  아이템 선택시
-			{
-
-
-				--InvenItemSelectKey;
-
-				if ((!dynamic_cast<CPlayer*>(Get_Object(L"GameLogic", OBJECT_PLAYER))->Get_Inventory().empty()))
-				{
-
-
-					vector<ItemInfo>& PlayerItem = dynamic_cast<CPlayer*>(Get_Object(L"GameLogic", OBJECT_PLAYER))->Get_Inventory();
-					for (int i = 0; i < PlayerItem.size(); ++i)
-					{
-						if (PlayerItem[i].Item_Type == ITEM_Type::ITEM_WEAPON || PlayerItem[i].Item_Type == ITEM_Type::ITEM_MISC)
-						{
-
-
-							if (InvenItemSelectKey < 0)
-								InvenItemSelectKey = 0;
-
-
-							if (InvenItemSelectKey == i)
-							{
-								InvenItemSelectKey = i;
-
-								(pGameObject) = pUILayer->Get_UI_InvenObject(UI_INVENTORY_ITEMMESH);
-								dynamic_cast<CItemObject*>(pGameObject)->Set_TextureIndex(PlayerItem[i].Item_Code);
-
-
-								dynamic_cast<CItemObject*>(pGameObject)->Set_fX_Item(590);
-								dynamic_cast<CItemObject*>(pGameObject)->Set_fY(250);
-								dynamic_cast<CItemObject*>(pGameObject)->Set_scaleX(0.4);
-								dynamic_cast<CItemObject*>(pGameObject)->Set_scaleY(0.4);
-
-
-								if (PlayerItem[i].Item_Code == 0)
-								{
-
-
-									dynamic_cast<CItemObject*>(pGameObject)->Set_SizeX(200);
-									dynamic_cast<CItemObject*>(pGameObject)->Set_SizeY(300);
-
-								}
-								if (PlayerItem[i].Item_Code == 1)
-								{
-									dynamic_cast<CItemObject*>(pGameObject)->Set_fX_Item(590);
-									dynamic_cast<CItemObject*>(pGameObject)->Set_fY(250);
-									dynamic_cast<CItemObject*>(pGameObject)->Set_scaleX(0.3);
-									dynamic_cast<CItemObject*>(pGameObject)->Set_scaleY(0.3);
-
-
-									dynamic_cast<CItemObject*>(pGameObject)->Set_SizeX(284);
-									dynamic_cast<CItemObject*>(pGameObject)->Set_SizeY(300);
-
-								}
-								if (PlayerItem[i].Item_Code == 2)
-								{
-									dynamic_cast<CItemObject*>(pGameObject)->Set_fX_Item(590);
-									dynamic_cast<CItemObject*>(pGameObject)->Set_fY(250);
-									dynamic_cast<CItemObject*>(pGameObject)->Set_scaleX(0.3);
-									dynamic_cast<CItemObject*>(pGameObject)->Set_scaleY(0.3);
-
-									dynamic_cast<CItemObject*>(pGameObject)->Set_SizeX(210);
-									dynamic_cast<CItemObject*>(pGameObject)->Set_SizeY(240);
-
-								}
-								if (PlayerItem[i].Item_Code == 3)
-								{
-
-									dynamic_cast<CItemObject*>(pGameObject)->Set_fX_Item(590);
-									dynamic_cast<CItemObject*>(pGameObject)->Set_fY(250);
-									dynamic_cast<CItemObject*>(pGameObject)->Set_scaleX(0.3);
-									dynamic_cast<CItemObject*>(pGameObject)->Set_scaleY(0.3);
-									dynamic_cast<CItemObject*>(pGameObject)->Set_SizeX(320);
-									dynamic_cast<CItemObject*>(pGameObject)->Set_SizeY(190);
-
-								}
-								if (PlayerItem[i].Item_Code == 4)
-								{
-									dynamic_cast<CItemObject*>(pGameObject)->Set_fX_Item(590);
-									dynamic_cast<CItemObject*>(pGameObject)->Set_fY(250);
-									dynamic_cast<CItemObject*>(pGameObject)->Set_scaleX(0.3);
-									dynamic_cast<CItemObject*>(pGameObject)->Set_scaleY(0.3);
-
-									dynamic_cast<CItemObject*>(pGameObject)->Set_SizeX(120);
-									dynamic_cast<CItemObject*>(pGameObject)->Set_SizeY(580);
-
-								}
-								if (PlayerItem[i].Item_Code == 5)
-								{
-									dynamic_cast<CItemObject*>(pGameObject)->Set_fX_Item(590);
-									dynamic_cast<CItemObject*>(pGameObject)->Set_fY(250);
-									dynamic_cast<CItemObject*>(pGameObject)->Set_scaleX(0.3);
-									dynamic_cast<CItemObject*>(pGameObject)->Set_scaleY(0.3);
-
-									dynamic_cast<CItemObject*>(pGameObject)->Set_SizeX(90);
-									dynamic_cast<CItemObject*>(pGameObject)->Set_SizeY(490);
-
-								}
-								if (PlayerItem[i].Item_Code == 6)
-								{
-									dynamic_cast<CItemObject*>(pGameObject)->Set_fX_Item(590);
-									dynamic_cast<CItemObject*>(pGameObject)->Set_fY(250);
-									dynamic_cast<CItemObject*>(pGameObject)->Set_scaleX(0.3);
-									dynamic_cast<CItemObject*>(pGameObject)->Set_scaleY(0.3);
-
-									dynamic_cast<CItemObject*>(pGameObject)->Set_SizeX(90);
-									dynamic_cast<CItemObject*>(pGameObject)->Set_SizeY(490);
-
-								}
-
-
-
-							}
-
-
-						}
-					}
-				}
-
-
-
-			}
-
-
-
-
-		}
-		if (GetAsyncKeyState(VK_DOWN) & 0x0001)
-		{
-
-			// if (Inven_Window_SelectKey == UI_INVENTORY_Window1) //윈도우 두번째창 에서  아이템 선택시 >>여기서 아이템 정보창 + 아이템 텍스처 이미지에 필요한 정보 삽입해야함.
-			{
-				++InvenItemSelectKey;
-				if ((!dynamic_cast<CPlayer*>(Get_Object(L"GameLogic", OBJECT_PLAYER))->Get_Inventory().empty())
-					)
-				{
-					vector<ItemInfo>& PlayerItem = dynamic_cast<CPlayer*>(Get_Object(L"GameLogic", OBJECT_PLAYER))->Get_Inventory();
-					for (int i = 0; i < PlayerItem.size(); ++i)
-					{
-						if (PlayerItem[i].Item_Type == ITEM_Type::ITEM_WEAPON)
-						{
-
-
-
-							if (InvenItemSelectKey == PlayerItem.size())
-								InvenItemSelectKey -= 1;
-
-
-							if (InvenItemSelectKey == i)
-							{
-								InvenItemSelectKey = i;
-								//아이템 정보창으로 아이템 데이터 전달,  아이템 이름값을 mesh proto 텍스처 정보에도 전달
-
-								(pGameObject) = pUILayer->Get_UI_InvenObject(UI_INVENTORY_ITEMMESH);
-								dynamic_cast<CItemObject*>(pGameObject)->Set_TextureIndex(PlayerItem[i].Item_Code);
-
-								dynamic_cast<CItemObject*>(pGameObject)->Set_fX_Item(590);
-								dynamic_cast<CItemObject*>(pGameObject)->Set_fY(250);
-								dynamic_cast<CItemObject*>(pGameObject)->Set_scaleX(0.4);
-								dynamic_cast<CItemObject*>(pGameObject)->Set_scaleY(0.4);
-
-
-								if (PlayerItem[i].Item_Code == 0)
-								{
-
-
-									dynamic_cast<CItemObject*>(pGameObject)->Set_SizeX(200);
-									dynamic_cast<CItemObject*>(pGameObject)->Set_SizeY(300);
-									break;
-
-								}
-								if (PlayerItem[i].Item_Code == 1)
-								{
-									dynamic_cast<CItemObject*>(pGameObject)->Set_fX_Item(590);
-									dynamic_cast<CItemObject*>(pGameObject)->Set_fY(250);
-									dynamic_cast<CItemObject*>(pGameObject)->Set_scaleX(0.3);
-									dynamic_cast<CItemObject*>(pGameObject)->Set_scaleY(0.3);
-
-									dynamic_cast<CItemObject*>(pGameObject)->Set_SizeX(250);
-									dynamic_cast<CItemObject*>(pGameObject)->Set_SizeY(290);
-									break;
-
-								}
-								if (PlayerItem[i].Item_Code == 2)
-								{
-									dynamic_cast<CItemObject*>(pGameObject)->Set_fX_Item(590);
-									dynamic_cast<CItemObject*>(pGameObject)->Set_fY(250);
-									dynamic_cast<CItemObject*>(pGameObject)->Set_scaleX(0.3);
-									dynamic_cast<CItemObject*>(pGameObject)->Set_scaleY(0.3);
-
-									dynamic_cast<CItemObject*>(pGameObject)->Set_SizeX(210);
-									dynamic_cast<CItemObject*>(pGameObject)->Set_SizeY(240);
-									break;
-
-								}
-								if (PlayerItem[i].Item_Code == 3)
-								{
-									dynamic_cast<CItemObject*>(pGameObject)->Set_fX_Item(590);
-									dynamic_cast<CItemObject*>(pGameObject)->Set_fY(250);
-									dynamic_cast<CItemObject*>(pGameObject)->Set_scaleX(0.3);
-									dynamic_cast<CItemObject*>(pGameObject)->Set_scaleY(0.3);
-
-									dynamic_cast<CItemObject*>(pGameObject)->Set_SizeX(320);
-									dynamic_cast<CItemObject*>(pGameObject)->Set_SizeY(190);
-									break;
-
-								}
-								if (PlayerItem[i].Item_Code == 4)
-								{
-									dynamic_cast<CItemObject*>(pGameObject)->Set_fX_Item(590);
-									dynamic_cast<CItemObject*>(pGameObject)->Set_fY(250);
-									dynamic_cast<CItemObject*>(pGameObject)->Set_scaleX(0.3);
-									dynamic_cast<CItemObject*>(pGameObject)->Set_scaleY(0.3);
-
-									dynamic_cast<CItemObject*>(pGameObject)->Set_SizeX(120);
-									dynamic_cast<CItemObject*>(pGameObject)->Set_SizeY(580);
-									break;
-
-								}
-								if (PlayerItem[i].Item_Code == 5)
-								{
-									dynamic_cast<CItemObject*>(pGameObject)->Set_fX_Item(590);
-									dynamic_cast<CItemObject*>(pGameObject)->Set_fY(250);
-									dynamic_cast<CItemObject*>(pGameObject)->Set_scaleX(0.3);
-									dynamic_cast<CItemObject*>(pGameObject)->Set_scaleY(0.3);
-
-									dynamic_cast<CItemObject*>(pGameObject)->Set_SizeX(90);
-									dynamic_cast<CItemObject*>(pGameObject)->Set_SizeY(490);
-									break;
-
-								}
-								if (PlayerItem[i].Item_Code == 6)
-								{
-									dynamic_cast<CItemObject*>(pGameObject)->Set_fX_Item(590);
-									dynamic_cast<CItemObject*>(pGameObject)->Set_fY(250);
-									dynamic_cast<CItemObject*>(pGameObject)->Set_scaleX(0.3);
-									dynamic_cast<CItemObject*>(pGameObject)->Set_scaleY(0.3);
-
-									dynamic_cast<CItemObject*>(pGameObject)->Set_SizeX(90);
-									dynamic_cast<CItemObject*>(pGameObject)->Set_SizeY(490);
-									break;
-
-								}
-
-
-
-							}
-
-						}
-					}
-
-				}
-
-			
-
-
-
-			}
-
-
-		}
-		else if (GetAsyncKeyState('E') &0x0001 &&  CraftKey) //선댁한 아이템 제련할건지 물음!
-		{
-
-
-			m_bEKey = true;
-
-			dynamic_cast<CUI*>(Get_Layer(L"UI_Inventory")->Get_UI_InvenObject(UI_INVENTORY_CraftWindow))->Set_RenderOn(true);
-			dynamic_cast<CUI*>(Get_Layer(L"UI_Inventory")->Get_UI_InvenObject(UI_INVENTORY_CraftWindow))->Set_fX2(380);
-			dynamic_cast<CUI*>(Get_Layer(L"UI_Inventory")->Get_UI_InvenObject(UI_INVENTORY_CraftWindow))->Set_fY(330);
-
-
-			pGameObject = dynamic_cast<CUI*>(Get_Layer(L"UI_Inventory")->Get_UI_InvenObject(UI_INVENTORY_Enter));
-			dynamic_cast<CUI*>(pGameObject)->Set_RenderOn(true);
-			dynamic_cast<CUI*>(pGameObject)->Set_fX2(270);
-			dynamic_cast<CUI*>(pGameObject)->Set_fY(350);
-			dynamic_cast<CUI*>(pGameObject)->Set_scaleX(0.4);
-			dynamic_cast<CUI*>(pGameObject)->Set_scaleY(0.4);
-
-			pGameObject = dynamic_cast<CUI*>(Get_Layer(L"UI_Inventory")->Get_UI_InvenObject(UI_INVENTORY_Tab));
-			dynamic_cast<CUI*>(pGameObject)->Set_RenderOn(true);
-			dynamic_cast<CUI*>(pGameObject)->Set_fX2(420);
-			dynamic_cast<CUI*>(pGameObject)->Set_fY(350);
-			dynamic_cast<CUI*>(pGameObject)->Set_scaleX(0.4);
-			dynamic_cast<CUI*>(pGameObject)->Set_scaleY(0.4);
-
-
-
-
-		}
-
-		else if (GetAsyncKeyState(VK_RETURN) & 0x0001 && m_bEKey) //선댁한 아이템 제련 진행!
-		{
-		CSoundMgr::Get_Instance()->PlaySound(L"npc_human_blacksmith_forge_take_01.wav", CSoundMgr::UI_Effect);
-
-		++ItemPopCount;
-		int itemcode = 0;
-		dynamic_cast<CUI*>(Get_Layer(L"UI_Inventory")->Get_UI_InvenObject(UI_INVENTORY_CraftWindow))->Set_RenderOn(false);
-		dynamic_cast<CUI*>(Get_Layer(L"UI_Inventory")->Get_UI_InvenObject(UI_INVENTORY_Enter))->Set_RenderOn(false);
-		dynamic_cast<CUI*>(Get_Layer(L"UI_Inventory")->Get_UI_InvenObject(UI_INVENTORY_Tab))->Set_RenderOn(false);
-		
-
-
-		m_bEKey = false;
-
-		dynamic_cast<CDialog*>(m_pDialog)->Set_QuestState(NPC_Type::NPC_Forge, QUEST_State::Quest_Complete);
-	
-		vector<QuestInfo> Questlist = dynamic_cast<CDialog*>(m_pDialog)->Get_Questlist();
-
-		dynamic_cast<CDialog*>(m_pDialog)->Set_QuestlistState(NPC_Forge, Quest_Complete);
-
-		dynamic_cast<CDialog*>(m_pDialog)->Set_QuestlistState(NPC_Blacksmith, Quest_Complete);
-
-
-
-		for (auto&p : Questlist)
-		{
-			if (p.NPC_Code == NPC_Forge)
-			{
-				p.Quest_State = Quest_Complete;
-			}
-		}
-
-
-
-		vector<ItemInfo>pList = dynamic_cast<CPlayer*>(Get_Object(L"GameLogic", OBJECT_PLAYER))->Get_Inventory();
-		for(auto p: pList)
-			if (p.Item_Type == ITEM_Type::ITEM_WEAPON)
-			{
-				itemcode = p.Item_Code;
-			}
-
-
-		if (ItemPopCount == 1)
-		{
-		dynamic_cast<CPlayer*>(Get_Object(L"GameLogic", OBJECT_PLAYER))->Pop_Item();
-		dynamic_cast<CPlayer*>(Get_Object(L"GameLogic", OBJECT_PLAYER))->Strength_Item(itemcode, 100, 1000);
-		}
-
-		//재 호출해서 현재 제련창 닫기!
-		Update_SmithingWindow(fTimeDelta);
-		CraftOn = false;
-
-
-
-
-			//제련후 아이템 스탯, 가치 증가 , 아이템 윈도우 이름 옆 () 등급 추가!
-			//퀘스트 1 : 완료되었다고 퀘스트상태 수정!
-
-
-
-		}
-
-
-
-
-
-	}
-	//Smthing 제련 창 키
-	if (DragonInvenKey &&  GetAsyncKeyState('A') & 0x0001)
-	{
-		CSoundMgr::Get_Instance()->PlaySound(L"ui_menu_cancel.wav", CSoundMgr::UI);
-		Update_Monster_InventoryWindow(fTimeDelta);
-
-	}
-	if (Searchkey) //
-
-	{
-		CLayer*	pUILayer = Get_Layer(L"UI_Inventory");
-		//dynamic_cast<CUI*>(Get_Layer(L"UI_Inventory")->Get_UI_InvenObject(UI_INVENTORY_Window0))
-
-		CGameObject*	pGameObject = nullptr;
-		if (GetAsyncKeyState(VK_UP) & 0x0001)
-		{
-
-			// if (Inven_Window_SelectKey == UI_INVENTORY_Window1)//윈도우 1번창 에서  아이템 선택시
-			{
-
-
-				--InvenItemSelectKey;
-
-				if ((!dynamic_cast<CDragon*>(Get_Object(L"GameLogic", OBJECT_DRAGON))->Get_Inventory().empty()))
-				{
-
-
-					vector<ItemInfo>& DragonItem = dynamic_cast<CDragon*>(Get_Object(L"GameLogic", OBJECT_DRAGON))->Get_Inventory();
-					for (int i = 0; i < DragonItem.size(); ++i)
-					{
-						if (DragonItem[i].Item_Type == ITEM_Type::ITEM_WEAPON || DragonItem[i].Item_Type == ITEM_Type::ITEM_MISC)
-						{
-
-
-							if (InvenItemSelectKey < 0)
-								InvenItemSelectKey = 0;
-
-
-							if (InvenItemSelectKey == i)
-							{
-								InvenItemSelectKey = i;
-
-								(pGameObject) = pUILayer->Get_UI_InvenObject(UI_INVENTORY_ITEMMESH);
-								dynamic_cast<CItemObject*>(pGameObject)->Set_TextureIndex(DragonItem[i].Item_Code);
-
-
-								dynamic_cast<CItemObject*>(pGameObject)->Set_fX_Item(590);
-								dynamic_cast<CItemObject*>(pGameObject)->Set_fY(250);
-								dynamic_cast<CItemObject*>(pGameObject)->Set_scaleX(0.4);
-								dynamic_cast<CItemObject*>(pGameObject)->Set_scaleY(0.4);
-
-
-								if (DragonItem[i].Item_Code == 0)
-								{
-
-
-									dynamic_cast<CItemObject*>(pGameObject)->Set_SizeX(200);
-									dynamic_cast<CItemObject*>(pGameObject)->Set_SizeY(300);
-
-								}
-								if (DragonItem[i].Item_Code == 1)
-								{
-									dynamic_cast<CItemObject*>(pGameObject)->Set_fX_Item(590);
-									dynamic_cast<CItemObject*>(pGameObject)->Set_fY(250);
-									dynamic_cast<CItemObject*>(pGameObject)->Set_scaleX(0.3);
-									dynamic_cast<CItemObject*>(pGameObject)->Set_scaleY(0.3);
-
-
-									dynamic_cast<CItemObject*>(pGameObject)->Set_SizeX(284);
-									dynamic_cast<CItemObject*>(pGameObject)->Set_SizeY(300);
-
-								}
-								if (DragonItem[i].Item_Code == 2)
-								{
-									dynamic_cast<CItemObject*>(pGameObject)->Set_fX_Item(590);
-									dynamic_cast<CItemObject*>(pGameObject)->Set_fY(250);
-									dynamic_cast<CItemObject*>(pGameObject)->Set_scaleX(0.3);
-									dynamic_cast<CItemObject*>(pGameObject)->Set_scaleY(0.3);
-
-									dynamic_cast<CItemObject*>(pGameObject)->Set_SizeX(210);
-									dynamic_cast<CItemObject*>(pGameObject)->Set_SizeY(240);
-
-								}
-								if (DragonItem[i].Item_Code == 3)
-								{
-
-									dynamic_cast<CItemObject*>(pGameObject)->Set_fX_Item(590);
-									dynamic_cast<CItemObject*>(pGameObject)->Set_fY(250);
-									dynamic_cast<CItemObject*>(pGameObject)->Set_scaleX(0.3);
-									dynamic_cast<CItemObject*>(pGameObject)->Set_scaleY(0.3);
-									dynamic_cast<CItemObject*>(pGameObject)->Set_SizeX(320);
-									dynamic_cast<CItemObject*>(pGameObject)->Set_SizeY(190);
-
-								}
-								if (DragonItem[i].Item_Code == 4)
-								{
-									dynamic_cast<CItemObject*>(pGameObject)->Set_fX_Item(590);
-									dynamic_cast<CItemObject*>(pGameObject)->Set_fY(250);
-									dynamic_cast<CItemObject*>(pGameObject)->Set_scaleX(0.3);
-									dynamic_cast<CItemObject*>(pGameObject)->Set_scaleY(0.3);
-
-									dynamic_cast<CItemObject*>(pGameObject)->Set_SizeX(120);
-									dynamic_cast<CItemObject*>(pGameObject)->Set_SizeY(580);
-
-								}
-								if (DragonItem[i].Item_Code == 5)
-								{
-									dynamic_cast<CItemObject*>(pGameObject)->Set_fX_Item(590);
-									dynamic_cast<CItemObject*>(pGameObject)->Set_fY(250);
-									dynamic_cast<CItemObject*>(pGameObject)->Set_scaleX(0.3);
-									dynamic_cast<CItemObject*>(pGameObject)->Set_scaleY(0.3);
-
-									dynamic_cast<CItemObject*>(pGameObject)->Set_SizeX(90);
-									dynamic_cast<CItemObject*>(pGameObject)->Set_SizeY(490);
-
-								}
-								if (DragonItem[i].Item_Code == 6)
-								{
-									dynamic_cast<CItemObject*>(pGameObject)->Set_fX_Item(590);
-									dynamic_cast<CItemObject*>(pGameObject)->Set_fY(250);
-									dynamic_cast<CItemObject*>(pGameObject)->Set_scaleX(0.3);
-									dynamic_cast<CItemObject*>(pGameObject)->Set_scaleY(0.3);
-
-									dynamic_cast<CItemObject*>(pGameObject)->Set_SizeX(90);
-									dynamic_cast<CItemObject*>(pGameObject)->Set_SizeY(490);
-
-								}
-
-
-
-							}
-
-
-						}
-					}
-				}
-
-
-
-			}
-
-
-
-
-		}
-		if (GetAsyncKeyState(VK_DOWN) & 0x0001)
-		{
-
-			// if (Inven_Window_SelectKey == UI_INVENTORY_Window1) //윈도우 두번째창 에서  아이템 선택시 >>여기서 아이템 정보창 + 아이템 텍스처 이미지에 필요한 정보 삽입해야함.
-			{
-				++InvenItemSelectKey;
-				if ((!dynamic_cast<CDragon*>(Get_Object(L"GameLogic", OBJECT_DRAGON))->Get_Inventory().empty())
-					)
-				{
-					vector<ItemInfo>& DragonItem = dynamic_cast<CDragon*>(Get_Object(L"GameLogic", OBJECT_DRAGON))->Get_Inventory();
-					for (int i = 0; i < DragonItem.size(); ++i)
-					{
-						if (DragonItem[i].Item_Type == ITEM_Type::ITEM_WEAPON)
-						{
-
-
-
-							if (InvenItemSelectKey == DragonItem.size())
-								InvenItemSelectKey -= 1;
-
-
-							if (InvenItemSelectKey == i)
-							{
-								InvenItemSelectKey = i;
-								//아이템 정보창으로 아이템 데이터 전달,  아이템 이름값을 mesh proto 텍스처 정보에도 전달
-
-								(pGameObject) = pUILayer->Get_UI_InvenObject(UI_INVENTORY_ITEMMESH);
-								dynamic_cast<CItemObject*>(pGameObject)->Set_TextureIndex(DragonItem[i].Item_Code);
-
-								dynamic_cast<CItemObject*>(pGameObject)->Set_fX_Item(590);
-								dynamic_cast<CItemObject*>(pGameObject)->Set_fY(250);
-								dynamic_cast<CItemObject*>(pGameObject)->Set_scaleX(0.4);
-								dynamic_cast<CItemObject*>(pGameObject)->Set_scaleY(0.4);
-
-
-								if (DragonItem[i].Item_Code == 0)
-								{
-
-
-									dynamic_cast<CItemObject*>(pGameObject)->Set_SizeX(200);
-									dynamic_cast<CItemObject*>(pGameObject)->Set_SizeY(300);
-									break;
-
-								}
-								if (DragonItem[i].Item_Code == 1)
-								{
-									dynamic_cast<CItemObject*>(pGameObject)->Set_fX_Item(590);
-									dynamic_cast<CItemObject*>(pGameObject)->Set_fY(250);
-									dynamic_cast<CItemObject*>(pGameObject)->Set_scaleX(0.3);
-									dynamic_cast<CItemObject*>(pGameObject)->Set_scaleY(0.3);
-
-									dynamic_cast<CItemObject*>(pGameObject)->Set_SizeX(250);
-									dynamic_cast<CItemObject*>(pGameObject)->Set_SizeY(290);
-									break;
-
-								}
-								if (DragonItem[i].Item_Code == 2)
-								{
-									dynamic_cast<CItemObject*>(pGameObject)->Set_fX_Item(590);
-									dynamic_cast<CItemObject*>(pGameObject)->Set_fY(250);
-									dynamic_cast<CItemObject*>(pGameObject)->Set_scaleX(0.3);
-									dynamic_cast<CItemObject*>(pGameObject)->Set_scaleY(0.3);
-
-									dynamic_cast<CItemObject*>(pGameObject)->Set_SizeX(210);
-									dynamic_cast<CItemObject*>(pGameObject)->Set_SizeY(240);
-									break;
-
-								}
-								if (DragonItem[i].Item_Code == 3)
-								{
-									dynamic_cast<CItemObject*>(pGameObject)->Set_fX_Item(590);
-									dynamic_cast<CItemObject*>(pGameObject)->Set_fY(250);
-									dynamic_cast<CItemObject*>(pGameObject)->Set_scaleX(0.3);
-									dynamic_cast<CItemObject*>(pGameObject)->Set_scaleY(0.3);
-
-									dynamic_cast<CItemObject*>(pGameObject)->Set_SizeX(320);
-									dynamic_cast<CItemObject*>(pGameObject)->Set_SizeY(190);
-									break;
-
-								}
-								if (DragonItem[i].Item_Code == 4)
-								{
-									dynamic_cast<CItemObject*>(pGameObject)->Set_fX_Item(590);
-									dynamic_cast<CItemObject*>(pGameObject)->Set_fY(250);
-									dynamic_cast<CItemObject*>(pGameObject)->Set_scaleX(0.3);
-									dynamic_cast<CItemObject*>(pGameObject)->Set_scaleY(0.3);
-
-									dynamic_cast<CItemObject*>(pGameObject)->Set_SizeX(120);
-									dynamic_cast<CItemObject*>(pGameObject)->Set_SizeY(580);
-									break;
-
-								}
-								if (DragonItem[i].Item_Code == 5)
-								{
-									dynamic_cast<CItemObject*>(pGameObject)->Set_fX_Item(590);
-									dynamic_cast<CItemObject*>(pGameObject)->Set_fY(250);
-									dynamic_cast<CItemObject*>(pGameObject)->Set_scaleX(0.3);
-									dynamic_cast<CItemObject*>(pGameObject)->Set_scaleY(0.3);
-
-									dynamic_cast<CItemObject*>(pGameObject)->Set_SizeX(90);
-									dynamic_cast<CItemObject*>(pGameObject)->Set_SizeY(490);
-									break;
-
-								}
-								if (DragonItem[i].Item_Code == 6)
-								{
-									dynamic_cast<CItemObject*>(pGameObject)->Set_fX_Item(590);
-									dynamic_cast<CItemObject*>(pGameObject)->Set_fY(250);
-									dynamic_cast<CItemObject*>(pGameObject)->Set_scaleX(0.3);
-									dynamic_cast<CItemObject*>(pGameObject)->Set_scaleY(0.3);
-
-									dynamic_cast<CItemObject*>(pGameObject)->Set_SizeX(90);
-									dynamic_cast<CItemObject*>(pGameObject)->Set_SizeY(490);
-									break;
-
-								}
-
-
-
-							}
-
-						}
-					}
-
-				}
-
-
-
-
-
-			}
-
-
-		}
-		else if (GetAsyncKeyState('E') & 0x0001 && Searchkey) //선댁한 아이템 인벤토리에 넣을건지
-		{
-
-
-			m_bEKey = true;
-
-			dynamic_cast<CUI*>(Get_Layer(L"UI_Inventory")->Get_UI_InvenObject(UI_INVENTORY_CraftWindow))->Set_RenderOn(true);
-			dynamic_cast<CUI*>(Get_Layer(L"UI_Inventory")->Get_UI_InvenObject(UI_INVENTORY_CraftWindow))->Set_fX2(380);
-			dynamic_cast<CUI*>(Get_Layer(L"UI_Inventory")->Get_UI_InvenObject(UI_INVENTORY_CraftWindow))->Set_fY(330);
-
-
-			pGameObject = dynamic_cast<CUI*>(Get_Layer(L"UI_Inventory")->Get_UI_InvenObject(UI_INVENTORY_Enter));
-			dynamic_cast<CUI*>(pGameObject)->Set_RenderOn(true);
-			dynamic_cast<CUI*>(pGameObject)->Set_fX2(270);
-			dynamic_cast<CUI*>(pGameObject)->Set_fY(350);
-			dynamic_cast<CUI*>(pGameObject)->Set_scaleX(0.4);
-			dynamic_cast<CUI*>(pGameObject)->Set_scaleY(0.4);
-
-			pGameObject = dynamic_cast<CUI*>(Get_Layer(L"UI_Inventory")->Get_UI_InvenObject(UI_INVENTORY_Tab));
-			dynamic_cast<CUI*>(pGameObject)->Set_RenderOn(true);
-			dynamic_cast<CUI*>(pGameObject)->Set_fX2(420);
-			dynamic_cast<CUI*>(pGameObject)->Set_fY(350);
-			dynamic_cast<CUI*>(pGameObject)->Set_scaleX(0.4);
-			dynamic_cast<CUI*>(pGameObject)->Set_scaleY(0.4);
-
-
-
-
-		}
-
-		else if (GetAsyncKeyState(VK_RETURN) & 0x0001 && m_bEKey) //선댁한 아이템 제련 진행!
-		{
-			CSoundMgr::Get_Instance()->PlaySound(L"npc_human_blacksmith_forge_take_01.wav", CSoundMgr::UI_Effect);
-
-			++ItemPopCount;
-			int itemcode = 0;
-			dynamic_cast<CUI*>(Get_Layer(L"UI_Inventory")->Get_UI_InvenObject(UI_INVENTORY_CraftWindow))->Set_RenderOn(false);
-			dynamic_cast<CUI*>(Get_Layer(L"UI_Inventory")->Get_UI_InvenObject(UI_INVENTORY_Enter))->Set_RenderOn(false);
-			dynamic_cast<CUI*>(Get_Layer(L"UI_Inventory")->Get_UI_InvenObject(UI_INVENTORY_Tab))->Set_RenderOn(false);
-
-
-
-			m_bEKey = false;
-
-			dynamic_cast<CDialog*>(m_pDialog)->Set_QuestState(NPC_Type::NPC_Forge, QUEST_State::Quest_Complete);
-
-			vector<QuestInfo> Questlist = dynamic_cast<CDialog*>(m_pDialog)->Get_Questlist();
-
-			dynamic_cast<CDialog*>(m_pDialog)->Set_QuestlistState(NPC_Forge, Quest_Complete);
-
-			dynamic_cast<CDialog*>(m_pDialog)->Set_QuestlistState(NPC_Blacksmith, Quest_Complete);
-
-
-
-			for (auto&p : Questlist)
-			{
-				if (p.NPC_Code == NPC_Forge)
-				{
-					p.Quest_State = Quest_Complete;
-				}
-			}
-
-
-
-			vector<ItemInfo>pList = dynamic_cast<CPlayer*>(Get_Object(L"GameLogic", OBJECT_PLAYER))->Get_Inventory();
-			for (auto p : pList)
-				if (p.Item_Type == ITEM_Type::ITEM_WEAPON)
-				{
-					itemcode = p.Item_Code;
-				}
-
-
-			if (ItemPopCount == 1)
-			{
-				dynamic_cast<CPlayer*>(Get_Object(L"GameLogic", OBJECT_PLAYER))->Pop_Item();
-				dynamic_cast<CPlayer*>(Get_Object(L"GameLogic", OBJECT_PLAYER))->Strength_Item(itemcode, 100, 1000);
-			}
-
-			//재 호출해서 현재 제련창 닫기!
-			Update_SmithingWindow(fTimeDelta);
-			CraftOn = false;
-
-
-
-
-			//제련후 아이템 스탯, 가치 증가 , 아이템 윈도우 이름 옆 () 등급 추가!
-			//퀘스트 1 : 완료되었다고 퀘스트상태 수정!
-
-
-
-		}
-
-
-
-
-
-	}
-
-
-
-
-
-
-
-	if (QuestKey) //퀘스트창 열린 상태
-	{
-
-
-
-
-	}
-
-
-
-
-
-	if (InvenKey)
-
-	{
-
-		CLayer*		pUILayer = Get_Layer(L"UI_Inventory");
-
-		CGameObject*			pGameObject = nullptr;
-
-		if (GetAsyncKeyState(VK_UP) & 0x0001)
-		{
-			CSoundMgr::Get_Instance()->PlaySound(L"ui_select_on.wav", CSoundMgr::UI);
-
-			if (Inven_Window_SelectKey == 0) //0번 윈도우 창 일때 , 플레이어 혼자만 볼시
-			{
-				--InvenSelectKey;
-
-				//if 현재 플레이어가 선택하고 있는창이 window0 인지 window1인지 식별후 각 창에 맞는 텍스처키 선택할수있게 해야함
-				for (int i = UI_INVENTORY_ALL; i <= UI_INVENTORY_POTION; i++) //All~ Potion 까지 선택할수 있게
-
-				{
-
-					if (InvenSelectKey < UI_INVENTORY_ALL)
-					{
-						InvenSelectKey = UI_INVENTORY_ALL;
-						break;
-					}
-
-					if (InvenSelectKey == i)
-					{
-
-						(pGameObject) = pUILayer->Get_UI_InvenObject(i);
-						dynamic_cast<CFont_Texture*>(pGameObject)->Set_TextureIndex(1);  //현재 선택한 창, 밝게
-
-						(pGameObject) = pUILayer->Get_UI_InvenObject(i + 1);
-						dynamic_cast<CFont_Texture*>(pGameObject)->Set_TextureIndex(0); //이전 선택창 다시 어둡게!
-
-
-
-					}
-
-				}
-			}
-			else if (Inven_Window_SelectKey == UI_INVENTORY_Window3)// 0번 윈도우창이 npc/플레이어 인벤 정보 모두 포함하는 창일시
-
-			{
-				--InvenSelectKey;
-				for (int i = UI_INVENTORY_NPC_ALL; i <= UI_INVENTORY_POTION; i++) //All~ Potion 까지 선택할수 있게
-				{
-					if (InvenSelectKey < UI_INVENTORY_NPC_ALL)
-					{
-						InvenSelectKey = UI_INVENTORY_NPC_ALL;
-						break;
-					}
-
-					if (InvenSelectKey == i)
-					{
-
-						(pGameObject) = pUILayer->Get_UI_InvenObject(i);
-						dynamic_cast<CFont_Texture*>(pGameObject)->Set_TextureIndex(1);  //현재 선택한 창, 밝게
-
-						(pGameObject) = pUILayer->Get_UI_InvenObject(i + 1);
-						dynamic_cast<CFont_Texture*>(pGameObject)->Set_TextureIndex(0); //이전 선택창 다시 어둡게!
-
-
-
-					}
-
-
-				}
-
-
-
-			}
-			else if (Inven_Window_SelectKey == UI_INVENTORY_Window1)//윈도우 1번창 에서  아이템 선택시
-			{
-
-
-				--InvenItemSelectKey;
-
-				if (Inven_ItemWindow_Type == UI_INVENTORY_Player && (!dynamic_cast<CPlayer*>(Get_Object(L"GameLogic", OBJECT_PLAYER))->Get_Inventory().empty()))
-				{
-
-
-					vector<ItemInfo>& PlayerItem = dynamic_cast<CPlayer*>(Get_Object(L"GameLogic", OBJECT_PLAYER))->Get_Inventory();
-					for (int i = 0; i < PlayerItem.size(); ++i)
-					{
-						if (InvenItemSelectKey < 0)
-							InvenItemSelectKey = 0;
-
-
-						if (InvenItemSelectKey == i)
-						{
-							InvenItemSelectKey = i;
-							//아이템 정보창으로 아이템 데이터 전달,  아이템 이름값을 mesh proto 텍스처 정보에도 전달
-
-							(pGameObject) = pUILayer->Get_UI_InvenObject(UI_INVENTORY_ITEMMESH);
-							dynamic_cast<CItemObject*>(pGameObject)->Set_TextureIndex(PlayerItem[i].Item_Code);
-
-
-							dynamic_cast<CItemObject*>(pGameObject)->Set_fX_Item(590);
-							dynamic_cast<CItemObject*>(pGameObject)->Set_fY(250);
-							dynamic_cast<CItemObject*>(pGameObject)->Set_scaleX(0.4);
-							dynamic_cast<CItemObject*>(pGameObject)->Set_scaleY(0.4);
-
-
-							if (PlayerItem[i].Item_Code == 0)
-							{
-
-
-								dynamic_cast<CItemObject*>(pGameObject)->Set_SizeX(200);
-								dynamic_cast<CItemObject*>(pGameObject)->Set_SizeY(300);
-
-							}
-							if (PlayerItem[i].Item_Code == 1)
-							{
-								dynamic_cast<CItemObject*>(pGameObject)->Set_fX_Item(590);
-								dynamic_cast<CItemObject*>(pGameObject)->Set_fY(250);
-								dynamic_cast<CItemObject*>(pGameObject)->Set_scaleX(0.3);
-								dynamic_cast<CItemObject*>(pGameObject)->Set_scaleY(0.3);
-
-
-								dynamic_cast<CItemObject*>(pGameObject)->Set_SizeX(284);
-								dynamic_cast<CItemObject*>(pGameObject)->Set_SizeY(300);
-
-							}
-							if (PlayerItem[i].Item_Code == 2)
-							{
-								dynamic_cast<CItemObject*>(pGameObject)->Set_fX_Item(590);
-								dynamic_cast<CItemObject*>(pGameObject)->Set_fY(250);
-								dynamic_cast<CItemObject*>(pGameObject)->Set_scaleX(0.3);
-								dynamic_cast<CItemObject*>(pGameObject)->Set_scaleY(0.3);
-
-								dynamic_cast<CItemObject*>(pGameObject)->Set_SizeX(210);
-								dynamic_cast<CItemObject*>(pGameObject)->Set_SizeY(240);
-
-							}
-							if (PlayerItem[i].Item_Code == 3)
-							{
-
-								dynamic_cast<CItemObject*>(pGameObject)->Set_fX_Item(590);
-								dynamic_cast<CItemObject*>(pGameObject)->Set_fY(250);
-								dynamic_cast<CItemObject*>(pGameObject)->Set_scaleX(0.3);
-								dynamic_cast<CItemObject*>(pGameObject)->Set_scaleY(0.3);
-								dynamic_cast<CItemObject*>(pGameObject)->Set_SizeX(320);
-								dynamic_cast<CItemObject*>(pGameObject)->Set_SizeY(190);
-
-							}
-							if (PlayerItem[i].Item_Code == 4)
-							{
-								dynamic_cast<CItemObject*>(pGameObject)->Set_fX_Item(590);
-								dynamic_cast<CItemObject*>(pGameObject)->Set_fY(250);
-								dynamic_cast<CItemObject*>(pGameObject)->Set_scaleX(0.3);
-								dynamic_cast<CItemObject*>(pGameObject)->Set_scaleY(0.3);
-
-								dynamic_cast<CItemObject*>(pGameObject)->Set_SizeX(120);
-								dynamic_cast<CItemObject*>(pGameObject)->Set_SizeY(580);
-
-							}
-							if (PlayerItem[i].Item_Code == 5)
-							{
-								dynamic_cast<CItemObject*>(pGameObject)->Set_fX_Item(590);
-								dynamic_cast<CItemObject*>(pGameObject)->Set_fY(250);
-								dynamic_cast<CItemObject*>(pGameObject)->Set_scaleX(0.3);
-								dynamic_cast<CItemObject*>(pGameObject)->Set_scaleY(0.3);
-
-								dynamic_cast<CItemObject*>(pGameObject)->Set_SizeX(90);
-								dynamic_cast<CItemObject*>(pGameObject)->Set_SizeY(490);
-
-							}
-							if (PlayerItem[i].Item_Code == 6)
-							{
-								dynamic_cast<CItemObject*>(pGameObject)->Set_fX_Item(590);
-								dynamic_cast<CItemObject*>(pGameObject)->Set_fY(250);
-								dynamic_cast<CItemObject*>(pGameObject)->Set_scaleX(0.3);
-								dynamic_cast<CItemObject*>(pGameObject)->Set_scaleY(0.3);
-
-								dynamic_cast<CItemObject*>(pGameObject)->Set_SizeX(90);
-								dynamic_cast<CItemObject*>(pGameObject)->Set_SizeY(490);
-								
-
-							}
-
-
-
-						}
-
-
-					}
-
-				}
-				if (Inven_ItemWindow_Type == UI_INVENTORY_NPC)
-
-				{
-					list<CGameObject*> NpcList = Get_Layer(L"GameLogic")->Get_ObjectList(OBJECT_NPC);
-					list<CGameObject*>::iterator iter = NpcList.begin();
-
-					vector<ItemInfo> NPCitem;
-					for (; iter != NpcList.end(); iter++)
-					{
-						if (dynamic_cast<CNPC*>(*iter)->Get_NPC_Type() == dynamic_cast<CDialog*>(m_pDialog)->Get_NPC_Type())
-						{
-							NPCitem = dynamic_cast<CNPC*>(*iter)->Get_Inventory();
-						}
-					}
-
-					for (int i = 0; i < NPCitem.size(); ++i)
-					{
-						if (InvenItemSelectKey < 0)
-							InvenItemSelectKey = 0;
-
-
-						if (InvenItemSelectKey == i)
-						{
-							InvenItemSelectKey = i;
-							//아이템 정보창으로 아이템 데이터 전달,  아이템 이름값을 mesh proto 텍스처 정보에도 전달
-
-							(pGameObject) = pUILayer->Get_UI_InvenObject(UI_INVENTORY_ITEMMESH);
-							dynamic_cast<CItemObject*>(pGameObject)->Set_TextureIndex(NPCitem[i].Item_Code);
-
-
-							dynamic_cast<CItemObject*>(pGameObject)->Set_fX_Item(590);
-							dynamic_cast<CItemObject*>(pGameObject)->Set_fY(250);
-							dynamic_cast<CItemObject*>(pGameObject)->Set_scaleX(0.4);
-							dynamic_cast<CItemObject*>(pGameObject)->Set_scaleY(0.4);
-
-
-							if (NPCitem[i].Item_Code == 0)
-							{
-
-
-								dynamic_cast<CItemObject*>(pGameObject)->Set_SizeX(200);
-								dynamic_cast<CItemObject*>(pGameObject)->Set_SizeY(300);
-
-							}
-							if (NPCitem[i].Item_Code == 1)
-							{
-								dynamic_cast<CItemObject*>(pGameObject)->Set_fX_Item(590);
-								dynamic_cast<CItemObject*>(pGameObject)->Set_fY(250);
-								dynamic_cast<CItemObject*>(pGameObject)->Set_scaleX(0.3);
-								dynamic_cast<CItemObject*>(pGameObject)->Set_scaleY(0.3);
-
-
-								dynamic_cast<CItemObject*>(pGameObject)->Set_SizeX(284);
-								dynamic_cast<CItemObject*>(pGameObject)->Set_SizeY(300);
-
-							}
-							if (NPCitem[i].Item_Code == 2)
-							{
-								dynamic_cast<CItemObject*>(pGameObject)->Set_fX_Item(590);
-								dynamic_cast<CItemObject*>(pGameObject)->Set_fY(250);
-								dynamic_cast<CItemObject*>(pGameObject)->Set_scaleX(0.3);
-								dynamic_cast<CItemObject*>(pGameObject)->Set_scaleY(0.3);
-
-								dynamic_cast<CItemObject*>(pGameObject)->Set_SizeX(210);
-								dynamic_cast<CItemObject*>(pGameObject)->Set_SizeY(240);
-
-							}
-							if (NPCitem[i].Item_Code == 3)
-							{
-
-								dynamic_cast<CItemObject*>(pGameObject)->Set_fX_Item(590);
-								dynamic_cast<CItemObject*>(pGameObject)->Set_fY(250);
-								dynamic_cast<CItemObject*>(pGameObject)->Set_scaleX(0.3);
-								dynamic_cast<CItemObject*>(pGameObject)->Set_scaleY(0.3);
-								dynamic_cast<CItemObject*>(pGameObject)->Set_SizeX(320);
-								dynamic_cast<CItemObject*>(pGameObject)->Set_SizeY(190);
-
-							}
-							if (NPCitem[i].Item_Code == 4)
-							{
-								dynamic_cast<CItemObject*>(pGameObject)->Set_fX_Item(590);
-								dynamic_cast<CItemObject*>(pGameObject)->Set_fY(250);
-								dynamic_cast<CItemObject*>(pGameObject)->Set_scaleX(0.3);
-								dynamic_cast<CItemObject*>(pGameObject)->Set_scaleY(0.3);
-
-								dynamic_cast<CItemObject*>(pGameObject)->Set_SizeX(120);
-								dynamic_cast<CItemObject*>(pGameObject)->Set_SizeY(580);
-
-							}
-							if (NPCitem[i].Item_Code == 5)
-							{
-								dynamic_cast<CItemObject*>(pGameObject)->Set_fX_Item(590);
-								dynamic_cast<CItemObject*>(pGameObject)->Set_fY(250);
-								dynamic_cast<CItemObject*>(pGameObject)->Set_scaleX(0.3);
-								dynamic_cast<CItemObject*>(pGameObject)->Set_scaleY(0.3);
-
-								dynamic_cast<CItemObject*>(pGameObject)->Set_SizeX(90);
-								dynamic_cast<CItemObject*>(pGameObject)->Set_SizeY(490);
-
-							}
-
-
-
-
-						}
-
-
-					}
-				}
-
-
-			}
-
-
-
-
-		}
-		if (GetAsyncKeyState(VK_DOWN) & 0x0001)
-		{
-			CSoundMgr::Get_Instance()->PlaySound(L"ui_select_on.wav", CSoundMgr::UI);
-
-			if (Inven_Window_SelectKey == 0) //0번 윈도우 창 일때
-			{
-
-
-				++InvenSelectKey;
-				for (int i = UI_INVENTORY_ALL; i <= UI_INVENTORY_POTION; i++) //All~ Potion 까지 선택할수 있게
-
-				{
-
-					if (InvenSelectKey >= UI_INVENTORY_POTION)
-					{
-						InvenSelectKey = UI_INVENTORY_POTION;
-						break;
-					}
-
-					if (InvenSelectKey == i)
-					{
-						(pGameObject) = pUILayer->Get_UI_InvenObject(i);
-						dynamic_cast<CFont_Texture*>(pGameObject)->Set_TextureIndex(1);  //현재 선택한 창, 밝게
-
-						(pGameObject) = pUILayer->Get_UI_InvenObject(i - 1);
-						dynamic_cast<CFont_Texture*>(pGameObject)->Set_TextureIndex(0); //이전 선택창 다시 어둡게!
-
-
-
-					}
-
-				}
-			}
-			else if (Inven_Window_SelectKey == UI_INVENTORY_Window3)// 0번 윈도우창이 npc/플레이어 인벤 정보 모두 포함하는 창일시
-			{
-				++InvenSelectKey;
-				for (int i = UI_INVENTORY_NPC_ALL; i <= UI_INVENTORY_POTION; i++) //All~ Potion 까지 선택할수 있게
-
-				{
-
-					if (InvenSelectKey >= UI_INVENTORY_POTION)
-					{
-						InvenSelectKey = UI_INVENTORY_POTION;
-						break;
-					}
-
-					if (InvenSelectKey == i)
-					{
-						(pGameObject) = pUILayer->Get_UI_InvenObject(i);
-						dynamic_cast<CFont_Texture*>(pGameObject)->Set_TextureIndex(1);  //현재 선택한 창, 밝게
-
-						(pGameObject) = pUILayer->Get_UI_InvenObject(i - 1);
-						dynamic_cast<CFont_Texture*>(pGameObject)->Set_TextureIndex(0); //이전 선택창 다시 어둡게!
-
-
-
-					}
-
-				}
-
-
-			}
-
-
-
-			else if (Inven_Window_SelectKey == UI_INVENTORY_Window1) //윈도우 두번째창 에서  아이템 선택시 >>여기서 아이템 정보창 + 아이템 텍스처 이미지에 필요한 정보 삽입해야함.
-			{
-				++InvenItemSelectKey;
-				if (Inven_ItemWindow_Type == UI_INVENTORY_Player && (!dynamic_cast<CPlayer*>(Get_Object(L"GameLogic", OBJECT_PLAYER))->Get_Inventory().empty())
-					)
-				{
-					vector<ItemInfo>& PlayerItem = dynamic_cast<CPlayer*>(Get_Object(L"GameLogic", OBJECT_PLAYER))->Get_Inventory();
-					for (int i = 0; i < PlayerItem.size(); ++i)
-					{
-						if (InvenItemSelectKey == PlayerItem.size())
-							InvenItemSelectKey -= 1;
-
-
-						if (InvenItemSelectKey == i)
-						{
-							InvenItemSelectKey = i;
-							//아이템 정보창으로 아이템 데이터 전달,  아이템 이름값을 mesh proto 텍스처 정보에도 전달
-
-							(pGameObject) = pUILayer->Get_UI_InvenObject(UI_INVENTORY_ITEMMESH);
-							dynamic_cast<CItemObject*>(pGameObject)->Set_TextureIndex(PlayerItem[i].Item_Code);
-
-							dynamic_cast<CItemObject*>(pGameObject)->Set_fX_Item(590);
-							dynamic_cast<CItemObject*>(pGameObject)->Set_fY(250);
-							dynamic_cast<CItemObject*>(pGameObject)->Set_scaleX(0.4);
-							dynamic_cast<CItemObject*>(pGameObject)->Set_scaleY(0.4);
-
-
-							if (PlayerItem[i].Item_Code == 0)
-							{
-
-
-								dynamic_cast<CItemObject*>(pGameObject)->Set_SizeX(200);
-								dynamic_cast<CItemObject*>(pGameObject)->Set_SizeY(300);
-								break;
-
-							}
-							if (PlayerItem[i].Item_Code == 1)
-							{
-								dynamic_cast<CItemObject*>(pGameObject)->Set_fX_Item(590);
-								dynamic_cast<CItemObject*>(pGameObject)->Set_fY(250);
-								dynamic_cast<CItemObject*>(pGameObject)->Set_scaleX(0.3);
-								dynamic_cast<CItemObject*>(pGameObject)->Set_scaleY(0.3);
-
-								dynamic_cast<CItemObject*>(pGameObject)->Set_SizeX(250);
-								dynamic_cast<CItemObject*>(pGameObject)->Set_SizeY(290);
-								break;
-
-							}
-							if (PlayerItem[i].Item_Code == 2)
-							{
-								dynamic_cast<CItemObject*>(pGameObject)->Set_fX_Item(590);
-								dynamic_cast<CItemObject*>(pGameObject)->Set_fY(250);
-								dynamic_cast<CItemObject*>(pGameObject)->Set_scaleX(0.3);
-								dynamic_cast<CItemObject*>(pGameObject)->Set_scaleY(0.3);
-
-								dynamic_cast<CItemObject*>(pGameObject)->Set_SizeX(210);
-								dynamic_cast<CItemObject*>(pGameObject)->Set_SizeY(240);
-								break;
-
-							}
-							if (PlayerItem[i].Item_Code == 3)
-							{
-								dynamic_cast<CItemObject*>(pGameObject)->Set_fX_Item(590);
-								dynamic_cast<CItemObject*>(pGameObject)->Set_fY(250);
-								dynamic_cast<CItemObject*>(pGameObject)->Set_scaleX(0.3);
-								dynamic_cast<CItemObject*>(pGameObject)->Set_scaleY(0.3);
-
-								dynamic_cast<CItemObject*>(pGameObject)->Set_SizeX(320);
-								dynamic_cast<CItemObject*>(pGameObject)->Set_SizeY(190);
-								break;
-
-							}
-							if (PlayerItem[i].Item_Code == 4)
-							{
-								dynamic_cast<CItemObject*>(pGameObject)->Set_fX_Item(590);
-								dynamic_cast<CItemObject*>(pGameObject)->Set_fY(250);
-								dynamic_cast<CItemObject*>(pGameObject)->Set_scaleX(0.3);
-								dynamic_cast<CItemObject*>(pGameObject)->Set_scaleY(0.3);
-
-								dynamic_cast<CItemObject*>(pGameObject)->Set_SizeX(120);
-								dynamic_cast<CItemObject*>(pGameObject)->Set_SizeY(580);
-								break;
-
-							}
-							if (PlayerItem[i].Item_Code == 5)
-							{
-								dynamic_cast<CItemObject*>(pGameObject)->Set_fX_Item(590);
-								dynamic_cast<CItemObject*>(pGameObject)->Set_fY(250);
-								dynamic_cast<CItemObject*>(pGameObject)->Set_scaleX(0.3);
-								dynamic_cast<CItemObject*>(pGameObject)->Set_scaleY(0.3);
-
-								dynamic_cast<CItemObject*>(pGameObject)->Set_SizeX(90);
-								dynamic_cast<CItemObject*>(pGameObject)->Set_SizeY(490);
-								break;
-
-							}
-							if (PlayerItem[i].Item_Code == 6)
-							{
-								dynamic_cast<CItemObject*>(pGameObject)->Set_fX_Item(590);
-								dynamic_cast<CItemObject*>(pGameObject)->Set_fY(250);
-								dynamic_cast<CItemObject*>(pGameObject)->Set_scaleX(0.3);
-								dynamic_cast<CItemObject*>(pGameObject)->Set_scaleY(0.3);
-
-								dynamic_cast<CItemObject*>(pGameObject)->Set_SizeX(90);
-								dynamic_cast<CItemObject*>(pGameObject)->Set_SizeY(490);
-
-								break;
-
-							}
-
-
-
-						}
-
-
-					}
-
-				}
-				if (Inven_ItemWindow_Type == UI_INVENTORY_NPC)
-
-				{
-
-					list<CGameObject*> NpcList = Get_Layer(L"GameLogic")->Get_ObjectList(OBJECT_NPC);
-					list<CGameObject*>::iterator iter = NpcList.begin();
-
-					vector<ItemInfo> NPCitem;
-					for (; iter != NpcList.end(); iter++)
-					{
-						if (dynamic_cast<CNPC*>(*iter)->Get_NPC_Type() == dynamic_cast<CDialog*>(m_pDialog)->Get_NPC_Type())
-						{
-							NPCitem = dynamic_cast<CNPC*>(*iter)->Get_Inventory();
-						}
-					}
-
-					for (int i = 0; i < NPCitem.size(); ++i)
-					{
-						if (InvenItemSelectKey < 0)
-							InvenItemSelectKey = 0;
-
-
-						if (InvenItemSelectKey == i)
-						{
-							InvenItemSelectKey = i;
-							//아이템 정보창으로 아이템 데이터 전달,  아이템 이름값을 mesh proto 텍스처 정보에도 전달
-
-							(pGameObject) = pUILayer->Get_UI_InvenObject(UI_INVENTORY_ITEMMESH);
-							dynamic_cast<CItemObject*>(pGameObject)->Set_TextureIndex(NPCitem[i].Item_Code);
-
-
-							dynamic_cast<CItemObject*>(pGameObject)->Set_fX_Item(590);
-							dynamic_cast<CItemObject*>(pGameObject)->Set_fY(250);
-							dynamic_cast<CItemObject*>(pGameObject)->Set_scaleX(0.4);
-							dynamic_cast<CItemObject*>(pGameObject)->Set_scaleY(0.4);
-
-
-							if (NPCitem[i].Item_Code == 0)
-							{
-
-
-								dynamic_cast<CItemObject*>(pGameObject)->Set_SizeX(200);
-								dynamic_cast<CItemObject*>(pGameObject)->Set_SizeY(300);
-
-							}
-							if (NPCitem[i].Item_Code == 1)
-							{
-								dynamic_cast<CItemObject*>(pGameObject)->Set_fX_Item(590);
-								dynamic_cast<CItemObject*>(pGameObject)->Set_fY(250);
-								dynamic_cast<CItemObject*>(pGameObject)->Set_scaleX(0.3);
-								dynamic_cast<CItemObject*>(pGameObject)->Set_scaleY(0.3);
-
-
-								dynamic_cast<CItemObject*>(pGameObject)->Set_SizeX(284);
-								dynamic_cast<CItemObject*>(pGameObject)->Set_SizeY(300);
-
-							}
-							if (NPCitem[i].Item_Code == 2)
-							{
-								dynamic_cast<CItemObject*>(pGameObject)->Set_fX_Item(590);
-								dynamic_cast<CItemObject*>(pGameObject)->Set_fY(250);
-								dynamic_cast<CItemObject*>(pGameObject)->Set_scaleX(0.3);
-								dynamic_cast<CItemObject*>(pGameObject)->Set_scaleY(0.3);
-
-								dynamic_cast<CItemObject*>(pGameObject)->Set_SizeX(210);
-								dynamic_cast<CItemObject*>(pGameObject)->Set_SizeY(240);
-
-							}
-							if (NPCitem[i].Item_Code == 3)
-							{
-
-								dynamic_cast<CItemObject*>(pGameObject)->Set_fX_Item(590);
-								dynamic_cast<CItemObject*>(pGameObject)->Set_fY(250);
-								dynamic_cast<CItemObject*>(pGameObject)->Set_scaleX(0.3);
-								dynamic_cast<CItemObject*>(pGameObject)->Set_scaleY(0.3);
-								dynamic_cast<CItemObject*>(pGameObject)->Set_SizeX(320);
-								dynamic_cast<CItemObject*>(pGameObject)->Set_SizeY(190);
-
-							}
-							if (NPCitem[i].Item_Code == 4)
-							{
-								dynamic_cast<CItemObject*>(pGameObject)->Set_fX_Item(590);
-								dynamic_cast<CItemObject*>(pGameObject)->Set_fY(250);
-								dynamic_cast<CItemObject*>(pGameObject)->Set_scaleX(0.3);
-								dynamic_cast<CItemObject*>(pGameObject)->Set_scaleY(0.3);
-
-								dynamic_cast<CItemObject*>(pGameObject)->Set_SizeX(120);
-								dynamic_cast<CItemObject*>(pGameObject)->Set_SizeY(580);
-
-							}
-							if (NPCitem[i].Item_Code == 5)
-							{
-								dynamic_cast<CItemObject*>(pGameObject)->Set_fX_Item(590);
-								dynamic_cast<CItemObject*>(pGameObject)->Set_fY(250);
-								dynamic_cast<CItemObject*>(pGameObject)->Set_scaleX(0.3);
-								dynamic_cast<CItemObject*>(pGameObject)->Set_scaleY(0.3);
-
-								dynamic_cast<CItemObject*>(pGameObject)->Set_SizeX(90);
-								dynamic_cast<CItemObject*>(pGameObject)->Set_SizeY(490);
-
-							}
-
-
-
-
-						}
-
-
-					}
-
-
-				}
-
-
-
-
-			}
-
-
-		}
-
-
-	
-		if (GetAsyncKeyState('E') & 0x0001)
-		{
-			CSoundMgr::Get_Instance()->PlaySound(L"npc_human_combat_idleb.wav", CSoundMgr::UI_Equip);
-			if (Inven_Window_SelectKey == UI_INVENTORY_Window1 && Inven_ItemWindow_Type == UI_INVENTORY_Player) //아이템 선택창이면서 플레이어의 아이템 일 경우 장착키
-			{
-				//장착 기능
-				//현재 선택된 아이템인덱스를 플레이어 리스트와 대조, 
-				//해당 아이템이 장착 상태면 해제, 아니면 장착 
-				//플레이어 각 부위의 아이템코드 불러와 -1이면 미장착, 아님 장착 상태로 간주
-				//이를 구별해 윈도우 1번창의 해당 아이템 이름 옆에 현재 장착 중이라는 것을 표시하는 35.png 이미지 출력!!!
-				vector<ItemInfo>& PlayerItem = dynamic_cast<CPlayer*>(Get_Object(L"GameLogic", OBJECT_PLAYER))->Get_Inventory();
-				pGameObject = dynamic_cast<CPlayer*>(Get_Object(L"GameLogic", OBJECT_PLAYER));
-
-				if (PlayerItem[InvenItemSelectKey].Item_Type == ITEM_Type::ITEM_BODY)
-				{
-					//해당 아이템 타입의 아이템을 플레이어가 장착했는지 검사해 장착 상태면 선택한 아이템으로 교체 장착
-					if (dynamic_cast<CPlayer*>(Get_Object(L"GameLogic", OBJECT_PLAYER))->Get_ArmorEquip())
-					{
-						//장착 상태면 장착한 아이템 코드와 현재 선택한 아이템의 코드를 비교, 같은거면 해제,  다르면 교체해 장착!
-
-						if (dynamic_cast<CPlayer*>(Get_Object(L"GameLogic", OBJECT_PLAYER))->Get_EquipArmorCode() == PlayerItem[InvenItemSelectKey].Item_Code)
-						{
-							//같으면 해제 처리!
-							dynamic_cast<CPlayer*>(Get_Object(L"GameLogic", OBJECT_PLAYER))->Set_EquipArmorCode(-1);
-
-						}
-						else
-						{ //다르면 장착!
-							
-
-							dynamic_cast<CPlayer*>(Get_Object(L"GameLogic", OBJECT_PLAYER))->Set_EquipArmorCode(PlayerItem[InvenItemSelectKey].Item_Code);
-						}
-
-
-					}
-					else
-					{
-						dynamic_cast<CPlayer*>(Get_Object(L"GameLogic", OBJECT_PLAYER))->Set_EquipArmorCode(PlayerItem[InvenItemSelectKey].Item_Code);
-
-					}
-
-
-				}
-				if (PlayerItem[InvenItemSelectKey].Item_Type == ITEM_Type::ITEM_GAUNTLET)
-				{
-					if (dynamic_cast<CPlayer*>(Get_Object(L"GameLogic", OBJECT_PLAYER))->Get_ArmEquip())
-					{
-						//장착 상태면 장착한 아이템 코드와 현재 선택한 아이템의 코드를 비교, 같은거면 해제,  다르면 교체해 장착!
-
-						if (dynamic_cast<CPlayer*>(Get_Object(L"GameLogic", OBJECT_PLAYER))->Get_EquipGauntletCode() == PlayerItem[InvenItemSelectKey].Item_Code)
-						{
-							//같으면 해제 처리!
-							dynamic_cast<CPlayer*>(Get_Object(L"GameLogic", OBJECT_PLAYER))->Set_EquipGauntletCode(-1);
-
-						}
-						else
-						{ //다르면 장착!
-							dynamic_cast<CPlayer*>(Get_Object(L"GameLogic", OBJECT_PLAYER))->Set_EquipGauntletCode(PlayerItem[InvenItemSelectKey].Item_Code);
-						}
-
-
-					}
-					else
-					{
-						dynamic_cast<CPlayer*>(Get_Object(L"GameLogic", OBJECT_PLAYER))->Set_EquipGauntletCode(PlayerItem[InvenItemSelectKey].Item_Code);
-
-					}
-
-				}
-				if (PlayerItem[InvenItemSelectKey].Item_Type == ITEM_Type::ITEM_BOOTS)
-				{
-					if (dynamic_cast<CPlayer*>(Get_Object(L"GameLogic", OBJECT_PLAYER))->Get_BootsEquip())
-					{
-						//장착 상태면 장착한 아이템 코드와 현재 선택한 아이템의 코드를 비교, 같은거면 해제,  다르면 교체해 장착!
-
-						if (dynamic_cast<CPlayer*>(Get_Object(L"GameLogic", OBJECT_PLAYER))->Get_EquipBootsCode() == PlayerItem[InvenItemSelectKey].Item_Code)
-						{
-							//같으면 해제 처리!
-							dynamic_cast<CPlayer*>(Get_Object(L"GameLogic", OBJECT_PLAYER))->Set_EquipBootsCode(-1);
-
-						}
-						else
-						{ //다르면 장착!
-							dynamic_cast<CPlayer*>(Get_Object(L"GameLogic", OBJECT_PLAYER))->Set_EquipBootsCode(PlayerItem[InvenItemSelectKey].Item_Code);
-						}
-
-
-					}
-					else
-					{
-						dynamic_cast<CPlayer*>(Get_Object(L"GameLogic", OBJECT_PLAYER))->Set_EquipBootsCode(PlayerItem[InvenItemSelectKey].Item_Code);
-
-					}
-				}
-				if (PlayerItem[InvenItemSelectKey].Item_Type == ITEM_Type::ITEM_HELMET)
-				{
-					if (dynamic_cast<CPlayer*>(Get_Object(L"GameLogic", OBJECT_PLAYER))->Get_bHelmetEquip())
-					{
-						//장착 상태면 장착한 아이템 코드와 현재 선택한 아이템의 코드를 비교, 같은거면 해제,  다르면 교체해 장착!
-
-						if (dynamic_cast<CPlayer*>(Get_Object(L"GameLogic", OBJECT_PLAYER))->Get_EquipHelmetCode() == PlayerItem[InvenItemSelectKey].Item_Code)
-						{
-							//같으면 해제 처리!
-							dynamic_cast<CPlayer*>(Get_Object(L"GameLogic", OBJECT_PLAYER))->Set_EquipHelmetCode(-1);
-
-						}
-						else
-						{ //다르면 장착!
-							dynamic_cast<CPlayer*>(Get_Object(L"GameLogic", OBJECT_PLAYER))->Set_EquipHelmetCode(PlayerItem[InvenItemSelectKey].Item_Code);
-						}
-
-
-					}
-					else
-					{
-						dynamic_cast<CPlayer*>(Get_Object(L"GameLogic", OBJECT_PLAYER))->Set_EquipHelmetCode(PlayerItem[InvenItemSelectKey].Item_Code);
-
-					}
-				}
-				if (PlayerItem[InvenItemSelectKey].Item_Type == ITEM_Type::ITEM_WEAPON)
-				{
-					if (dynamic_cast<CPlayer*>(Get_Object(L"GameLogic", OBJECT_PLAYER))->Get_bWeaponEquip())
-					{
-						//장착 상태면 장착한 아이템 코드와 현재 선택한 아이템의 코드를 비교, 같은거면 해제,  다르면 교체해 장착!
-
-						if (dynamic_cast<CPlayer*>(Get_Object(L"GameLogic", OBJECT_PLAYER))->Get_EquipWeaponCode() == PlayerItem[InvenItemSelectKey].Item_Code)
-						{
-							//같으면 해제 처리!
-							dynamic_cast<CPlayer*>(Get_Object(L"GameLogic", OBJECT_PLAYER))->Set_EquipWeaponCode(-1);
-
-						}
-						else
-						{ //다르면 장착!
-							dynamic_cast<CPlayer*>(Get_Object(L"GameLogic", OBJECT_PLAYER))->Set_EquipWeaponCode(PlayerItem[InvenItemSelectKey].Item_Code);
-						}
-
-
-					}
-					else
-					{
-						dynamic_cast<CPlayer*>(Get_Object(L"GameLogic", OBJECT_PLAYER))->Set_EquipWeaponCode(PlayerItem[InvenItemSelectKey].Item_Code);
-
-					}
-				}
-				if (PlayerItem[InvenItemSelectKey].Item_Type == ITEM_Type::ITEM_POTION)
-				{
-
-				}
-				if (PlayerItem[InvenItemSelectKey].Item_Type == ITEM_Type::ITEM_MISC)
-				{
-
-				}
-
-
-
-			}
-			else if(Inven_Window_SelectKey == UI_INVENTORY_Window1 && Inven_ItemWindow_Type == UI_INVENTORY_NPC) //Npc 의 아이템일 경우 구매 기능
-			{
-
-				//구매 기능
-				//How many 창 출력,  여기서 방향키 좌우로 개수 조절 기능 필요
-				
-				dynamic_cast<CUI*>(Get_Layer(L"UI_Inventory")->Get_UI_InvenObject(UI_INVENTORY_HowmanyWindow))->Set_RenderOn(true);
-				dynamic_cast<CUI*>(Get_Layer(L"UI_Inventory")->Get_UI_InvenObject(UI_INVENTORY_ITEMWindow))->Set_RenderOn(false);
-
-				pGameObject =dynamic_cast<CUI*>(Get_Layer(L"UI_Inventory")->Get_UI_InvenObject(UI_INVENTORY_Enter));
-				dynamic_cast<CUI*>(pGameObject)->Set_RenderOn(true);
-				dynamic_cast<CUI*>(pGameObject)->Set_fX2(520);
-				dynamic_cast<CUI*>(pGameObject)->Set_fY(480);
-				dynamic_cast<CUI*>(pGameObject)->Set_scaleX(0.4);
-				dynamic_cast<CUI*>(pGameObject)->Set_scaleY(0.4);
-
-				pGameObject = dynamic_cast<CUI*>(Get_Layer(L"UI_Inventory")->Get_UI_InvenObject(UI_INVENTORY_Tab));
-				dynamic_cast<CUI*>(pGameObject)->Set_RenderOn(true);
-				dynamic_cast<CUI*>(pGameObject)->Set_fX2(670);
-				dynamic_cast<CUI*>(pGameObject)->Set_fY(480);
-				dynamic_cast<CUI*>(pGameObject)->Set_scaleX(0.4);
-				dynamic_cast<CUI*>(pGameObject)->Set_scaleY(0.4);
-
-
-
-
-				//vector<ItemInfo>& PlayerItem = dynamic_cast<CPlayer*>(Get_Object(L"GameLogic", OBJECT_PLAYER))->Get_Inventory();
-				//pGameObject = dynamic_cast<CPlayer*>(Get_Object(L"GameLogic", OBJECT_PLAYER));
-				//
-				//if (PlayerItem[InvenItemSelectKey].Item_Type == ITEM_Type::ITEM_BODY)	
-
-
-				
-
-
-				//플레이어 아이템 리스트에 구매한 아이템 info를 push 하면 될듯
-
-			}
-			
-
-
-
-
-		}
-		if (GetAsyncKeyState(VK_RETURN) & 0x0001)
-		{
-			CSoundMgr::Get_Instance()->PlaySound(L"ui_menu_ok.wav", CSoundMgr::UI);
-
-			//Howmanu 창이 열린 상태인지 확인후 구매 처리 되야함!
-			if (dynamic_cast<CUI*>(Get_Layer(L"UI_Inventory")->Get_UI_InvenObject(UI_INVENTORY_HowmanyWindow))->Get_RenderOn() == true)
-			{
-
-
-				list<CGameObject*> NpcList = Get_Layer(L"GameLogic")->Get_ObjectList(OBJECT_NPC);
-				list<CGameObject*>::iterator iter = NpcList.begin();
-
-				vector<ItemInfo> NPCitem;
-				for (; iter != NpcList.end(); iter++)
-				{
-					if (dynamic_cast<CNPC*>(*iter)->Get_NPC_Type() == dynamic_cast<CDialog*>(m_pDialog)->Get_NPC_Type())
-					{
-						NPCitem = dynamic_cast<CNPC*>(*iter)->Get_Inventory();
-					}
-				}
-
-				for (int i = 0; i < NPCitem.size(); ++i)
-				{
-					if (InvenItemSelectKey < 0)
-						InvenItemSelectKey = 0;
-
-
-					if (InvenItemSelectKey == i)
-					{
-						InvenItemSelectKey = i;
-						//아이템 정보창으로 아이템 데이터 전달,  아이템 이름값을 mesh proto 텍스처 정보에도 전달
-
-
-
-						ItemInfo tItem;
-						tItem.Item_Code = NPCitem[i].Item_Code;
-						strcpy_s(tItem.Item_Name, NPCitem[i].Item_Name);
-						tItem.Item_Stat = NPCitem[i].Item_Stat;
-						tItem.Item_Type = NPCitem[i].Item_Type;
-						tItem.Item_Value = NPCitem[i].Item_Value;
-						tItem.Item_Weight = NPCitem[i].Item_Weight;
-
-						//여기서 원래 플레이어가 가진 골드가 충분한지 검사 필요!
-						dynamic_cast<CPlayer*>(Get_Layer(L"GameLogic")->Get_Object(OBJECT_PLAYER))->Insert_Item(tItem);
-
-						dynamic_cast<CPlayer*>(Get_Layer(L"GameLogic")->Get_Object(OBJECT_PLAYER))->Set_Gold(tItem.Item_Value);
-
-						//엔터키 눌러 구매후 현재 구매창은 종료, 이후 다시 e키 눌러 구매할때 생성!
-						pGameObject = dynamic_cast<CUI*>(Get_Layer(L"UI_Inventory")->Get_UI_InvenObject(UI_INVENTORY_HowmanyWindow));
-						dynamic_cast<CUI*>(pGameObject)->Set_RenderOn(false);
-
-						pGameObject = dynamic_cast<CUI*>(Get_Layer(L"UI_Inventory")->Get_UI_InvenObject(UI_INVENTORY_Enter));
-						dynamic_cast<CUI*>(pGameObject)->Set_RenderOn(false);
-						pGameObject = dynamic_cast<CUI*>(Get_Layer(L"UI_Inventory")->Get_UI_InvenObject(UI_INVENTORY_Tab));
-						dynamic_cast<CUI*>(pGameObject)->Set_RenderOn(false);
-
-						pGameObject = dynamic_cast<CUI*>(Get_Layer(L"UI_Inventory")->Get_UI_InvenObject(UI_INVENTORY_ITEMWindow));
-						dynamic_cast<CUI*>(pGameObject)->Set_RenderOn(true);
-
-
-						break;
-
-
-					}
-				}
-			}
-
-			
-
-
-
-
-
-
-
-
-
-
-		}
-		////좌,우 윈도우창 전환 키
-		if (GetAsyncKeyState(VK_LEFT) & 0x0001)
-		{
-			
-			if (Inven_Window_PreSelectKey == UI_INVENTORY_Window0)
-			{
-				Inven_Window_SelectKey = 0;
-				InvenSelectKey = UI_INVENTORY_ALL;
-
-
-			}
-			else
-			{
-				Inven_Window_SelectKey = UI_INVENTORY_Window3;
-				InvenSelectKey = UI_INVENTORY_NPC_ALL;
-
-
-			}
-			
-				InvenItemSelectCount = 0;
-
-
-				CLayer*		pLayer = Get_Layer(L"UI_Inventory");
-				NULL_CHECK_RETURN(pLayer, E_FAIL);
-
-				dynamic_cast<CUI*>(pLayer->Get_UI_InvenObject(UI_INVENTORY_ITEMWindow))->Set_RenderOn(false);
-				dynamic_cast<CUI*>(pLayer->Get_UI_InvenObject(UI_INVENTORY_HowmanyWindow))->Set_RenderOn(false);
-
-				dynamic_cast<CItemObject*>(pLayer->Get_UI_InvenObject(UI_INVENTORY_ITEMMESH))->Set_RenderOn(false);
-
-
-				//플레이어 인벤창 봤을경우
-				pGameObject = pUILayer->Get_UI_InvenObject(UI_INVENTORY_E);
-				dynamic_cast<CUI*>(pGameObject)->Set_RenderOn(false);
-				pGameObject = pUILayer->Get_UI_InvenObject(UI_INVENTORY_R);
-				dynamic_cast<CUI*>(pGameObject)->Set_RenderOn(false);
-
-
-			//if (InvenSelectKey <= 0)
-			//{
-			//	InvenSelectKey = 0;
-			//}
-		}
-		if (GetAsyncKeyState(VK_RIGHT) & 0x0001)
-		{
-			if (Inven_Window_SelectKey == 0 )
-			{
-				
-				Inven_Window_PreSelectKey = 0;
-				Inven_Window_SelectKey = UI_INVENTORY_Window1; //선택창 윈도우1번 창 변경
-
-
-				CLayer*		pLayer = Get_Layer(L"UI_Inventory");
-				NULL_CHECK_RETURN(pLayer, E_FAIL);
-
-
-				if (InvenSelectKey < UI_INVENTORY_ALL) //NPC의 인벤토리 아이템목록 을 선택 및 출력!
-				{
-					Inven_ItemWindow_Type = UI_INVENTORY_NPC;
-
-
-					dynamic_cast<CUI*>(pLayer->Get_UI_InvenObject(UI_INVENTORY_ITEMWindow))->Set_RenderOn(true);
-					dynamic_cast<CItemObject*>(pLayer->Get_UI_InvenObject(UI_INVENTORY_ITEMMESH))->Set_RenderOn(true);
-
-				}
-				else
-				{
-
-					Inven_ItemWindow_Type = UI_INVENTORY_Player;
-
-					if (!dynamic_cast<CPlayer*>(Get_Object(L"GameLogic", OBJECT_PLAYER))->Get_Inventory().empty())
-					{
-						dynamic_cast<CUI*>(pLayer->Get_UI_InvenObject(UI_INVENTORY_ITEMWindow))->Set_RenderOn(true);
-						dynamic_cast<CItemObject*>(pLayer->Get_UI_InvenObject(UI_INVENTORY_ITEMMESH))->Set_RenderOn(true);
-
-					}
-
-
-				}
-
-				//최초 이동시 맨처음 자동 선택되는 0번째 인덱스의 아이템에 관해서 여기서 
-				InvenItemSelectKey = 0;
-
-				//if (InvenItemSelectCount == 0)
-				{
-					
-					
-				
-
-					
-
-
-
-
-
-
-
-					InvenItemSelectCount++;
-				}
-
-				
-			
-				//아니다 장착이미지는 미리 바디,손,발,머리,무기 총 5개를 생성해놓고 렌더 미처리
-				//아이템 윈도우창 활성화시, 이중에 플레이어가 장착중인 부위를 검사, 그 부위 맞는 텍스처만 렌더링, 아이템 폰트 위치 얻어와 위치 세팅!
-				//미장착 부위는 계속해서 다시 렌더링 off 해주면서
-				//위 작업을 실시간으로 업데이트 해줘야 함!
-				
-				
-				//CGameObject*			pGameObject = nullptr;
-				//
-				//pGameObject = CItemObject::Create(m_pGraphicDev, L"Proto_Mesh_HideArmorgnd");
-				//
-				//dynamic_cast<CItemObject*>(pGameObject)->Set_fX(500);
-				//dynamic_cast<CItemObject*>(pGameObject)->Set_fY(350);
-				//dynamic_cast<CItemObject*>(pGameObject)->Set_scaleX(0.4);
-				//dynamic_cast<CItemObject*>(pGameObject)->Set_scaleY(0.4);
-				//
-				//dynamic_cast<CItemObject*>(pGameObject)->Set_SizeX(420);
-				//dynamic_cast<CItemObject*>(pGameObject)->Set_SizeY(150);
-				//
-				//CGameObject*		pCamera = Get_Layer(L"Environment")->Get_Object(OBJECT_CAMERA);
-
-			//	_vec3 vPos = dynamic_cast<CDynamicCamera*>(pCamera)->Get_At();
-
-				//dynamic_cast<CTransform*>(pTranscom)->Get_Info(INFO_POS,&vPos);
-
-				
-				//dynamic_cast<CStatic_Object*>(pGameObject)->Get_Transform()->Set_Pos(vPos.x+1.5, vPos.y+0.2, vPos.z);//62.9, 17.5, 90.15
-				//dynamic_cast<CStatic_Object*>(pGameObject)->Get_Transform()->m_vInfo[INFO::]
-				//dynamic_cast<CStatic_Object*>(pGameObject)->Get_Transform()->Rotation(ROTATION::ROT_X, 90.f);
-				//dynamic_cast<CStatic_Object*>(pGameObject)->Get_Transform()->Rotation(ROTATION::ROT_Y, 210.f);
-
-				//dynamic_cast<CStatic_Object*>(pGameObject)->Get_Transform()->Set_Scale(0.025, 0.025, 0.025);
-				//NULL_CHECK_RETURN(pGameObject, E_FAIL);
-				//FAILED_CHECK_RETURN(pLayer->Add_UIInvenObject(UI_INVENTORY_ITEMMESH, pGameObject), E_FAIL);
-
-
-			}
-			if (Inven_Window_SelectKey == UI_INVENTORY_Window3)
-			{
-				Inven_Window_PreSelectKey = UI_INVENTORY_Window3;
-				Inven_Window_SelectKey = UI_INVENTORY_Window1; //선택창 윈도우1번 창 변경
-
-
-				CLayer*		pLayer = Get_Layer(L"UI_Inventory");
-				NULL_CHECK_RETURN(pLayer, E_FAIL);
-
-
-				if (InvenSelectKey < UI_INVENTORY_ALL) //NPC의 인벤토리 아이템목록 을 선택 및 출력!
-				{
-					Inven_ItemWindow_Type = UI_INVENTORY_NPC;
-
-
-					dynamic_cast<CUI*>(pLayer->Get_UI_InvenObject(UI_INVENTORY_ITEMWindow))->Set_RenderOn(true);
-					dynamic_cast<CItemObject*>(pLayer->Get_UI_InvenObject(UI_INVENTORY_ITEMMESH))->Set_RenderOn(true);
-
-				}
-				else
-				{
-
-					Inven_ItemWindow_Type = UI_INVENTORY_Player;
-
-					if (!dynamic_cast<CPlayer*>(Get_Object(L"GameLogic", OBJECT_PLAYER))->Get_Inventory().empty())
-					{
-						dynamic_cast<CUI*>(pLayer->Get_UI_InvenObject(UI_INVENTORY_ITEMWindow))->Set_RenderOn(true);
-						dynamic_cast<CItemObject*>(pLayer->Get_UI_InvenObject(UI_INVENTORY_ITEMMESH))->Set_RenderOn(true);
-
-					}
-
-
-				}
-
-				//최초 이동시 맨처음 자동 선택되는 0번째 인덱스의 아이템에 관해서 여기서 
-				InvenItemSelectKey = 0;
-
-				//if (InvenItemSelectCount == 0)
-				{
-
-
-
-
-
-
-
-
-
-
-
-
-					InvenItemSelectCount++;
-				}
-
-			}
-
-
-
-			if (InvenSelectKey <= 0)
-			{
-				InvenSelectKey = 0;
-			}
-
-			Inven_Window_SelectKey = UI_INVENTORY_Window1; //오른쪽 창으로 전환
-
-
-
-		}
-
-		if (Inven_Window_SelectKey == UI_INVENTORY_Window1 && Inven_ItemWindow_Type == UI_INVENTORY_Player) //아이템 윈도우창 활성화면서 현재 플레이어의 인벤창을 볼시
-		{
-			pGameObject = pUILayer->Get_UI_InvenObject(UI_INVENTORY_E);
-			dynamic_cast<CUI*>(pGameObject)->Set_RenderOn(true);
-			dynamic_cast<CUI*>(pGameObject)->Set_fX2(20);
-			dynamic_cast<CUI*>(pGameObject)->Set_fY(550);
-			dynamic_cast<CUI*>(pGameObject)->Set_scaleX(0.5);
-			dynamic_cast<CUI*>(pGameObject)->Set_scaleY(0.5);
-
-
-			pGameObject = pUILayer->Get_UI_InvenObject(UI_INVENTORY_R);
-			dynamic_cast<CUI*>(pGameObject)->Set_RenderOn(true);
-			dynamic_cast<CUI*>(pGameObject)->Set_fX2(120);
-			dynamic_cast<CUI*>(pGameObject)->Set_fY(550);
-			dynamic_cast<CUI*>(pGameObject)->Set_scaleX(0.5);
-			dynamic_cast<CUI*>(pGameObject)->Set_scaleY(0.5);
-
-			
-
-
-			if (dynamic_cast<CPlayer*>(Get_Object(L"GameLogic", OBJECT_PLAYER))->Get_ArmorEquip())
-			{
-				//플레이어 인벤 리스트중 아이템코드 일치하는 넘 찾아 그 아이템 코드 폰트 위치에 출력
-					pGameObject = pUILayer->Get_UI_InvenObject(UI_INVENTORY_EQUIP_Body);
-				dynamic_cast<CUI*>(pGameObject)->Set_RenderOn(true);
-				vector<ItemInfo>& PlayerItem = dynamic_cast<CPlayer*>(Get_Object(L"GameLogic", OBJECT_PLAYER))->Get_Inventory();
-				
-
-				for (int i = 0; i < PlayerItem.size(); ++i)
-				{
-					if (PlayerItem[i].Item_Code == dynamic_cast<CPlayer*>(Get_Object(L"GameLogic", OBJECT_PLAYER))->Get_EquipArmorCode())
-					{
-						//lll
-						dynamic_cast<CUI*>(pGameObject)->Set_fX2(230);
-						dynamic_cast<CUI*>(pGameObject)->Set_fY(i * 30 + 200);
-						dynamic_cast<CUI*>(pGameObject)->Set_scaleX(0.4);
-						dynamic_cast<CUI*>(pGameObject)->Set_scaleY(0.3);
-						break;
-
-					}
-
-				}
-
-
-
-
-			}
-			if (!dynamic_cast<CPlayer*>(Get_Object(L"GameLogic", OBJECT_PLAYER))->Get_ArmorEquip())
-			{
-				pGameObject = pUILayer->Get_UI_InvenObject(UI_INVENTORY_EQUIP_Body);
-				dynamic_cast<CUI*>(pGameObject)->Set_RenderOn(false);
-			}
-
-
-			if (dynamic_cast<CPlayer*>(Get_Object(L"GameLogic", OBJECT_PLAYER))->Get_ArmEquip())
-			{
-				//플레이어 인벤 리스트중 아이템코드 일치하는 넘 찾아 그 아이템 코드 폰트 위치에 출력
-				pGameObject = pUILayer->Get_UI_InvenObject(UI_INVENTORY_EQUIP_Gauntlet);
-				dynamic_cast<CUI*>(pGameObject)->Set_RenderOn(true);
-				vector<ItemInfo>& PlayerItem = dynamic_cast<CPlayer*>(Get_Object(L"GameLogic", OBJECT_PLAYER))->Get_Inventory();
-
-
-				for (int i = 0; i < PlayerItem.size(); ++i)
-				{
-					if (PlayerItem[i].Item_Code == dynamic_cast<CPlayer*>(Get_Object(L"GameLogic", OBJECT_PLAYER))->Get_EquipGauntletCode())
-					{
-						dynamic_cast<CUI*>(pGameObject)->Set_fX2(230);
-						dynamic_cast<CUI*>(pGameObject)->Set_fY(i * 30 + 200);
-						dynamic_cast<CUI*>(pGameObject)->Set_scaleX(0.4);
-						dynamic_cast<CUI*>(pGameObject)->Set_scaleY(0.3);
-						break;
-
-					}
-
-				}
-
-
-
-
-			}
-			if (!dynamic_cast<CPlayer*>(Get_Object(L"GameLogic", OBJECT_PLAYER))->Get_ArmEquip())
-			{
-				pGameObject = pUILayer->Get_UI_InvenObject(UI_INVENTORY_EQUIP_Gauntlet);
-				dynamic_cast<CUI*>(pGameObject)->Set_RenderOn(false);
-			}
-
-
-
-			if (dynamic_cast<CPlayer*>(Get_Object(L"GameLogic", OBJECT_PLAYER))->Get_BootsEquip())
-			{
-				//플레이어 인벤 리스트중 아이템코드 일치하는 넘 찾아 그 아이템 코드 폰트 위치에 출력
-				pGameObject = pUILayer->Get_UI_InvenObject(UI_INVENTORY_EQUIP_Boots);
-				dynamic_cast<CUI*>(pGameObject)->Set_RenderOn(true);
-				vector<ItemInfo>& PlayerItem = dynamic_cast<CPlayer*>(Get_Object(L"GameLogic", OBJECT_PLAYER))->Get_Inventory();
-
-
-				for (int i = 0; i < PlayerItem.size(); ++i)
-				{
-					if (PlayerItem[i].Item_Code == dynamic_cast<CPlayer*>(Get_Object(L"GameLogic", OBJECT_PLAYER))->Get_EquipBootsCode())
-					{
-						dynamic_cast<CUI*>(pGameObject)->Set_fX2(230);
-						dynamic_cast<CUI*>(pGameObject)->Set_fY(i * 30 + 200);
-						dynamic_cast<CUI*>(pGameObject)->Set_scaleX(0.4);
-						dynamic_cast<CUI*>(pGameObject)->Set_scaleY(0.3);
-						break;
-
-					}
-
-				}
-
-
-
-
-			}
-			if (!dynamic_cast<CPlayer*>(Get_Object(L"GameLogic", OBJECT_PLAYER))->Get_BootsEquip())
-			{
-				pGameObject = pUILayer->Get_UI_InvenObject(UI_INVENTORY_EQUIP_Boots);
-				dynamic_cast<CUI*>(pGameObject)->Set_RenderOn(false);
-			}
-
-
-			if (dynamic_cast<CPlayer*>(Get_Object(L"GameLogic", OBJECT_PLAYER))->Get_bHelmetEquip())
-			{
-				//플레이어 인벤 리스트중 아이템코드 일치하는 넘 찾아 그 아이템 코드 폰트 위치에 출력
-				pGameObject = pUILayer->Get_UI_InvenObject(UI_INVENTORY_EQUIP_Helmet);
-				dynamic_cast<CUI*>(pGameObject)->Set_RenderOn(true);
-				vector<ItemInfo>& PlayerItem = dynamic_cast<CPlayer*>(Get_Object(L"GameLogic", OBJECT_PLAYER))->Get_Inventory();
-
-
-				for (int i = 0; i < PlayerItem.size(); ++i)
-				{
-					if (PlayerItem[i].Item_Code == dynamic_cast<CPlayer*>(Get_Object(L"GameLogic", OBJECT_PLAYER))->Get_EquipHelmetCode())
-					{
-						dynamic_cast<CUI*>(pGameObject)->Set_fX2(230);
-						dynamic_cast<CUI*>(pGameObject)->Set_fY(i * 30 + 200);
-						dynamic_cast<CUI*>(pGameObject)->Set_scaleX(0.4);
-						dynamic_cast<CUI*>(pGameObject)->Set_scaleY(0.3);
-						break;
-
-					}
-
-				}
-
-
-
-
-			}
-			if (!dynamic_cast<CPlayer*>(Get_Object(L"GameLogic", OBJECT_PLAYER))->Get_bHelmetEquip())
-			{
-				pGameObject = pUILayer->Get_UI_InvenObject(UI_INVENTORY_EQUIP_Helmet);
-				dynamic_cast<CUI*>(pGameObject)->Set_RenderOn(false);
-
-			}
-
-
-			if (dynamic_cast<CPlayer*>(Get_Object(L"GameLogic", OBJECT_PLAYER))->Get_bWeaponEquip())
-			{
-				//플레이어 인벤 리스트중 아이템코드 일치하는 넘 찾아 그 아이템 코드 폰트 위치에 출력
-				pGameObject = pUILayer->Get_UI_InvenObject(UI_INVENTORY_EQUIP_Weapon);
-				dynamic_cast<CUI*>(pGameObject)->Set_RenderOn(true);
-				vector<ItemInfo>& PlayerItem = dynamic_cast<CPlayer*>(Get_Object(L"GameLogic", OBJECT_PLAYER))->Get_Inventory();
-
-
-				for (int i = 0; i < PlayerItem.size(); ++i)
-				{
-					if (PlayerItem[i].Item_Code == dynamic_cast<CPlayer*>(Get_Object(L"GameLogic", OBJECT_PLAYER))->Get_EquipWeaponCode())
-					{
-						dynamic_cast<CUI*>(pGameObject)->Set_fX2(230);
-						dynamic_cast<CUI*>(pGameObject)->Set_fY(i * 30 + 200);
-						dynamic_cast<CUI*>(pGameObject)->Set_scaleX(0.4);
-						dynamic_cast<CUI*>(pGameObject)->Set_scaleY(0.3);
-						break;
-
-					}
-
-				}
-
-
-
-
-			}
-			if (!dynamic_cast<CPlayer*>(Get_Object(L"GameLogic", OBJECT_PLAYER))->Get_bWeaponEquip())
-			{
-				pGameObject = pUILayer->Get_UI_InvenObject(UI_INVENTORY_EQUIP_Weapon);
-				dynamic_cast<CUI*>(pGameObject)->Set_RenderOn(false);
-			}
-
-
-
-
-
-
-
-
-
-
-		}
-		if (Inven_Window_SelectKey == UI_INVENTORY_Window1 && Inven_ItemWindow_Type == UI_INVENTORY_NPC) //아이템 윈도우창 활성화면서 현재 플레이어의 인벤창을 볼시
-		{
-
-		pGameObject = pUILayer->Get_UI_InvenObject(UI_INVENTORY_E);
-		dynamic_cast<CUI*>(pGameObject)->Set_RenderOn(true);
-		dynamic_cast<CUI*>(pGameObject)->Set_fX2(20);
-		dynamic_cast<CUI*>(pGameObject)->Set_fY(550);
-		dynamic_cast<CUI*>(pGameObject)->Set_scaleX(0.5);
-		dynamic_cast<CUI*>(pGameObject)->Set_scaleY(0.5);
-
-
-		pGameObject = pUILayer->Get_UI_InvenObject(UI_INVENTORY_R);
-		dynamic_cast<CUI*>(pGameObject)->Set_RenderOn(true);
-		dynamic_cast<CUI*>(pGameObject)->Set_fX2(120);
-		dynamic_cast<CUI*>(pGameObject)->Set_fY(550);
-		dynamic_cast<CUI*>(pGameObject)->Set_scaleX(0.5);
-		dynamic_cast<CUI*>(pGameObject)->Set_scaleY(0.5);
-
-		}
-
-	}
-
-	
-
+	Update_Input(fTimeDelta);
+	Update_CraftWindowOn(fTimeDelta);
+	Update_InvenWindowOn(fTimeDelta);
 
 	_int iResult = 0;
-
-	//if (!InvenKey)
-	
-
 		for (auto& iter : m_mapLayer)
 		{
-
+			
+		
 			if (InvenKey && iter.second->Get_LayerName() == L"UI_Inventory" || iter.second->Get_LayerName() == L"Environment")
 			{
 				iResult = iter.second->Update_UI_Inven_Layer(fTimeDelta);
 				iResult = iter.second->Update_Layer(fTimeDelta);
-
-
+			
+			
 			}
 			else if (QuestKey && iter.second->Get_LayerName() == L"UI_Quest" || iter.second->Get_LayerName() == L"Environment")
-
+			
 			{
 				iResult = iter.second->Update_UI_Inven_Layer(fTimeDelta);
 				iResult = iter.second->Update_Layer(fTimeDelta);
-
+			
 			}
 			else if (CraftKey && iter.second->Get_LayerName() == L"UI_Inventory" || iter.second->Get_LayerName() == L"Environment")
-
+			
 			{
 				iResult = iter.second->Update_UI_Inven_Layer(fTimeDelta);
 				iResult = iter.second->Update_Layer(fTimeDelta);
-
+			
 			}
 
-
-
-
-
-			else if (!QuestKey && !InvenKey && iter.second->Get_LayerName() != L"UI_Inventory")
+			else
 			{
-
-				if (iter.second->Get_LayerName() == L"GameLogic")
-
-				{
-					int  Naviindex = dynamic_cast<CPlayer*>(Get_Object(L"GameLogic", OBJECT_PLAYER))->Get_Navi()->Get_CurrentIndex();
-
-					if (Naviindex >= 0 && Naviindex <= 18 || Naviindex >= 182 && Naviindex <= 199)
-					{
-						m_iCurrentArea = 1;
-
-
-					}
-					else if (Naviindex >= 19 && Naviindex <= 73)
-					{
-						m_iCurrentArea = 2;
-
-
-					}
-					else if (Naviindex >= 74 && Naviindex <= 128)
-					{
-						m_iCurrentArea = 3;
-
-
-					}
-					else if (Naviindex >= 129 && Naviindex <= 181)
-					{
-						m_iCurrentArea = 4;
-
-
-					}
-
-					list<CGameObject*> pNPClist = Get_Layer(L"GameLogic")->Get_ObjectList(OBJECT_NPC);
-					list<CGameObject*>::iterator iter1 = pNPClist.begin();
-
-					list<CGameObject*> pGuardlist = Get_Layer(L"GameLogic")->Get_ObjectList(OBJECT_GuardMan);
-					list<CGameObject*>::iterator iter2 = pGuardlist.begin();
-
-
-
-					for (; iter1 != pNPClist.end(); iter1++)
-					{
-						int Naviindex = dynamic_cast<CNPC*>(*iter1)->Get_NaviCom()->Get_CurrentIndex();
-					
-						if (!Object_Culling(Naviindex, m_iCurrentArea))
-							dynamic_cast<CNPC*>(*iter1)->Set_RenderOn(false);
-						else
-							dynamic_cast<CNPC*>(*iter1)->Set_RenderOn(true);
-					
-					
-					}
-					for (; iter2 != pGuardlist.end(); iter2++)
-					{
-						int Naviindex2 = dynamic_cast<CGuardMan*>(*iter2)->Get_NaviCom()->Get_CurrentIndex();
-						
-						
-					
-						if (!Object_Culling(Naviindex2, m_iCurrentArea))
-						{
-							dynamic_cast<CGuardMan*>(*iter2)->Set_RenderOn(false);
-					
-						}
-							//dynamic_cast<CGuardMan*>(*iter2)->Set_RenderOn(false);
-						else
-							dynamic_cast<CGuardMan*>(*iter2)->Set_RenderOn(true);
-					}
-
-					
-
-
-				}
-				//{
-				//	//드래곤 퀘스트 시작시 모든 비전투 npc 렌더 off!
-				//	//마지막 5번퀘스트 드래곤잡기가 시작되었을경우
-				//	list<CGameObject*> NPClist = iter.second->Get_ObjectList(OBJECT_NPC);
-				//	if(dynamic_cast<CDialog*>(m_pDialog)->Get_QuestState(5)==QUEST_State::Quest_ON)
-				//		for (auto&p : NPClist)
-				//		{
-				//		if(dynamic_cast<CNPC*>(p)->Get_NPC_Type()!=NPC_Yarl) //영주제외 비전투npc모두 렌더off
-				//		dynamic_cast<CNPC*>(p)->Set_RenderOn(false);
-				//		}
-				//	
-				//
-				//	
-				//}
-
-
-				iResult = iter.second->Update_Layer(fTimeDelta);
-
+			Update_ObjectCulling(fTimeDelta);
+			iResult = iter.second->Update_Layer(fTimeDelta);
 			}
 
-			if (iResult & 0x80000000)
-				return iResult;
+		
 
 		}
 	
-
-
-
 	return iResult;
-	
-	
-	//return CScene::Update_Scene(fTimeDelta);
+
 }
 
 void CStage::Render_Scene(void)
@@ -2516,489 +159,13 @@ void CStage::Render_Scene(void)
 		m_fTime = 0.f;
 		m_dwRenderCnt = 0;
 	}
-
 	Render_Font(L"Font_Jinji", m_szFPS, &_vec2(400.f, 20.f), D3DXCOLOR(0.f, 0.f, 0.f, 1.f));
 
-	//드래곤 죽은뒤 충돌처리해 인벤 열수있는 대화문 출력!
-	if (DragonInvenKey)
-	{
 
-		Render_Font(L"Font_Skyrim", L"A: Search", &_vec2(450, 350), D3DXCOLOR(1, 1, 1, 1.f));
-
-	}
-
-
-
-	if (InvenKey) //아이템 세부창 활성화시, npc + player인지 플레이어 혼자인지  
-	{
-
-		if (Inven_Window_SelectKey == UI_INVENTORY_Window1 && Inven_ItemWindow_Type == UI_INVENTORY_Player)		//플레이어의 아이템 창 
-		{
-
-			TCHAR tPlayergold[50] = { '\0', };
-			wsprintf(tPlayergold, L"%d", dynamic_cast<CPlayer*>(Get_Layer(L"GameLogic")->Get_Object(OBJECT_PLAYER))->Get_Gold());
-
-			//여기선 플레이어의 인벤토리 무게량, 골드값 출력
-			Render_Font(L"Font_Window2", L"Carry Weight", &_vec2(480, 550), D3DXCOLOR(0.5, 0.5, 0.5, 1.f)); //\n 줄바꿈 가능 //0.5 0.5 0.5  1 회색
-
-			Render_Font(L"Font_Window2", L"24/300", &_vec2(610, 550), D3DXCOLOR(1, 1, 1, 1.f)); //\n 줄바꿈 가능 //0.5 0.5 0.5  1 회색
-
-
-			Render_Font(L"Font_Window2", L"Gold", &_vec2(680, 550), D3DXCOLOR(0.5, 0.5, 0.5, 1.f)); //\n 줄바꿈 가능 //0.5 0.5 0.5  1 회색
-
-			//dynamic_cast<CPlayer*>(Get_Layer(L"GameLogic")->Get_Object(OBJECT_PLAYER))
-
-			Render_Font(L"Font_Window2", tPlayergold, &_vec2(730, 550), D3DXCOLOR(1, 1, 1, 1.f)); //\n 줄바꿈 가능 //0.5 0.5 0.5  1 회색
-
-
-
-
-			if (!dynamic_cast<CPlayer*>(Get_Object(L"GameLogic", OBJECT_PLAYER))->Get_Inventory().empty())
-			{
-
-				vector<ItemInfo>& PlayerItem = dynamic_cast<CPlayer*>(Get_Object(L"GameLogic", OBJECT_PLAYER))->Get_Inventory();
-				TCHAR tStat[50] = { '\0', };
-				TCHAR tWeight[50] = { '\0', };
-				TCHAR tValue[50] = { '\0', };
-
-				//윈도우2번창 E 키,  R 키 출력!
-				//dynamic_cast<CUI*>(pGameObject)->Set_fX2(20);
-				//dynamic_cast<CUI*>(pGameObject)->Set_fY(550);
-				Render_Font(L"Font_Window2", L"Equip", &_vec2(40, 550), D3DXCOLOR(1, 1, 1, 1.f)); //\n 줄바꿈 가능 //0.5 0.5 0.5  1 회색
-
-				Render_Font(L"Font_Window2", L"Drop", &_vec2(140, 550), D3DXCOLOR(1, 1, 1, 1.f)); //\n 줄바꿈 가능 //0.5 0.5 0.5  1 회색
-
-
-
-
-				for (int i = 0; i < PlayerItem.size(); ++i)
-				{
-
-					wstring wstr(PlayerItem[i].Item_Name, &PlayerItem[i].Item_Name[50]);
-					wsprintf(tStat, L"%d", PlayerItem[i].Item_Stat);
-					wsprintf(tWeight, L"%d", PlayerItem[i].Item_Weight);
-					wsprintf(tValue, L"%d", PlayerItem[i].Item_Value);
-
-
-					if (InvenItemSelectKey == i)
-					{
-						Render_Font(L"Font_Inven", wstr.c_str(), &_vec2(240, i * 30 + 200), D3DXCOLOR(1, 1, 1, 1.f)); //\n 줄바꿈 가능 //0.5 0.5 0.5  1 회색
-						//아이템 윈도우창의 아이템 이름 출력
-
-
-						Render_Font(L"Font_ItemName", wstr.c_str(), &_vec2(525, 430), D3DXCOLOR(1, 1, 1, 1.f)); //\n 줄바꿈 가능 //0.5 0.5 0.5  1 회색
-						////아이템 정보창의 아이템 이름 출력
-						//
-						//
-						Render_Font(L"Font_ItemName", tStat, &_vec2(500, 460), D3DXCOLOR(1, 1, 1, 1.f)); //\n 줄바꿈 가능 //0.5 0.5 0.5  1 회색
-						////아이템 정보창의 아이템 스탯 출력
-						//
-						//
-						Render_Font(L"Font_ItemName", tWeight, &_vec2(630, 460), D3DXCOLOR(1, 1, 1, 1.f)); //\n 줄바꿈 가능 //0.5 0.5 0.5  1 회색
-						//
-						////아이템 정보창의 아이템 무게 출력
-						//
-						Render_Font(L"Font_ItemName", tValue, &_vec2(720, 460), D3DXCOLOR(1, 1, 1, 1.f)); //\n 줄바꿈 가능 //0.5 0.5 0.5  1 회색
-
-						//아이템 정보창의 아이템 가치 출력
-
-
-
-
-
-
-					}
-					else // 선택안 된 나머지 아이템 이름은 회색 출력
-					{
-						Render_Font(L"Font_Inven", wstr.c_str(), &_vec2(240, i * 30 + 200), D3DXCOLOR(0.5, 0.5, 0.5, 1.f)); //\n 줄바꿈 가능 //0.5 0.5 0.5  1 회색
-
-					}
-					//y값 490까지가 마지노선!
-
-					//일단 i=0번째부터 현재 선택한 아이템 표시-> selectkey를 설정해 해당하는 번째의 font만 흰색으로 출력!
-
-
-
-				}
-			}
-		}
-		if (Inven_Window_SelectKey == UI_INVENTORY_Window1 && Inven_ItemWindow_Type == UI_INVENTORY_NPC)	//NPC의 아이템 창 
-		{
-			TCHAR tPlayergold[50] = { '\0', };
-			wsprintf(tPlayergold, L"%d", dynamic_cast<CPlayer*>(Get_Layer(L"GameLogic")->Get_Object(OBJECT_PLAYER))->Get_Gold());
-
-			Render_Font(L"Font_Window2", L"Player Gold", &_vec2(410, 550), D3DXCOLOR(0.5, 0.5, 0.5, 1.f)); //\n 줄바꿈 가능 //0.5 0.5 0.5  1 회색
-
-			Render_Font(L"Font_Window2", tPlayergold, &_vec2(540, 550), D3DXCOLOR(1, 1, 1, 1.f)); //\n 줄바꿈 가능 //0.5 0.5 0.5  1 회색
-
-
-			Render_Font(L"Font_Window2", L"NPC Gold", &_vec2(650, 550), D3DXCOLOR(0.5, 0.5, 0.5, 1.f)); //\n 줄바꿈 가능 //0.5 0.5 0.5  1 회색
-
-			Render_Font(L"Font_Window2", L"1000", &_vec2(750, 550), D3DXCOLOR(1, 1, 1, 1.f)); //\n 줄바꿈 가능 //0.5 0.5 0.5  1 회색
-
-
-			//대화중인 npc의 아이템 목록을 출력!!! 
-			//대화중인 npc가 누군지 알아와  클래스는 NPC로 통일, Object_NPC의 리스트를 불러와 변수중에 npc타입이 먼지 보고 판별
-
-			list<CGameObject*> NPClist = Get_Layer(L"GameLogic")->Get_ObjectList(OBJECT_NPC);
-			list<CGameObject*>::iterator iter = NPClist.begin();
-			vector<ItemInfo> NPCItem;
-			for (; iter != NPClist.end(); iter++)
-			{
-				if (dynamic_cast<CNPC*>(*iter)->Get_NPC_Type() == dynamic_cast<CDialog*>(m_pDialog)->Get_NPC_Type())
-					NPCItem = dynamic_cast<CNPC*>(*iter)->Get_Inventory();
-			}
-
-			{
-
-				//vector<ItemInfo>& NPCItem = dynamic_cast<CPlayer*>(Get_Object(L"GameLogic", OBJECT_PLAYER))->Get_Inventory();
-				TCHAR tStat[50] = { '\0', };
-				TCHAR tWeight[50] = { '\0', };
-				TCHAR tValue[50] = { '\0', };
-				TCHAR tGold[50] = { '\0', };
-
-				//윈도우2번창 E 키,  R 키 출력!
-				//dynamic_cast<CUI*>(pGameObject)->Set_fX2(20);
-				//dynamic_cast<CUI*>(pGameObject)->Set_fY(550);
-				Render_Font(L"Font_Window2", L"Buy", &_vec2(40, 550), D3DXCOLOR(1, 1, 1, 1.f)); //\n 줄바꿈 가능 //0.5 0.5 0.5  1 회색
-
-				Render_Font(L"Font_Window2", L"Exit", &_vec2(140, 550), D3DXCOLOR(1, 1, 1, 1.f)); //\n 줄바꿈 가능 //0.5 0.5 0.5  1 회색
-
-
-
-
-				for (int i = 0; i < NPCItem.size(); ++i)
-				{
-
-					wstring wstr(NPCItem[i].Item_Name, &NPCItem[i].Item_Name[50]);
-					wsprintf(tStat, L"%d", NPCItem[i].Item_Stat);
-					wsprintf(tWeight, L"%d", NPCItem[i].Item_Weight);
-					wsprintf(tValue, L"%d", NPCItem[i].Item_Value);
-
-
-
-
-					if (InvenItemSelectKey == i)
-					{
-						wsprintf(tGold, L"%d", NPCItem[InvenItemSelectKey].Item_Value);
-
-
-						Render_Font(L"Font_Inven", wstr.c_str(), &_vec2(240, i * 30 + 200), D3DXCOLOR(1, 1, 1, 1.f)); //\n 줄바꿈 가능 //0.5 0.5 0.5  1 회색
-						//y값 490까지가 마지노선!
-
-
-
-
-						if (dynamic_cast<CUI*>(Get_Layer(L"UI_Inventory")->Get_UI_InvenObject(UI_INVENTORY_HowmanyWindow))->Get_RenderOn() == false)
-						{
-
-							Render_Font(L"Font_ItemName", wstr.c_str(), &_vec2(525, 430), D3DXCOLOR(1, 1, 1, 1.f)); //\n 줄바꿈 가능 //0.5 0.5 0.5  1 회색
-
-
-
-
-							Render_Font(L"Font_ItemName", tStat, &_vec2(500, 460), D3DXCOLOR(1, 1, 1, 1.f)); //\n 줄바꿈 가능 //0.5 0.5 0.5  1 회색
-							////아이템 정보창의 아이템 스탯 출력
-							//
-							//
-							Render_Font(L"Font_ItemName", tWeight, &_vec2(630, 460), D3DXCOLOR(1, 1, 1, 1.f)); //\n 줄바꿈 가능 //0.5 0.5 0.5  1 회색
-							//
-							////아이템 정보창의 아이템 무게 출력
-							//
-							Render_Font(L"Font_ItemName", tValue, &_vec2(720, 460), D3DXCOLOR(1, 1, 1, 1.f)); //\n 줄바꿈 가능 //0.5 0.5 0.5  1 회색
-
-							//아이템 정보창의 아이템 가치 출력
-
-						}
-						else
-						{
-							Render_Font(L"Font_ItemName", L"How many?", &_vec2(525, 410), D3DXCOLOR(1, 1, 1, 1.f)); //\n 줄바꿈 가능 //0.5 0.5 0.5  1 회색
-
-							Render_Font(L"Font_Window2", L"Yes", &_vec2(550, 480), D3DXCOLOR(0.5, 0.5, 0.5, 1.f)); //\n 줄바꿈 가능 //0.5 0.5 0.5  1 회색
-
-							Render_Font(L"Font_Window2", L"No", &_vec2(700, 480), D3DXCOLOR(0.5, 0.5, 0.5, 1.f)); //\n 줄바꿈 가능 //0.5 0.5 0.5  1 회색
-
-							//아래 윈도우2번창에 현재 선택한 아이템의 골드값을 플레이어 골드 옆에 표시해준다!
-							Render_Font(L"Font_Window2", L"(-", &_vec2(585, 550), D3DXCOLOR(1, 0, 0, 1.f)); //\n 줄바꿈 가능 //0.5 0.5 0.5  1 회색
-
-							Render_Font(L"Font_Window2", tGold, &_vec2(605, 550), D3DXCOLOR(1, 0, 0, 1.f)); //\n 줄바꿈 가능 //0.5 0.5 0.5  1 회색
-
-							Render_Font(L"Font_Window2", L")", &_vec2(630, 550), D3DXCOLOR(1, 0, 0, 1.f)); //\n 줄바꿈 가능 //0.5 0.5 0.5  1 회색
-
-							//Render_Font(L"Font_Window2", L"1000", &_vec2(540, 550), D3DXCOLOR(1, 1, 1, 1.f)); //\n 줄바꿈 가능 //0.5 0.5 0.5  1 회색
-
-
-						}
-
-
-
-
-					}
-					else // 선택안 된 나머지 아이템 이름은 회색 출력
-					{
-						Render_Font(L"Font_Inven", wstr.c_str(), &_vec2(240, i * 30 + 200), D3DXCOLOR(0.5, 0.5, 0.5, 1.f)); //\n 줄바꿈 가능 //0.5 0.5 0.5  1 회색
-
-					}
-
-				}
-
-
-			}
-		}
-
-
-
-
-
-	}
-	if (CraftKey)
-	{
-
-		if (!dynamic_cast<CPlayer*>(Get_Object(L"GameLogic", OBJECT_PLAYER))->Get_Inventory().empty())
-
-		{
-			vector<ItemInfo>& PlayerItem = dynamic_cast<CPlayer*>(Get_Object(L"GameLogic", OBJECT_PLAYER))->Get_Inventory();
-			TCHAR tStat[50] = { '\0', };
-			TCHAR tWeight[50] = { '\0', };
-			TCHAR tValue[50] = { '\0', };
-
-
-			Render_Font(L"Font_Window2", L"Craft", &_vec2(40, 550), D3DXCOLOR(1, 1, 1, 1.f)); //\n 줄바꿈 가능 //0.5 0.5 0.5  1 회색
-
-			Render_Font(L"Font_Window2", L"Exit", &_vec2(140, 550), D3DXCOLOR(1, 1, 1, 1.f)); //\n 줄바꿈 가능 //0.5 0.5 0.5  1 회색
-
-
-
-			for (int i = 0; i < PlayerItem.size(); ++i)
-			{
-				Render_Font(L"Font_Window2", L"Requires :", &_vec2(550, 480), D3DXCOLOR(1, 1, 1, 1.f)); 
-
-				Render_Font(L"Font_Window2", L"MoonStone", &_vec2(550, 500), D3DXCOLOR(1, 1, 1, 1.f));
-
-
-
-				if (PlayerItem[i].Item_Type == ITEM_Type::ITEM_WEAPON || PlayerItem[i].Item_Type == ITEM_Type::ITEM_MISC)
-				{
-
-					wstring wstr(PlayerItem[i].Item_Name, &PlayerItem[i].Item_Name[50]);
-					wsprintf(tStat, L"%d", PlayerItem[i].Item_Stat);
-					wsprintf(tWeight, L"%d", PlayerItem[i].Item_Weight);
-					wsprintf(tValue, L"%d", PlayerItem[i].Item_Value);
-
-
-					if (InvenItemSelectKey == i)
-					{
-
-						Render_Font(L"Font_Inven", wstr.c_str(), &_vec2(240, i * 30 + 200), D3DXCOLOR(1, 1, 1, 1.f)); //\n 줄바꿈 가능 //0.5 0.5 0.5  1 회색
-						//아이템 윈도우창의 아이템 이름 출력
-
-						Render_Font(L"Font_ItemName", wstr.c_str(), &_vec2(475, 380), D3DXCOLOR(1, 1, 1, 1.f)); //\n 줄바꿈 가능 //0.5 0.5 0.5  1 회색
-
-						if (PlayerItem[i].Item_Type == ITEM_Type::ITEM_WEAPON)
-						Render_Font(L"Font_ItemName",L"(Legendary)", &_vec2(650, 380), D3DXCOLOR(1, 1, 1, 1.f)); //\n 줄바꿈 가능 //0.5 0.5 0.5  1 회색
-						
-						//Render_Font(L"Font_ItemName", wstr.c_str(), &_vec2(525, 380), D3DXCOLOR(1, 1, 1, 1.f)); //\n 줄바꿈 가능 //0.5 0.5 0.5  1 회색
-
-																												
-																												
-						////아이템 정보창의 아이템 이름 출력
-						//
-						//
-						Render_Font(L"Font_ItemName", tStat, &_vec2(500, 410), D3DXCOLOR(1, 1, 1, 1.f)); //\n 줄바꿈 가능 //0.5 0.5 0.5  1 회색
-
-						if(PlayerItem[i].Item_Type==ITEM_Type::ITEM_WEAPON)
-						Render_Font(L"Font_ItemName", L"+100", &_vec2(500, 425), D3DXCOLOR(1, 0, 0, 1.f)); //\n 줄바꿈 가능 //0.5 0.5 0.5  1 회색
-
-						////아이템 정보창의 아이템 스탯 출력
-						//
-						//
-						Render_Font(L"Font_ItemName", tWeight, &_vec2(630, 410), D3DXCOLOR(1, 1, 1, 1.f)); //\n 줄바꿈 가능 //0.5 0.5 0.5  1 회색
-						
-					
-																										   //
-						////아이템 정보창의 아이템 무게 출력
-						//
-						Render_Font(L"Font_ItemName", tValue, &_vec2(720, 410), D3DXCOLOR(1, 1, 1, 1.f)); //\n 줄바꿈 가능 //0.5 0.5 0.5  1 회색
-
-						if (PlayerItem[i].Item_Type == ITEM_Type::ITEM_WEAPON)
-							Render_Font(L"Font_ItemName", L"+1000", &_vec2(720, 425), D3DXCOLOR(1, 0, 0, 1.f)); //\n 줄바꿈 가능 //0.5 0.5 0.5  1 회색
-
-						//아이템 정보창의 아이템 가치 출력
-
-
-					}
-					else
-					{
-						Render_Font(L"Font_Inven", wstr.c_str(), &_vec2(240, i * 30 + 200), D3DXCOLOR(0.5, 0.5, 0.5, 1.f)); //\n 줄바꿈 가능 //0.5 0.5 0.5  1 회색
-
-
-
-					}
-
-
-
-				}
-			}
-
-
-
-
-
-
-		}
-
-
-
-
-	}
-
-
-	if (QuestKey)
-	{
-		int QuestCount = 0;
-
-
-		Render_Font(L"Font_Quest", L"QUESTS", &_vec2(140, 120), D3DXCOLOR(1, 1, 1, 1.f));
-
-
-		Render_Font(L"Font_Quest", L"OBJECTIVES", &_vec2(447, 347), D3DXCOLOR(1, 1, 1, 1.f));
-
-		vector<QuestInfo> Questlist = dynamic_cast<CDialog*>(m_pDialog)->Get_Questlist();
-
-		int QuestCompleteCount = 0;
-		for (auto p : Questlist)
-		{
-			
-
-			if (p.Quest_State == QUEST_State::Quest_ON)
-			{
-				TCHAR Name[100] = { 0, };
-
-				MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, p.Quest_Name, strlen(p.Quest_Name), Name, 100);
-
-
-				Render_Font(L"Font_Quest", Name, &_vec2(100, 330 - QuestCount * 50), D3DXCOLOR(1, 1, 1, 1.f));
-
-				Render_Font(L"Font_ItemName", Name, &_vec2(400, 195), D3DXCOLOR(1, 1, 1, 1.f));
-
-				QuestCount++;
-
-				if (p.Quest_ID == 0)
-				{
-					Render_Font(L"Font_Inven", L"Go to SkyForge and deliver the BlackSmith's item", &_vec2(320, 380), D3DXCOLOR(1, 1, 1, 1.f)); //\n 줄바꿈 가능 //0.5 0.5 0.5  1 회색
-
-				}
-				if (p.Quest_ID == 1)
-				{
-					Render_Font(L"Font_Inven", L"Use reward items to strengthen your Weapons!", &_vec2(320, 380), D3DXCOLOR(1, 1, 1, 1.f)); //\n 줄바꿈 가능 //0.5 0.5 0.5  1 회색
-
-				}
-				if (p.Quest_ID == 2)
-				{
-					Render_Font(L"Font_Inven", L"Bring the unpaid money to the Guard", &_vec2(320,380), D3DXCOLOR(1, 1, 1, 1.f)); //\n 줄바꿈 가능 //0.5 0.5 0.5  1 회색
-
-				}
-				if (p.Quest_ID == 3)
-				{
-					Render_Font(L"Font_Inven", L"Defeat the guards", &_vec2(320, 380), D3DXCOLOR(1, 1, 1, 1.f)); //\n 줄바꿈 가능 //0.5 0.5 0.5  1 회색
-
-				}
-				if (p.Quest_ID == 4)
-				{
-					Render_Font(L"Font_Inven", L"Defeat the Dragon", &_vec2(320, 380), D3DXCOLOR(1, 1, 1, 1.f)); //\n 줄바꿈 가능 //0.5 0.5 0.5  1 회색
-
-				}
-				if (p.Quest_ID == 5)
-				{
-					Render_Font(L"Font_Inven", L"Lure the Dragon into the Trap", &_vec2(320, 380), D3DXCOLOR(1, 1, 1, 1.f)); //\n 줄바꿈 가능 //0.5 0.5 0.5  1 회색
-
-				}
-
-
-
-			}
-			if (p.Quest_State == QUEST_State::Quest_Complete)
-			{
-				QuestCompleteCount++;
-
-				TCHAR Name[100] = { 0, };
-
-				MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, p.Quest_Name, strlen(p.Quest_Name), Name, 100);
-
-
-				Render_Font(L"Font_Quest", Name, &_vec2(100, 330 + QuestCompleteCount * 20), D3DXCOLOR(0.5, 0.5, 0.5, 1.f));
-
-			}
-		}
-
-
-	}
-
-
-	if (!InvenKey)
-	{
-		int count = 0;
-		for (auto p : m_vecNPC_ColliderList)
-		{
-			if (p == true)
-			{
-				DialogCheck = true;
-				Render_Font(L"Font_Skyrim", L"Talk", &_vec2(450, 350), D3DXCOLOR(1, 1, 1, 1.f));
-				Render_Font(L"Font_Skyrim", dynamic_cast<CDialog*>(m_pDialog)->Get_NPC_Name().c_str(), &_vec2(420, 380), D3DXCOLOR(1, 1, 1, 1.f));
-
-				dynamic_cast<CPlayer*>(Get_Object(L"GameLogic", OBJECT_PLAYER))->Set_DialogON(true);
-
-				dynamic_cast<CUI*>(Get_Layer(L"UI_Inventory")->Get_UI_InvenObject(UI_INVENTORY_F))->Set_RenderOn(true);
-				dynamic_cast<CUI*>(Get_Layer(L"UI_Inventory")->Get_UI_InvenObject(UI_INVENTORY_F))->Set_fX2(420);
-				dynamic_cast<CUI*>(Get_Layer(L"UI_Inventory")->Get_UI_InvenObject(UI_INVENTORY_F))->Set_fY(350);
-
-				//InvenKey = true;
-				//Render_Font(L"Font_Skyrim", L"Talk", &_vec2(450, 350), D3DXCOLOR(1, 1, 1, 1.f));
-
-				count++;
-			}
-
-		}
-		if (count == 0)
-		{
-			DialogCheck = false;
-			dynamic_cast<CPlayer*>(Get_Object(L"GameLogic", OBJECT_PLAYER))->Set_DialogON(false);
-
-			dynamic_cast<CDialog*>(dynamic_cast<CPlayer*>(Get_Object(L"GameLogic", OBJECT_PLAYER))->Get_Dialog())->Set_RenderOn(false);
-
-
-			dynamic_cast<CUI*>(Get_Layer(L"UI_Inventory")->Get_UI_InvenObject(UI_INVENTORY_F))->Set_RenderOn(false);
-
-		}
-
-
-	}
-	if (CraftOn) //제련 오브젝트와 충돌 상태시 메시지 출력
-	{
-
-		Render_Font(L"Font_Skyrim", L"Craft", &_vec2(450, 350), D3DXCOLOR(1, 1, 1, 1.f));
-
-
-	}
-	if (m_bEKey && CraftKey) //강화 의사 묻는 윈도우창 들어갈 폰트 출력
-
-	{
-		Render_Font(L"Font_Quest", L"Do you want to strengthen this item?", &_vec2(250, 300), D3DXCOLOR(1, 1, 1, 1.f));
-
-		Render_Font(L"Font_Skyrim", L"Yes", &_vec2(300, 350), D3DXCOLOR(1, 1, 1, 1.f));
-
-		Render_Font(L"Font_Skyrim", L"No", &_vec2(450, 350), D3DXCOLOR(1, 1, 1, 1.f));
-
-	}
-
-	if (PullOn1 || PullOn2 || PullOn3)	//레버 접촉시 출력
-	{
-
-		Render_Font(L"Font_Skyrim", L"E: PULL", &_vec2(450, 350), D3DXCOLOR(1, 1, 1, 1.f));
-
-
-	}
-
+	Render_InvenWindow();
+	Render_CraftWindow();
+	Render_QuestWindow();
+	Render_Dialog();
 
 }
 
@@ -3006,10 +173,8 @@ _bool CStage::Collison_Scene(const _float & ftimeDelta)
 {
 	m_fColliTime += ftimeDelta;
 	m_fColliDragonTime += ftimeDelta;
-	m_PlayerSPTime += ftimeDelta;
+
 	CLayer*		pLayer = Get_Layer(L"GameLogic");
-
-
 	CLayer*		pLayer_UI = Get_Layer(L"UI");
 
 
@@ -3067,78 +232,6 @@ _bool CStage::Collison_Scene(const _float & ftimeDelta)
 
 
 	CGameObject* pDragon = Get_Object(L"GameLogic", OBJECT_DRAGON);
-
-
-
-	list<CGameObject*>::iterator iterHP = PlayerHP.begin();
-	if (m_PlayerSPTime >= 1.5)
-		if (dynamic_cast<CPlayer*>(pPlayer)->Get_ActionState() == CURRENT_BLOCK)
-		{
-			int count = 0;
-			for (int i = 0; iterHP != PlayerHP.end(); i++, iterHP++)
-			{
-				if (dynamic_cast<CHp*>(*iterHP)->Get_RenderOn() == false)
-				{
-					CSoundMgr::Get_Instance()->StopSound(CSoundMgr::PLAYER);
-					CSoundMgr::Get_Instance()->PlaySound(L"GeraltDialogue__00009FA5_1.wav", CSoundMgr::PLAYER);
-					dynamic_cast<CHp*>(*iterHP)->Set_RenderOn(true);
-					break;
-				}
-			}
-			m_PlayerSPTime = 0;
-		}
-
-
-
-
-	list<CGameObject*>::iterator iterSP = PlayerSP.begin();
-	if(m_PlayerSPTime>=1.5)
-	if (dynamic_cast<CPlayer*>(pPlayer)->Get_ActionState() == CURRENT_IDLE)
-	{
-		int count = 0;
-		for (int i = 0; iterSP != PlayerSP.end(); i++, iterSP++)
-		{
-			if (dynamic_cast<CSp*>(*iterSP)->Get_RenderOn() == false)
-			{
-				dynamic_cast<CSp*>(*iterSP)->Set_RenderOn(true);
-				break;
-			}
-		}
-		m_PlayerSPTime = 0;
-	}
-
-	list<CGameObject*>::iterator iterSP2 = PlayerSP.end();
-	if (dynamic_cast<CPlayer*>(pPlayer)->Get_ActionState() == CURRENT_BASH)
-	{
-		
-		for (int i = 0; iterSP2 != PlayerSP.begin(); i++, iterSP2--)
-				if (!PlayerSP.empty())
-				{
-					if(i==0)
-					dynamic_cast<CSp*>(*(--iterSP2))->Set_RenderOn(false);
-					else
-						dynamic_cast<CSp*>(*(iterSP2))->Set_RenderOn(false);
-
-				}
-	}
-		
-	
-	
-	list<CGameObject*>::iterator iterSP3 = PlayerSP.end();
-	if (dynamic_cast<CPlayer*>(pPlayer)->Get_ActionState() == CURRENT_POWERATTACK)
-	{
-		for (int i = 0; iterSP3 != PlayerSP.begin(); i++, iterSP3--)
-			if (!PlayerSP.empty())
-			{		
-
-				if (i == 0)
-					dynamic_cast<CSp*>(*(--iterSP3))->Set_RenderOn(false);
-				else
-					dynamic_cast<CSp*>(*(iterSP3))->Set_RenderOn(false);
-
-			}
-	}
-
 
 
 
@@ -4208,6 +1301,89 @@ void CStage::Change_BGM(const _float & ftimeDelta)
 
 }
 
+void CStage::Update_GageBar(const _float & ftimeDelta)
+{
+	m_PlayerSPTime += ftimeDelta;
+	CLayer*		pLayer = Get_Layer(L"GameLogic");
+	CLayer*		pLayer_UI = Get_Layer(L"UI");
+
+
+
+	list<CGameObject*> PlayerHP = pLayer_UI->Get_ObjectList(OBJECT_HP);
+	list<CGameObject*> PlayerSP = pLayer_UI->Get_ObjectList(OBJECT_SP);
+	CGameObject* pPlayer = pLayer->Get_Object(OBJECT_PLAYER);
+
+
+	list<CGameObject*>::iterator iterHP = PlayerHP.begin();
+	if (m_PlayerSPTime >= 1.5)
+		if (dynamic_cast<CPlayer*>(pPlayer)->Get_ActionState() == CURRENT_BLOCK)
+		{
+			int count = 0;
+			for (int i = 0; iterHP != PlayerHP.end(); i++, iterHP++)
+			{
+				if (dynamic_cast<CHp*>(*iterHP)->Get_RenderOn() == false)
+				{
+					CSoundMgr::Get_Instance()->StopSound(CSoundMgr::PLAYER);
+					CSoundMgr::Get_Instance()->PlaySound(L"GeraltDialogue__00009FA5_1.wav", CSoundMgr::PLAYER);
+					dynamic_cast<CHp*>(*iterHP)->Set_RenderOn(true);
+					break;
+				}
+			}
+			m_PlayerSPTime = 0;
+		}
+
+
+
+
+	list<CGameObject*>::iterator iterSP = PlayerSP.begin();
+	if (m_PlayerSPTime >= 1.5)
+		if (dynamic_cast<CPlayer*>(pPlayer)->Get_ActionState() == CURRENT_IDLE)
+		{
+			int count = 0;
+			for (int i = 0; iterSP != PlayerSP.end(); i++, iterSP++)
+			{
+				if (dynamic_cast<CSp*>(*iterSP)->Get_RenderOn() == false)
+				{
+					dynamic_cast<CSp*>(*iterSP)->Set_RenderOn(true);
+					break;
+				}
+			}
+			m_PlayerSPTime = 0;
+		}
+
+	list<CGameObject*>::iterator iterSP2 = PlayerSP.end();
+	if (dynamic_cast<CPlayer*>(pPlayer)->Get_ActionState() == CURRENT_BASH)
+	{
+
+		for (int i = 0; iterSP2 != PlayerSP.begin(); i++, iterSP2--)
+			if (!PlayerSP.empty())
+			{
+				if (i == 0)
+					dynamic_cast<CSp*>(*(--iterSP2))->Set_RenderOn(false);
+				else
+					dynamic_cast<CSp*>(*(iterSP2))->Set_RenderOn(false);
+
+			}
+	}
+
+
+
+	list<CGameObject*>::iterator iterSP3 = PlayerSP.end();
+	if (dynamic_cast<CPlayer*>(pPlayer)->Get_ActionState() == CURRENT_POWERATTACK)
+	{
+		for (int i = 0; iterSP3 != PlayerSP.begin(); i++, iterSP3--)
+			if (!PlayerSP.empty())
+			{
+
+				if (i == 0)
+					dynamic_cast<CSp*>(*(--iterSP3))->Set_RenderOn(false);
+				else
+					dynamic_cast<CSp*>(*(iterSP3))->Set_RenderOn(false);
+
+			}
+	}
+}
+
 _int CStage::Load_ItemInfo()
 {
 
@@ -4908,6 +2084,2133 @@ _int CStage::Update_Monster_InventoryWindow(const _float & fTimeDelta)
 
 
 	return _int();
+}
+
+void CStage::Update_QuestState()
+{
+	vector<QuestInfo> vecQuest = dynamic_cast<CDialog*>(m_pDialog)->Get_Questlist();
+	int inext_questID = -1;
+	int inext_npcCode = -1;
+	for (auto p : vecQuest)
+	{
+
+		if (p.Quest_State == Quest_ON)
+		{
+			inext_questID = p.Quest_ID + 1;
+		}
+		if (inext_questID == p.Quest_ID)
+		{
+			inext_npcCode = p.NPC_Code;
+			Update_QuestLocation(inext_npcCode);
+		}
+
+	}
+}
+
+void CStage::Update_QuestLocation(int iNpcCode)
+{
+	_vec3 vPos;
+	float radian;
+	list<CGameObject*> pNPClist = CManagement::GetInstance()->Get_Scene()->Get_Layer(L"GameLogic")->Get_ObjectList(OBJECT_NPC);
+
+
+
+	for (auto p : pNPClist)
+		if (dynamic_cast<CNPC*>(p)->Get_NPC_Type() == iNpcCode)
+		{
+			CGameObject* pMap = CManagement::GetInstance()->Get_Scene()->Get_Layer(L"UI")->Get_Object(OBJECT_QuestBarMARKER);
+			dynamic_cast<CUI*>(pMap)->Set_RenderOn(true);
+
+			vPos = dynamic_cast<CNPC*>(p)->Get_Transform()->m_vInfo[INFO::INFO_POS];
+
+			_vec3 vUp = { 0,1,0 };
+
+			_vec3 vPlayer = dynamic_cast<CPlayer*>(Get_Object(L"GameLogic", OBJECT_PLAYER))->Get_Transform()->m_vInfo[INFO::INFO_POS];
+			_vec3 vPlayerRight;
+			D3DXVec3Cross(&vPlayerRight, &vUp, &dynamic_cast<CPlayer*>(Get_Object(L"GameLogic", OBJECT_PLAYER))->Get_Transform()->m_vInfo[INFO::INFO_LOOK]);
+			_vec3 vDir = vPlayer - vPos;
+
+			radian = acos(D3DXVec3Dot(&vDir, &vPlayerRight))*(180 / 3.14f);
+
+			if (radian >= 70 && radian <= 120)
+			{
+				pMap = CManagement::GetInstance()->Get_Scene()->Get_Layer(L"UI")->Get_Object(OBJECT_DIR);
+				dynamic_cast<CUI*>(pMap)->Set_RenderOn(true);
+				dynamic_cast<CUI*>(pMap)->Set_TexIndex(3);
+				dynamic_cast<CUI*>(pMap)->Set_SizeX(8);
+				dynamic_cast<CUI*>(pMap)->Set_SizeY(15);
+
+			}
+			if (radian >= 0 && radian < 70)
+			{
+				pMap = CManagement::GetInstance()->Get_Scene()->Get_Layer(L"UI")->Get_Object(OBJECT_DIR);
+				dynamic_cast<CUI*>(pMap)->Set_RenderOn(true);
+				dynamic_cast<CUI*>(pMap)->Set_TexIndex(0);
+
+				dynamic_cast<CUI*>(pMap)->Set_SizeX(6);
+				dynamic_cast<CUI*>(pMap)->Set_SizeY(15);
+			}
+			if (radian > 120 && radian <= 180)
+			{
+				pMap = CManagement::GetInstance()->Get_Scene()->Get_Layer(L"UI")->Get_Object(OBJECT_DIR);
+				dynamic_cast<CUI*>(pMap)->Set_RenderOn(true);
+				dynamic_cast<CUI*>(pMap)->Set_TexIndex(1);
+
+				dynamic_cast<CUI*>(pMap)->Set_SizeX(12);
+				dynamic_cast<CUI*>(pMap)->Set_SizeY(15);
+			}
+			if ((vDir.x + vDir.z < 0))
+			{
+				//if(radian >= 70 && radian <= 120)
+				//
+				//dynamic_cast<CUI*>(pMap)->Set_TexIndex(3);
+				//
+				//dynamic_cast<CUI*>(pMap)->Set_SizeX(8);
+				//dynamic_cast<CUI*>(pMap)->Set_SizeY(15);
+			}
+
+
+		}
+}
+
+void CStage::Update_Input(const float & fTimeDelta)
+{
+	if (GetAsyncKeyState('I') & 0x0001) //인벤토리 키가 눌렸을 경우
+	{
+		CSoundMgr::Get_Instance()->PlaySound(L"ui_menu_cancel.wav", CSoundMgr::UI);
+
+		m_nIkey = true;
+		Update_InventoryScene(fTimeDelta);
+
+
+	}
+	if (dynamic_cast<CDialog*>(m_pDialog)->Get_InvenEnterKey()) //npc 대화문에서 인벤창보기 클릭시 !
+	{
+		Update_NPC_InventoryScene(fTimeDelta);
+		dynamic_cast<CDialog*>(m_pDialog)->Set_InvenEnterKey(false);
+
+	}
+
+	//퀘스트 창 현황 보기 !
+	if (GetAsyncKeyState('Q') & 0x0001)
+	{
+		CSoundMgr::Get_Instance()->PlaySound(L"ui_menu_cancel.wav", CSoundMgr::UI);
+
+		Update_QuestWindow(fTimeDelta);
+	}
+	if (!InvenKey && !CraftKey && GetAsyncKeyState('E') & 0x0001)
+	{
+		if (PullOn1 || PullOn2 || PullOn3)
+		{
+			list<CGameObject*> pList = Get_Layer(L"Environment")->Get_ObjectList(OBJECT_WALL);
+
+
+			//obj_pullchain_down_01
+
+			int i = 0;
+			for (auto&p : pList)
+			{
+
+				if (i == 0 && PullOn1)
+				{
+					dynamic_cast<CStone*>(p)->Set_ID(OBJECT_WALL);
+					CSoundMgr::Get_Instance()->PlaySound(L"obj_pullchain_down_01.wav", CSoundMgr::UI);
+
+				}
+				if (i == 1 && PullOn2)
+				{
+					dynamic_cast<CStone*>(p)->Set_ID(OBJECT_WALL);
+					CSoundMgr::Get_Instance()->PlaySound(L"obj_pullchain_down_01.wav", CSoundMgr::UI);
+
+				}
+				if (i == 2 && PullOn3)
+				{
+					dynamic_cast<CStone*>(p)->Set_ID(OBJECT_WALL);
+					CSoundMgr::Get_Instance()->PlaySound(L"obj_pullchain_down_01.wav", CSoundMgr::UI);
+
+				}
+
+				i++;
+			}
+			//if (PullDelayTime >= 2)
+			{
+				dynamic_cast<CDynamicCamera*>(Get_Object(L"Environment", OBJECT_CAMERA))
+					->Set_POV(OBJECT_DRAGON);
+				dynamic_cast<CDragon*>(Get_Object(L"GameLogic", OBJECT_DRAGON))
+					->Set_Lever(true);
+
+			}
+
+
+
+
+
+		}
+
+	}
+
+
+	//Smthing 제련 창 키
+	if (CraftOn &&  GetAsyncKeyState('C') & 0x0001)
+	{
+		CSoundMgr::Get_Instance()->PlaySound(L"ui_menu_cancel.wav", CSoundMgr::UI);
+		Update_SmithingWindow(fTimeDelta);
+
+	}
+
+
+}
+
+void CStage::Update_InvenWindowSelect(int InvenWindowNumber, int InvenType)
+{
+	CLayer*		pUILayer = Get_Layer(L"UI_Inventory");
+	CGameObject*			pGameObject = nullptr;
+
+	if (Inven_Window_SelectKey == 0) //0번 윈도우 창 일때 , 플레이어 혼자만 볼시
+	{
+
+
+	if (InvenSelectKey < UI_INVENTORY_ALL)
+	{
+		InvenSelectKey = UI_INVENTORY_ALL;
+	}
+	if (InvenSelectKey >= UI_INVENTORY_POTION)
+	{
+		InvenSelectKey = UI_INVENTORY_POTION;
+	}
+
+
+		//if 현재 플레이어가 선택하고 있는창이 window0 인지 window1인지 식별후 각 창에 맞는 텍스처키 선택할수있게 해야함
+		for (int i = UI_INVENTORY_ALL; i <= UI_INVENTORY_POTION; i++) //All~ Potion 까지 선택할수 있게
+
+		{
+
+		
+			if (InvenSelectKey == i)
+			{
+
+				(pGameObject) = pUILayer->Get_UI_InvenObject(i);
+				dynamic_cast<CFont_Texture*>(pGameObject)->Set_TextureIndex(1);  //현재 선택한 창, 밝게
+
+			}
+
+			if (InvenSelectKey ==UI_INVENTORY_POTION)
+			{
+				(pGameObject) = pUILayer->Get_UI_InvenObject(i - 1);
+				dynamic_cast<CFont_Texture*>(pGameObject)->Set_TextureIndex(0); //이전 선택창 다시 어둡게!
+
+			}
+			if (InvenSelectKey  == UI_INVENTORY_ALL)
+			{
+				(pGameObject) = pUILayer->Get_UI_InvenObject(i + 1);
+				dynamic_cast<CFont_Texture*>(pGameObject)->Set_TextureIndex(0); //이전 선택창 다시 어둡게!
+
+			}
+
+
+
+		}
+	}
+	else if (Inven_Window_SelectKey == UI_INVENTORY_Window3)// 0번 윈도우창이 npc/플레이어 인벤 정보 모두 포함하는 창일시
+
+	{
+	
+		
+		if (InvenSelectKey < UI_INVENTORY_NPC_ALL)
+		{
+			InvenSelectKey = UI_INVENTORY_NPC_ALL;
+		
+		}
+
+		for (int i = UI_INVENTORY_NPC_ALL; i <= UI_INVENTORY_POTION; i++) //All~ Potion 까지 선택할수 있게
+		{
+		
+			if (InvenSelectKey == i)
+			{
+
+				(pGameObject) = pUILayer->Get_UI_InvenObject(i);
+				dynamic_cast<CFont_Texture*>(pGameObject)->Set_TextureIndex(1);  //현재 선택한 창, 밝게
+
+				(pGameObject) = pUILayer->Get_UI_InvenObject(i + 1);
+				dynamic_cast<CFont_Texture*>(pGameObject)->Set_TextureIndex(0); //이전 선택창 다시 어둡게!
+
+
+
+			}
+			if (InvenSelectKey == UI_INVENTORY_POTION)
+			{
+				(pGameObject) = pUILayer->Get_UI_InvenObject(i - 1);
+				dynamic_cast<CFont_Texture*>(pGameObject)->Set_TextureIndex(0); //이전 선택창 다시 어둡게!
+
+			}
+			if (InvenSelectKey == UI_INVENTORY_NPC_ALL)
+			{
+				(pGameObject) = pUILayer->Get_UI_InvenObject(i + 1);
+				dynamic_cast<CFont_Texture*>(pGameObject)->Set_TextureIndex(0); //이전 선택창 다시 어둡게!
+
+			}
+
+		}
+
+
+
+	}
+
+
+
+
+
+	else if (Inven_Window_SelectKey == UI_INVENTORY_Window1)//윈도우 1번창 에서  아이템 선택시
+	{
+
+
+
+		if (Inven_ItemWindow_Type == UI_INVENTORY_Player && (!dynamic_cast<CPlayer*>(Get_Object(L"GameLogic", OBJECT_PLAYER))->Get_Inventory().empty()))
+		{
+
+
+			vector<ItemInfo>& PlayerItem = dynamic_cast<CPlayer*>(Get_Object(L"GameLogic", OBJECT_PLAYER))->Get_Inventory();
+			for (int i = 0; i < PlayerItem.size(); ++i)
+			{
+				if (InvenItemSelectKey < 0)
+					InvenItemSelectKey = 0;
+
+
+				if (InvenItemSelectKey == i)
+				{
+					InvenItemSelectKey = i;
+					//아이템 정보창으로 아이템 데이터 전달,  아이템 이름값을 mesh proto 텍스처 정보에도 전달
+
+					(pGameObject) = pUILayer->Get_UI_InvenObject(UI_INVENTORY_ITEMMESH);
+					dynamic_cast<CItemObject*>(pGameObject)->Set_TextureIndex(PlayerItem[i].Item_Code);
+
+
+					dynamic_cast<CItemObject*>(pGameObject)->Set_fX_Item(590);
+					dynamic_cast<CItemObject*>(pGameObject)->Set_fY(250);
+					dynamic_cast<CItemObject*>(pGameObject)->Set_scaleX(0.4);
+					dynamic_cast<CItemObject*>(pGameObject)->Set_scaleY(0.4);
+
+
+					if (PlayerItem[i].Item_Code == 0)
+					{
+
+
+						dynamic_cast<CItemObject*>(pGameObject)->Set_SizeX(200);
+						dynamic_cast<CItemObject*>(pGameObject)->Set_SizeY(300);
+
+					}
+					if (PlayerItem[i].Item_Code == 1)
+					{
+						dynamic_cast<CItemObject*>(pGameObject)->Set_fX_Item(590);
+						dynamic_cast<CItemObject*>(pGameObject)->Set_fY(250);
+						dynamic_cast<CItemObject*>(pGameObject)->Set_scaleX(0.3);
+						dynamic_cast<CItemObject*>(pGameObject)->Set_scaleY(0.3);
+
+
+						dynamic_cast<CItemObject*>(pGameObject)->Set_SizeX(284);
+						dynamic_cast<CItemObject*>(pGameObject)->Set_SizeY(300);
+
+					}
+					if (PlayerItem[i].Item_Code == 2)
+					{
+						dynamic_cast<CItemObject*>(pGameObject)->Set_fX_Item(590);
+						dynamic_cast<CItemObject*>(pGameObject)->Set_fY(250);
+						dynamic_cast<CItemObject*>(pGameObject)->Set_scaleX(0.3);
+						dynamic_cast<CItemObject*>(pGameObject)->Set_scaleY(0.3);
+
+						dynamic_cast<CItemObject*>(pGameObject)->Set_SizeX(210);
+						dynamic_cast<CItemObject*>(pGameObject)->Set_SizeY(240);
+
+					}
+					if (PlayerItem[i].Item_Code == 3)
+					{
+
+						dynamic_cast<CItemObject*>(pGameObject)->Set_fX_Item(590);
+						dynamic_cast<CItemObject*>(pGameObject)->Set_fY(250);
+						dynamic_cast<CItemObject*>(pGameObject)->Set_scaleX(0.3);
+						dynamic_cast<CItemObject*>(pGameObject)->Set_scaleY(0.3);
+						dynamic_cast<CItemObject*>(pGameObject)->Set_SizeX(320);
+						dynamic_cast<CItemObject*>(pGameObject)->Set_SizeY(190);
+
+					}
+					if (PlayerItem[i].Item_Code == 4)
+					{
+						dynamic_cast<CItemObject*>(pGameObject)->Set_fX_Item(590);
+						dynamic_cast<CItemObject*>(pGameObject)->Set_fY(250);
+						dynamic_cast<CItemObject*>(pGameObject)->Set_scaleX(0.3);
+						dynamic_cast<CItemObject*>(pGameObject)->Set_scaleY(0.3);
+
+						dynamic_cast<CItemObject*>(pGameObject)->Set_SizeX(120);
+						dynamic_cast<CItemObject*>(pGameObject)->Set_SizeY(580);
+
+					}
+					if (PlayerItem[i].Item_Code == 5)
+					{
+						dynamic_cast<CItemObject*>(pGameObject)->Set_fX_Item(590);
+						dynamic_cast<CItemObject*>(pGameObject)->Set_fY(250);
+						dynamic_cast<CItemObject*>(pGameObject)->Set_scaleX(0.3);
+						dynamic_cast<CItemObject*>(pGameObject)->Set_scaleY(0.3);
+
+						dynamic_cast<CItemObject*>(pGameObject)->Set_SizeX(90);
+						dynamic_cast<CItemObject*>(pGameObject)->Set_SizeY(490);
+
+					}
+					if (PlayerItem[i].Item_Code == 6)
+					{
+						dynamic_cast<CItemObject*>(pGameObject)->Set_fX_Item(590);
+						dynamic_cast<CItemObject*>(pGameObject)->Set_fY(250);
+						dynamic_cast<CItemObject*>(pGameObject)->Set_scaleX(0.3);
+						dynamic_cast<CItemObject*>(pGameObject)->Set_scaleY(0.3);
+
+						dynamic_cast<CItemObject*>(pGameObject)->Set_SizeX(90);
+						dynamic_cast<CItemObject*>(pGameObject)->Set_SizeY(490);
+
+
+					}
+
+
+
+				}
+
+
+			}
+
+		}
+		if (Inven_ItemWindow_Type == UI_INVENTORY_NPC)
+
+		{
+			list<CGameObject*> NpcList = Get_Layer(L"GameLogic")->Get_ObjectList(OBJECT_NPC);
+			list<CGameObject*>::iterator iter = NpcList.begin();
+
+			vector<ItemInfo> NPCitem;
+			for (; iter != NpcList.end(); iter++)
+			{
+				if (dynamic_cast<CNPC*>(*iter)->Get_NPC_Type() == dynamic_cast<CDialog*>(m_pDialog)->Get_NPC_Type())
+				{
+					NPCitem = dynamic_cast<CNPC*>(*iter)->Get_Inventory();
+				}
+			}
+
+			for (int i = 0; i < NPCitem.size(); ++i)
+			{
+				if (InvenItemSelectKey < 0)
+					InvenItemSelectKey = 0;
+
+
+				if (InvenItemSelectKey == i)
+				{
+					InvenItemSelectKey = i;
+					//아이템 정보창으로 아이템 데이터 전달,  아이템 이름값을 mesh proto 텍스처 정보에도 전달
+
+					(pGameObject) = pUILayer->Get_UI_InvenObject(UI_INVENTORY_ITEMMESH);
+					dynamic_cast<CItemObject*>(pGameObject)->Set_TextureIndex(NPCitem[i].Item_Code);
+
+
+					dynamic_cast<CItemObject*>(pGameObject)->Set_fX_Item(590);
+					dynamic_cast<CItemObject*>(pGameObject)->Set_fY(250);
+					dynamic_cast<CItemObject*>(pGameObject)->Set_scaleX(0.4);
+					dynamic_cast<CItemObject*>(pGameObject)->Set_scaleY(0.4);
+
+
+					if (NPCitem[i].Item_Code == 0)
+					{
+
+
+						dynamic_cast<CItemObject*>(pGameObject)->Set_SizeX(200);
+						dynamic_cast<CItemObject*>(pGameObject)->Set_SizeY(300);
+
+					}
+					if (NPCitem[i].Item_Code == 1)
+					{
+						dynamic_cast<CItemObject*>(pGameObject)->Set_fX_Item(590);
+						dynamic_cast<CItemObject*>(pGameObject)->Set_fY(250);
+						dynamic_cast<CItemObject*>(pGameObject)->Set_scaleX(0.3);
+						dynamic_cast<CItemObject*>(pGameObject)->Set_scaleY(0.3);
+
+
+						dynamic_cast<CItemObject*>(pGameObject)->Set_SizeX(284);
+						dynamic_cast<CItemObject*>(pGameObject)->Set_SizeY(300);
+
+					}
+					if (NPCitem[i].Item_Code == 2)
+					{
+						dynamic_cast<CItemObject*>(pGameObject)->Set_fX_Item(590);
+						dynamic_cast<CItemObject*>(pGameObject)->Set_fY(250);
+						dynamic_cast<CItemObject*>(pGameObject)->Set_scaleX(0.3);
+						dynamic_cast<CItemObject*>(pGameObject)->Set_scaleY(0.3);
+
+						dynamic_cast<CItemObject*>(pGameObject)->Set_SizeX(210);
+						dynamic_cast<CItemObject*>(pGameObject)->Set_SizeY(240);
+
+					}
+					if (NPCitem[i].Item_Code == 3)
+					{
+
+						dynamic_cast<CItemObject*>(pGameObject)->Set_fX_Item(590);
+						dynamic_cast<CItemObject*>(pGameObject)->Set_fY(250);
+						dynamic_cast<CItemObject*>(pGameObject)->Set_scaleX(0.3);
+						dynamic_cast<CItemObject*>(pGameObject)->Set_scaleY(0.3);
+						dynamic_cast<CItemObject*>(pGameObject)->Set_SizeX(320);
+						dynamic_cast<CItemObject*>(pGameObject)->Set_SizeY(190);
+
+					}
+					if (NPCitem[i].Item_Code == 4)
+					{
+						dynamic_cast<CItemObject*>(pGameObject)->Set_fX_Item(590);
+						dynamic_cast<CItemObject*>(pGameObject)->Set_fY(250);
+						dynamic_cast<CItemObject*>(pGameObject)->Set_scaleX(0.3);
+						dynamic_cast<CItemObject*>(pGameObject)->Set_scaleY(0.3);
+
+						dynamic_cast<CItemObject*>(pGameObject)->Set_SizeX(120);
+						dynamic_cast<CItemObject*>(pGameObject)->Set_SizeY(580);
+
+					}
+					if (NPCitem[i].Item_Code == 5)
+					{
+						dynamic_cast<CItemObject*>(pGameObject)->Set_fX_Item(590);
+						dynamic_cast<CItemObject*>(pGameObject)->Set_fY(250);
+						dynamic_cast<CItemObject*>(pGameObject)->Set_scaleX(0.3);
+						dynamic_cast<CItemObject*>(pGameObject)->Set_scaleY(0.3);
+
+						dynamic_cast<CItemObject*>(pGameObject)->Set_SizeX(90);
+						dynamic_cast<CItemObject*>(pGameObject)->Set_SizeY(490);
+
+					}
+
+
+
+
+				}
+
+
+			}
+		}
+
+
+	}
+
+
+
+}
+
+void CStage::Update_CraftWindowOn(const _float & fTimeDelta)
+{
+	if (CraftKey) //
+
+	{
+		CLayer*	pUILayer = Get_Layer(L"UI_Inventory");
+		//dynamic_cast<CUI*>(Get_Layer(L"UI_Inventory")->Get_UI_InvenObject(UI_INVENTORY_Window0))
+
+		CGameObject*	pGameObject = nullptr;
+		if (GetAsyncKeyState(VK_UP) & 0x0001)
+		{
+
+			// if (Inven_Window_SelectKey == UI_INVENTORY_Window1)//윈도우 1번창 에서  아이템 선택시
+			{
+
+
+				--InvenItemSelectKey;
+
+				if ((!dynamic_cast<CPlayer*>(Get_Object(L"GameLogic", OBJECT_PLAYER))->Get_Inventory().empty()))
+				{
+
+
+					vector<ItemInfo>& PlayerItem = dynamic_cast<CPlayer*>(Get_Object(L"GameLogic", OBJECT_PLAYER))->Get_Inventory();
+					for (int i = 0; i < PlayerItem.size(); ++i)
+					{
+						if (PlayerItem[i].Item_Type == ITEM_Type::ITEM_WEAPON || PlayerItem[i].Item_Type == ITEM_Type::ITEM_MISC)
+						{
+
+
+							if (InvenItemSelectKey < 0)
+								InvenItemSelectKey = 0;
+
+
+							if (InvenItemSelectKey == i)
+							{
+								InvenItemSelectKey = i;
+
+								(pGameObject) = pUILayer->Get_UI_InvenObject(UI_INVENTORY_ITEMMESH);
+								dynamic_cast<CItemObject*>(pGameObject)->Set_TextureIndex(PlayerItem[i].Item_Code);
+
+
+								dynamic_cast<CItemObject*>(pGameObject)->Set_fX_Item(590);
+								dynamic_cast<CItemObject*>(pGameObject)->Set_fY(250);
+								dynamic_cast<CItemObject*>(pGameObject)->Set_scaleX(0.4);
+								dynamic_cast<CItemObject*>(pGameObject)->Set_scaleY(0.4);
+
+
+								if (PlayerItem[i].Item_Code == 0)
+								{
+
+
+									dynamic_cast<CItemObject*>(pGameObject)->Set_SizeX(200);
+									dynamic_cast<CItemObject*>(pGameObject)->Set_SizeY(300);
+
+								}
+								if (PlayerItem[i].Item_Code == 1)
+								{
+									dynamic_cast<CItemObject*>(pGameObject)->Set_fX_Item(590);
+									dynamic_cast<CItemObject*>(pGameObject)->Set_fY(250);
+									dynamic_cast<CItemObject*>(pGameObject)->Set_scaleX(0.3);
+									dynamic_cast<CItemObject*>(pGameObject)->Set_scaleY(0.3);
+
+
+									dynamic_cast<CItemObject*>(pGameObject)->Set_SizeX(284);
+									dynamic_cast<CItemObject*>(pGameObject)->Set_SizeY(300);
+
+								}
+								if (PlayerItem[i].Item_Code == 2)
+								{
+									dynamic_cast<CItemObject*>(pGameObject)->Set_fX_Item(590);
+									dynamic_cast<CItemObject*>(pGameObject)->Set_fY(250);
+									dynamic_cast<CItemObject*>(pGameObject)->Set_scaleX(0.3);
+									dynamic_cast<CItemObject*>(pGameObject)->Set_scaleY(0.3);
+
+									dynamic_cast<CItemObject*>(pGameObject)->Set_SizeX(210);
+									dynamic_cast<CItemObject*>(pGameObject)->Set_SizeY(240);
+
+								}
+								if (PlayerItem[i].Item_Code == 3)
+								{
+
+									dynamic_cast<CItemObject*>(pGameObject)->Set_fX_Item(590);
+									dynamic_cast<CItemObject*>(pGameObject)->Set_fY(250);
+									dynamic_cast<CItemObject*>(pGameObject)->Set_scaleX(0.3);
+									dynamic_cast<CItemObject*>(pGameObject)->Set_scaleY(0.3);
+									dynamic_cast<CItemObject*>(pGameObject)->Set_SizeX(320);
+									dynamic_cast<CItemObject*>(pGameObject)->Set_SizeY(190);
+
+								}
+								if (PlayerItem[i].Item_Code == 4)
+								{
+									dynamic_cast<CItemObject*>(pGameObject)->Set_fX_Item(590);
+									dynamic_cast<CItemObject*>(pGameObject)->Set_fY(250);
+									dynamic_cast<CItemObject*>(pGameObject)->Set_scaleX(0.3);
+									dynamic_cast<CItemObject*>(pGameObject)->Set_scaleY(0.3);
+
+									dynamic_cast<CItemObject*>(pGameObject)->Set_SizeX(120);
+									dynamic_cast<CItemObject*>(pGameObject)->Set_SizeY(580);
+
+								}
+								if (PlayerItem[i].Item_Code == 5)
+								{
+									dynamic_cast<CItemObject*>(pGameObject)->Set_fX_Item(590);
+									dynamic_cast<CItemObject*>(pGameObject)->Set_fY(250);
+									dynamic_cast<CItemObject*>(pGameObject)->Set_scaleX(0.3);
+									dynamic_cast<CItemObject*>(pGameObject)->Set_scaleY(0.3);
+
+									dynamic_cast<CItemObject*>(pGameObject)->Set_SizeX(90);
+									dynamic_cast<CItemObject*>(pGameObject)->Set_SizeY(490);
+
+								}
+								if (PlayerItem[i].Item_Code == 6)
+								{
+									dynamic_cast<CItemObject*>(pGameObject)->Set_fX_Item(590);
+									dynamic_cast<CItemObject*>(pGameObject)->Set_fY(250);
+									dynamic_cast<CItemObject*>(pGameObject)->Set_scaleX(0.3);
+									dynamic_cast<CItemObject*>(pGameObject)->Set_scaleY(0.3);
+
+									dynamic_cast<CItemObject*>(pGameObject)->Set_SizeX(90);
+									dynamic_cast<CItemObject*>(pGameObject)->Set_SizeY(490);
+
+								}
+
+
+
+							}
+
+
+						}
+					}
+				}
+
+
+
+			}
+
+
+
+
+		}
+		if (GetAsyncKeyState(VK_DOWN) & 0x0001)
+		{
+
+			// if (Inven_Window_SelectKey == UI_INVENTORY_Window1) //윈도우 두번째창 에서  아이템 선택시 >>여기서 아이템 정보창 + 아이템 텍스처 이미지에 필요한 정보 삽입해야함.
+			{
+				++InvenItemSelectKey;
+				if ((!dynamic_cast<CPlayer*>(Get_Object(L"GameLogic", OBJECT_PLAYER))->Get_Inventory().empty())
+					)
+				{
+					vector<ItemInfo>& PlayerItem = dynamic_cast<CPlayer*>(Get_Object(L"GameLogic", OBJECT_PLAYER))->Get_Inventory();
+					for (int i = 0; i < PlayerItem.size(); ++i)
+					{
+						if (PlayerItem[i].Item_Type == ITEM_Type::ITEM_WEAPON)
+						{
+
+
+
+							if (InvenItemSelectKey == PlayerItem.size())
+								InvenItemSelectKey -= 1;
+
+
+							if (InvenItemSelectKey == i)
+							{
+								InvenItemSelectKey = i;
+								//아이템 정보창으로 아이템 데이터 전달,  아이템 이름값을 mesh proto 텍스처 정보에도 전달
+
+								(pGameObject) = pUILayer->Get_UI_InvenObject(UI_INVENTORY_ITEMMESH);
+								dynamic_cast<CItemObject*>(pGameObject)->Set_TextureIndex(PlayerItem[i].Item_Code);
+
+								dynamic_cast<CItemObject*>(pGameObject)->Set_fX_Item(590);
+								dynamic_cast<CItemObject*>(pGameObject)->Set_fY(250);
+								dynamic_cast<CItemObject*>(pGameObject)->Set_scaleX(0.4);
+								dynamic_cast<CItemObject*>(pGameObject)->Set_scaleY(0.4);
+
+
+								if (PlayerItem[i].Item_Code == 0)
+								{
+
+
+									dynamic_cast<CItemObject*>(pGameObject)->Set_SizeX(200);
+									dynamic_cast<CItemObject*>(pGameObject)->Set_SizeY(300);
+									break;
+
+								}
+								if (PlayerItem[i].Item_Code == 1)
+								{
+									dynamic_cast<CItemObject*>(pGameObject)->Set_fX_Item(590);
+									dynamic_cast<CItemObject*>(pGameObject)->Set_fY(250);
+									dynamic_cast<CItemObject*>(pGameObject)->Set_scaleX(0.3);
+									dynamic_cast<CItemObject*>(pGameObject)->Set_scaleY(0.3);
+
+									dynamic_cast<CItemObject*>(pGameObject)->Set_SizeX(250);
+									dynamic_cast<CItemObject*>(pGameObject)->Set_SizeY(290);
+									break;
+
+								}
+								if (PlayerItem[i].Item_Code == 2)
+								{
+									dynamic_cast<CItemObject*>(pGameObject)->Set_fX_Item(590);
+									dynamic_cast<CItemObject*>(pGameObject)->Set_fY(250);
+									dynamic_cast<CItemObject*>(pGameObject)->Set_scaleX(0.3);
+									dynamic_cast<CItemObject*>(pGameObject)->Set_scaleY(0.3);
+
+									dynamic_cast<CItemObject*>(pGameObject)->Set_SizeX(210);
+									dynamic_cast<CItemObject*>(pGameObject)->Set_SizeY(240);
+									break;
+
+								}
+								if (PlayerItem[i].Item_Code == 3)
+								{
+									dynamic_cast<CItemObject*>(pGameObject)->Set_fX_Item(590);
+									dynamic_cast<CItemObject*>(pGameObject)->Set_fY(250);
+									dynamic_cast<CItemObject*>(pGameObject)->Set_scaleX(0.3);
+									dynamic_cast<CItemObject*>(pGameObject)->Set_scaleY(0.3);
+
+									dynamic_cast<CItemObject*>(pGameObject)->Set_SizeX(320);
+									dynamic_cast<CItemObject*>(pGameObject)->Set_SizeY(190);
+									break;
+
+								}
+								if (PlayerItem[i].Item_Code == 4)
+								{
+									dynamic_cast<CItemObject*>(pGameObject)->Set_fX_Item(590);
+									dynamic_cast<CItemObject*>(pGameObject)->Set_fY(250);
+									dynamic_cast<CItemObject*>(pGameObject)->Set_scaleX(0.3);
+									dynamic_cast<CItemObject*>(pGameObject)->Set_scaleY(0.3);
+
+									dynamic_cast<CItemObject*>(pGameObject)->Set_SizeX(120);
+									dynamic_cast<CItemObject*>(pGameObject)->Set_SizeY(580);
+									break;
+
+								}
+								if (PlayerItem[i].Item_Code == 5)
+								{
+									dynamic_cast<CItemObject*>(pGameObject)->Set_fX_Item(590);
+									dynamic_cast<CItemObject*>(pGameObject)->Set_fY(250);
+									dynamic_cast<CItemObject*>(pGameObject)->Set_scaleX(0.3);
+									dynamic_cast<CItemObject*>(pGameObject)->Set_scaleY(0.3);
+
+									dynamic_cast<CItemObject*>(pGameObject)->Set_SizeX(90);
+									dynamic_cast<CItemObject*>(pGameObject)->Set_SizeY(490);
+									break;
+
+								}
+								if (PlayerItem[i].Item_Code == 6)
+								{
+									dynamic_cast<CItemObject*>(pGameObject)->Set_fX_Item(590);
+									dynamic_cast<CItemObject*>(pGameObject)->Set_fY(250);
+									dynamic_cast<CItemObject*>(pGameObject)->Set_scaleX(0.3);
+									dynamic_cast<CItemObject*>(pGameObject)->Set_scaleY(0.3);
+
+									dynamic_cast<CItemObject*>(pGameObject)->Set_SizeX(90);
+									dynamic_cast<CItemObject*>(pGameObject)->Set_SizeY(490);
+									break;
+
+								}
+
+
+
+							}
+
+						}
+					}
+
+				}
+
+
+
+
+
+			}
+
+
+		}
+		else if (GetAsyncKeyState('E') & 0x0001 && CraftKey) //선댁한 아이템 제련할건지 물음!
+		{
+
+
+			m_bEKey = true;
+
+			dynamic_cast<CUI*>(Get_Layer(L"UI_Inventory")->Get_UI_InvenObject(UI_INVENTORY_CraftWindow))->Set_RenderOn(true);
+			dynamic_cast<CUI*>(Get_Layer(L"UI_Inventory")->Get_UI_InvenObject(UI_INVENTORY_CraftWindow))->Set_fX2(380);
+			dynamic_cast<CUI*>(Get_Layer(L"UI_Inventory")->Get_UI_InvenObject(UI_INVENTORY_CraftWindow))->Set_fY(330);
+
+
+			pGameObject = dynamic_cast<CUI*>(Get_Layer(L"UI_Inventory")->Get_UI_InvenObject(UI_INVENTORY_Enter));
+			dynamic_cast<CUI*>(pGameObject)->Set_RenderOn(true);
+			dynamic_cast<CUI*>(pGameObject)->Set_fX2(270);
+			dynamic_cast<CUI*>(pGameObject)->Set_fY(350);
+			dynamic_cast<CUI*>(pGameObject)->Set_scaleX(0.4);
+			dynamic_cast<CUI*>(pGameObject)->Set_scaleY(0.4);
+
+			pGameObject = dynamic_cast<CUI*>(Get_Layer(L"UI_Inventory")->Get_UI_InvenObject(UI_INVENTORY_Tab));
+			dynamic_cast<CUI*>(pGameObject)->Set_RenderOn(true);
+			dynamic_cast<CUI*>(pGameObject)->Set_fX2(420);
+			dynamic_cast<CUI*>(pGameObject)->Set_fY(350);
+			dynamic_cast<CUI*>(pGameObject)->Set_scaleX(0.4);
+			dynamic_cast<CUI*>(pGameObject)->Set_scaleY(0.4);
+
+
+
+
+		}
+
+		else if (GetAsyncKeyState(VK_RETURN) & 0x0001 && m_bEKey) //선댁한 아이템 제련 진행!
+		{
+			CSoundMgr::Get_Instance()->PlaySound(L"npc_human_blacksmith_forge_take_01.wav", CSoundMgr::UI_Effect);
+
+			++ItemPopCount;
+			int itemcode = 0;
+			dynamic_cast<CUI*>(Get_Layer(L"UI_Inventory")->Get_UI_InvenObject(UI_INVENTORY_CraftWindow))->Set_RenderOn(false);
+			dynamic_cast<CUI*>(Get_Layer(L"UI_Inventory")->Get_UI_InvenObject(UI_INVENTORY_Enter))->Set_RenderOn(false);
+			dynamic_cast<CUI*>(Get_Layer(L"UI_Inventory")->Get_UI_InvenObject(UI_INVENTORY_Tab))->Set_RenderOn(false);
+
+
+
+			m_bEKey = false;
+
+			dynamic_cast<CDialog*>(m_pDialog)->Set_QuestState(NPC_Type::NPC_Forge, QUEST_State::Quest_Complete);
+
+			vector<QuestInfo> Questlist = dynamic_cast<CDialog*>(m_pDialog)->Get_Questlist();
+
+			dynamic_cast<CDialog*>(m_pDialog)->Set_QuestlistState(NPC_Forge, Quest_Complete);
+
+			dynamic_cast<CDialog*>(m_pDialog)->Set_QuestlistState(NPC_Blacksmith, Quest_Complete);
+
+
+
+			for (auto&p : Questlist)
+			{
+				if (p.NPC_Code == NPC_Forge)
+				{
+					p.Quest_State = Quest_Complete;
+				}
+			}
+
+
+
+			vector<ItemInfo>pList = dynamic_cast<CPlayer*>(Get_Object(L"GameLogic", OBJECT_PLAYER))->Get_Inventory();
+			for (auto p : pList)
+				if (p.Item_Type == ITEM_Type::ITEM_WEAPON)
+				{
+					itemcode = p.Item_Code;
+				}
+
+
+			if (ItemPopCount == 1)
+			{
+				dynamic_cast<CPlayer*>(Get_Object(L"GameLogic", OBJECT_PLAYER))->Pop_Item();
+				dynamic_cast<CPlayer*>(Get_Object(L"GameLogic", OBJECT_PLAYER))->Strength_Item(itemcode, 100, 1000);
+			}
+
+			//재 호출해서 현재 제련창 닫기!
+			Update_SmithingWindow(fTimeDelta);
+			CraftOn = false;
+
+
+
+
+			//제련후 아이템 스탯, 가치 증가 , 아이템 윈도우 이름 옆 () 등급 추가!
+			//퀘스트 1 : 완료되었다고 퀘스트상태 수정!
+
+
+
+		}
+
+
+
+
+
+	}
+}
+
+void CStage::Update_InvenWindowOn(const _float & fTimeDelta)
+{
+		CLayer*		pUILayer = Get_Layer(L"UI_Inventory");
+		CGameObject*			pGameObject = nullptr;
+
+		int InputKey, InvenWindowNumber, Inventype = 0;
+
+		if (!InvenKey)			return;
+		if (GetAsyncKeyState(VK_UP) & 0x0001)
+		{
+			InputKey = VK_UP;
+			CSoundMgr::Get_Instance()->PlaySound(L"ui_select_on.wav", CSoundMgr::UI);
+			--InvenSelectKey;
+
+			
+		}
+			
+		if (GetAsyncKeyState(VK_DOWN) & 0x0001)
+		{
+			InputKey = VK_DOWN;
+			CSoundMgr::Get_Instance()->PlaySound(L"ui_select_on.wav", CSoundMgr::UI);
+			++InvenSelectKey;
+
+		}
+
+		Update_InvenWindowSelect(Inven_Window_SelectKey, Inven_ItemWindow_Type);
+
+		if (GetAsyncKeyState('E') & 0x0001)
+		{
+			CSoundMgr::Get_Instance()->PlaySound(L"npc_human_combat_idleb.wav", CSoundMgr::UI_Equip);
+			if (Inven_Window_SelectKey == UI_INVENTORY_Window1 && Inven_ItemWindow_Type == UI_INVENTORY_Player) //아이템 선택창이면서 플레이어의 아이템 일 경우 장착키
+			{
+				//장착 기능
+				//현재 선택된 아이템인덱스를 플레이어 리스트와 대조, 
+				//해당 아이템이 장착 상태면 해제, 아니면 장착 
+				//플레이어 각 부위의 아이템코드 불러와 -1이면 미장착, 아님 장착 상태로 간주
+				//이를 구별해 윈도우 1번창의 해당 아이템 이름 옆에 현재 장착 중이라는 것을 표시하는 35.png 이미지 출력!!!
+				vector<ItemInfo>& PlayerItem = dynamic_cast<CPlayer*>(Get_Object(L"GameLogic", OBJECT_PLAYER))->Get_Inventory();
+				pGameObject = dynamic_cast<CPlayer*>(Get_Object(L"GameLogic", OBJECT_PLAYER));
+
+				if (PlayerItem[InvenItemSelectKey].Item_Type == ITEM_Type::ITEM_BODY)
+				{
+					if (dynamic_cast<CPlayer*>(Get_Object(L"GameLogic", OBJECT_PLAYER))->Get_ArmorEquip())
+					{
+
+						if (dynamic_cast<CPlayer*>(Get_Object(L"GameLogic", OBJECT_PLAYER))->Get_EquipArmorCode() == PlayerItem[InvenItemSelectKey].Item_Code)
+						{
+							//같으면 해제 처리!
+							dynamic_cast<CPlayer*>(Get_Object(L"GameLogic", OBJECT_PLAYER))->Set_EquipArmorCode(-1);
+
+						}
+						else
+						{ //다르면 장착!
+
+
+							dynamic_cast<CPlayer*>(Get_Object(L"GameLogic", OBJECT_PLAYER))->Set_EquipArmorCode(PlayerItem[InvenItemSelectKey].Item_Code);
+						}
+
+
+					}
+					else
+					{
+						dynamic_cast<CPlayer*>(Get_Object(L"GameLogic", OBJECT_PLAYER))->Set_EquipArmorCode(PlayerItem[InvenItemSelectKey].Item_Code);
+
+					}
+
+
+				}
+				if (PlayerItem[InvenItemSelectKey].Item_Type == ITEM_Type::ITEM_GAUNTLET)
+				{
+					if (dynamic_cast<CPlayer*>(Get_Object(L"GameLogic", OBJECT_PLAYER))->Get_ArmEquip())
+					{
+						//장착 상태면 장착한 아이템 코드와 현재 선택한 아이템의 코드를 비교, 같은거면 해제,  다르면 교체해 장착!
+
+						if (dynamic_cast<CPlayer*>(Get_Object(L"GameLogic", OBJECT_PLAYER))->Get_EquipGauntletCode() == PlayerItem[InvenItemSelectKey].Item_Code)
+						{
+							//같으면 해제 처리!
+							dynamic_cast<CPlayer*>(Get_Object(L"GameLogic", OBJECT_PLAYER))->Set_EquipGauntletCode(-1);
+
+						}
+						else
+						{ //다르면 장착!
+							dynamic_cast<CPlayer*>(Get_Object(L"GameLogic", OBJECT_PLAYER))->Set_EquipGauntletCode(PlayerItem[InvenItemSelectKey].Item_Code);
+						}
+
+
+					}
+					else
+					{
+						dynamic_cast<CPlayer*>(Get_Object(L"GameLogic", OBJECT_PLAYER))->Set_EquipGauntletCode(PlayerItem[InvenItemSelectKey].Item_Code);
+
+					}
+
+				}
+				if (PlayerItem[InvenItemSelectKey].Item_Type == ITEM_Type::ITEM_BOOTS)
+				{
+					if (dynamic_cast<CPlayer*>(Get_Object(L"GameLogic", OBJECT_PLAYER))->Get_BootsEquip())
+					{
+						//장착 상태면 장착한 아이템 코드와 현재 선택한 아이템의 코드를 비교, 같은거면 해제,  다르면 교체해 장착!
+
+						if (dynamic_cast<CPlayer*>(Get_Object(L"GameLogic", OBJECT_PLAYER))->Get_EquipBootsCode() == PlayerItem[InvenItemSelectKey].Item_Code)
+						{
+							//같으면 해제 처리!
+							dynamic_cast<CPlayer*>(Get_Object(L"GameLogic", OBJECT_PLAYER))->Set_EquipBootsCode(-1);
+
+						}
+						else
+						{ //다르면 장착!
+							dynamic_cast<CPlayer*>(Get_Object(L"GameLogic", OBJECT_PLAYER))->Set_EquipBootsCode(PlayerItem[InvenItemSelectKey].Item_Code);
+						}
+
+
+					}
+					else
+					{
+						dynamic_cast<CPlayer*>(Get_Object(L"GameLogic", OBJECT_PLAYER))->Set_EquipBootsCode(PlayerItem[InvenItemSelectKey].Item_Code);
+
+					}
+				}
+				if (PlayerItem[InvenItemSelectKey].Item_Type == ITEM_Type::ITEM_HELMET)
+				{
+					if (dynamic_cast<CPlayer*>(Get_Object(L"GameLogic", OBJECT_PLAYER))->Get_bHelmetEquip())
+					{
+						//장착 상태면 장착한 아이템 코드와 현재 선택한 아이템의 코드를 비교, 같은거면 해제,  다르면 교체해 장착!
+
+						if (dynamic_cast<CPlayer*>(Get_Object(L"GameLogic", OBJECT_PLAYER))->Get_EquipHelmetCode() == PlayerItem[InvenItemSelectKey].Item_Code)
+						{
+							//같으면 해제 처리!
+							dynamic_cast<CPlayer*>(Get_Object(L"GameLogic", OBJECT_PLAYER))->Set_EquipHelmetCode(-1);
+
+						}
+						else
+						{ //다르면 장착!
+							dynamic_cast<CPlayer*>(Get_Object(L"GameLogic", OBJECT_PLAYER))->Set_EquipHelmetCode(PlayerItem[InvenItemSelectKey].Item_Code);
+						}
+
+
+					}
+					else
+					{
+						dynamic_cast<CPlayer*>(Get_Object(L"GameLogic", OBJECT_PLAYER))->Set_EquipHelmetCode(PlayerItem[InvenItemSelectKey].Item_Code);
+
+					}
+				}
+				if (PlayerItem[InvenItemSelectKey].Item_Type == ITEM_Type::ITEM_WEAPON)
+				{
+					if (dynamic_cast<CPlayer*>(Get_Object(L"GameLogic", OBJECT_PLAYER))->Get_bWeaponEquip())
+					{
+						//장착 상태면 장착한 아이템 코드와 현재 선택한 아이템의 코드를 비교, 같은거면 해제,  다르면 교체해 장착!
+
+						if (dynamic_cast<CPlayer*>(Get_Object(L"GameLogic", OBJECT_PLAYER))->Get_EquipWeaponCode() == PlayerItem[InvenItemSelectKey].Item_Code)
+						{
+							//같으면 해제 처리!
+							dynamic_cast<CPlayer*>(Get_Object(L"GameLogic", OBJECT_PLAYER))->Set_EquipWeaponCode(-1);
+
+						}
+						else
+						{ //다르면 장착!
+							dynamic_cast<CPlayer*>(Get_Object(L"GameLogic", OBJECT_PLAYER))->Set_EquipWeaponCode(PlayerItem[InvenItemSelectKey].Item_Code);
+						}
+
+
+					}
+					else
+					{
+						dynamic_cast<CPlayer*>(Get_Object(L"GameLogic", OBJECT_PLAYER))->Set_EquipWeaponCode(PlayerItem[InvenItemSelectKey].Item_Code);
+
+					}
+				}
+				if (PlayerItem[InvenItemSelectKey].Item_Type == ITEM_Type::ITEM_POTION)
+				{
+
+				}
+				if (PlayerItem[InvenItemSelectKey].Item_Type == ITEM_Type::ITEM_MISC)
+				{
+
+				}
+
+
+
+			}
+			else if (Inven_Window_SelectKey == UI_INVENTORY_Window1 && Inven_ItemWindow_Type == UI_INVENTORY_NPC) //Npc 의 아이템일 경우 구매 기능
+			{
+
+				//구매 의사창
+				//How many 창 출력,  여기서 방향키 좌우로 개수 조절 기능 필요
+
+				dynamic_cast<CUI*>(Get_Layer(L"UI_Inventory")->Get_UI_InvenObject(UI_INVENTORY_HowmanyWindow))->Set_RenderOn(true);
+				dynamic_cast<CUI*>(Get_Layer(L"UI_Inventory")->Get_UI_InvenObject(UI_INVENTORY_ITEMWindow))->Set_RenderOn(false);
+
+				pGameObject = dynamic_cast<CUI*>(Get_Layer(L"UI_Inventory")->Get_UI_InvenObject(UI_INVENTORY_Enter));
+				dynamic_cast<CUI*>(pGameObject)->Set_RenderOn(true);
+				dynamic_cast<CUI*>(pGameObject)->Set_fX2(520);
+				dynamic_cast<CUI*>(pGameObject)->Set_fY(480);
+				dynamic_cast<CUI*>(pGameObject)->Set_scaleX(0.4);
+				dynamic_cast<CUI*>(pGameObject)->Set_scaleY(0.4);
+
+				pGameObject = dynamic_cast<CUI*>(Get_Layer(L"UI_Inventory")->Get_UI_InvenObject(UI_INVENTORY_Tab));
+				dynamic_cast<CUI*>(pGameObject)->Set_RenderOn(true);
+				dynamic_cast<CUI*>(pGameObject)->Set_fX2(670);
+				dynamic_cast<CUI*>(pGameObject)->Set_fY(480);
+				dynamic_cast<CUI*>(pGameObject)->Set_scaleX(0.4);
+				dynamic_cast<CUI*>(pGameObject)->Set_scaleY(0.4);
+
+
+
+
+			}
+
+
+
+
+
+		}
+		if (GetAsyncKeyState(VK_RETURN) & 0x0001)
+		{
+			CSoundMgr::Get_Instance()->PlaySound(L"ui_menu_ok.wav", CSoundMgr::UI);
+
+			//Howmanu 창이 열린 상태인지 확인후 구매 처리 되야함!
+			if (dynamic_cast<CUI*>(Get_Layer(L"UI_Inventory")->Get_UI_InvenObject(UI_INVENTORY_HowmanyWindow))->Get_RenderOn() == true)
+			{
+
+
+				list<CGameObject*> NpcList = Get_Layer(L"GameLogic")->Get_ObjectList(OBJECT_NPC);
+				list<CGameObject*>::iterator iter = NpcList.begin();
+
+				vector<ItemInfo> NPCitem;
+				for (; iter != NpcList.end(); iter++)
+				{
+					if (dynamic_cast<CNPC*>(*iter)->Get_NPC_Type() == dynamic_cast<CDialog*>(m_pDialog)->Get_NPC_Type())
+					{
+						NPCitem = dynamic_cast<CNPC*>(*iter)->Get_Inventory();
+					}
+				}
+
+				for (int i = 0; i < NPCitem.size(); ++i)
+				{
+					if (InvenItemSelectKey < 0)
+						InvenItemSelectKey = 0;
+
+
+					if (InvenItemSelectKey == i)
+					{
+						InvenItemSelectKey = i;
+						//아이템 정보창으로 아이템 데이터 전달,  아이템 이름값을 mesh proto 텍스처 정보에도 전달
+
+
+
+						ItemInfo tItem;
+						tItem.Item_Code = NPCitem[i].Item_Code;
+						strcpy_s(tItem.Item_Name, NPCitem[i].Item_Name);
+						tItem.Item_Stat = NPCitem[i].Item_Stat;
+						tItem.Item_Type = NPCitem[i].Item_Type;
+						tItem.Item_Value = NPCitem[i].Item_Value;
+						tItem.Item_Weight = NPCitem[i].Item_Weight;
+
+						//여기서 원래 플레이어가 가진 골드가 충분한지 검사 필요!
+						dynamic_cast<CPlayer*>(Get_Layer(L"GameLogic")->Get_Object(OBJECT_PLAYER))->Insert_Item(tItem);
+
+						dynamic_cast<CPlayer*>(Get_Layer(L"GameLogic")->Get_Object(OBJECT_PLAYER))->Set_Gold(tItem.Item_Value);
+
+						//엔터키 눌러 구매후 현재 구매창은 종료, 이후 다시 e키 눌러 구매할때 생성!
+						pGameObject = dynamic_cast<CUI*>(Get_Layer(L"UI_Inventory")->Get_UI_InvenObject(UI_INVENTORY_HowmanyWindow));
+						dynamic_cast<CUI*>(pGameObject)->Set_RenderOn(false);
+
+						pGameObject = dynamic_cast<CUI*>(Get_Layer(L"UI_Inventory")->Get_UI_InvenObject(UI_INVENTORY_Enter));
+						dynamic_cast<CUI*>(pGameObject)->Set_RenderOn(false);
+						pGameObject = dynamic_cast<CUI*>(Get_Layer(L"UI_Inventory")->Get_UI_InvenObject(UI_INVENTORY_Tab));
+						dynamic_cast<CUI*>(pGameObject)->Set_RenderOn(false);
+
+						pGameObject = dynamic_cast<CUI*>(Get_Layer(L"UI_Inventory")->Get_UI_InvenObject(UI_INVENTORY_ITEMWindow));
+						dynamic_cast<CUI*>(pGameObject)->Set_RenderOn(true);
+
+
+						break;
+
+
+					}
+				}
+			}
+
+
+
+
+
+
+
+
+
+
+
+
+		}
+		////좌,우 윈도우창 전환 키
+		if (GetAsyncKeyState(VK_LEFT) & 0x0001)
+		{
+
+			if (Inven_Window_PreSelectKey == UI_INVENTORY_Window0)
+			{
+				Inven_Window_SelectKey = 0;
+				InvenSelectKey = UI_INVENTORY_ALL;
+
+
+			}
+			else
+			{
+				Inven_Window_SelectKey = UI_INVENTORY_Window3;
+				InvenSelectKey = UI_INVENTORY_NPC_ALL;
+
+
+			}
+
+			InvenItemSelectCount = 0;
+
+
+			CLayer*		pLayer = Get_Layer(L"UI_Inventory");
+			if ((pLayer) == nullptr) return ;
+			//NULL_CHECK_RETURN(pLayer, E_FAIL);
+
+			dynamic_cast<CUI*>(pLayer->Get_UI_InvenObject(UI_INVENTORY_ITEMWindow))->Set_RenderOn(false);
+			dynamic_cast<CUI*>(pLayer->Get_UI_InvenObject(UI_INVENTORY_HowmanyWindow))->Set_RenderOn(false);
+
+			dynamic_cast<CItemObject*>(pLayer->Get_UI_InvenObject(UI_INVENTORY_ITEMMESH))->Set_RenderOn(false);
+
+
+			//플레이어 인벤창 봤을경우
+			pGameObject = pUILayer->Get_UI_InvenObject(UI_INVENTORY_E);
+			dynamic_cast<CUI*>(pGameObject)->Set_RenderOn(false);
+			pGameObject = pUILayer->Get_UI_InvenObject(UI_INVENTORY_R);
+			dynamic_cast<CUI*>(pGameObject)->Set_RenderOn(false);
+
+
+			//if (InvenSelectKey <= 0)
+			//{
+			//	InvenSelectKey = 0;
+			//}
+		}
+		if (GetAsyncKeyState(VK_RIGHT) & 0x0001)
+		{
+			if (Inven_Window_SelectKey == 0)
+			{
+
+				Inven_Window_PreSelectKey = 0;
+				Inven_Window_SelectKey = UI_INVENTORY_Window1; //선택창 윈도우1번 창 변경
+
+
+				CLayer*		pLayer = Get_Layer(L"UI_Inventory");
+				if ((pLayer) == nullptr) return;
+
+
+				if (InvenSelectKey < UI_INVENTORY_ALL) //NPC의 인벤토리 아이템목록 을 선택 및 출력!
+				{
+					Inven_ItemWindow_Type = UI_INVENTORY_NPC;
+
+
+					dynamic_cast<CUI*>(pLayer->Get_UI_InvenObject(UI_INVENTORY_ITEMWindow))->Set_RenderOn(true);
+					dynamic_cast<CItemObject*>(pLayer->Get_UI_InvenObject(UI_INVENTORY_ITEMMESH))->Set_RenderOn(true);
+
+				}
+				else
+				{
+
+					Inven_ItemWindow_Type = UI_INVENTORY_Player;
+
+					if (!dynamic_cast<CPlayer*>(Get_Object(L"GameLogic", OBJECT_PLAYER))->Get_Inventory().empty())
+					{
+						dynamic_cast<CUI*>(pLayer->Get_UI_InvenObject(UI_INVENTORY_ITEMWindow))->Set_RenderOn(true);
+						dynamic_cast<CItemObject*>(pLayer->Get_UI_InvenObject(UI_INVENTORY_ITEMMESH))->Set_RenderOn(true);
+
+					}
+
+
+				}
+
+				//최초 이동시 맨처음 자동 선택되는 0번째 인덱스의 아이템에 관해서 여기서 
+				InvenItemSelectKey = 0;
+
+				//if (InvenItemSelectCount == 0)
+				{
+
+
+
+
+
+
+
+
+
+
+
+
+					InvenItemSelectCount++;
+				}
+
+
+
+
+
+			}
+			if (Inven_Window_SelectKey == UI_INVENTORY_Window3)
+			{
+				Inven_Window_PreSelectKey = UI_INVENTORY_Window3;
+				Inven_Window_SelectKey = UI_INVENTORY_Window1; //선택창 윈도우1번 창 변경
+
+
+				CLayer*		pLayer = Get_Layer(L"UI_Inventory");
+				if ((pLayer) == nullptr) return;
+
+
+				if (InvenSelectKey < UI_INVENTORY_ALL) //NPC의 인벤토리 아이템목록 을 선택 및 출력!
+				{
+					Inven_ItemWindow_Type = UI_INVENTORY_NPC;
+
+
+					dynamic_cast<CUI*>(pLayer->Get_UI_InvenObject(UI_INVENTORY_ITEMWindow))->Set_RenderOn(true);
+					dynamic_cast<CItemObject*>(pLayer->Get_UI_InvenObject(UI_INVENTORY_ITEMMESH))->Set_RenderOn(true);
+
+				}
+				else
+				{
+
+					Inven_ItemWindow_Type = UI_INVENTORY_Player;
+
+					if (!dynamic_cast<CPlayer*>(Get_Object(L"GameLogic", OBJECT_PLAYER))->Get_Inventory().empty())
+					{
+						dynamic_cast<CUI*>(pLayer->Get_UI_InvenObject(UI_INVENTORY_ITEMWindow))->Set_RenderOn(true);
+						dynamic_cast<CItemObject*>(pLayer->Get_UI_InvenObject(UI_INVENTORY_ITEMMESH))->Set_RenderOn(true);
+
+					}
+
+
+				}
+
+				//최초 이동시 맨처음 자동 선택되는 0번째 인덱스의 아이템에 관해서 여기서 
+				InvenItemSelectKey = 0;
+
+				//if (InvenItemSelectCount == 0)
+				{
+
+
+
+
+
+
+
+
+
+
+
+
+					InvenItemSelectCount++;
+				}
+
+			}
+
+
+
+			if (InvenSelectKey <= 0)
+			{
+				InvenSelectKey = 0;
+			}
+
+			Inven_Window_SelectKey = UI_INVENTORY_Window1; //오른쪽 창으로 전환
+
+
+
+		}
+
+		if (Inven_Window_SelectKey == UI_INVENTORY_Window1 && Inven_ItemWindow_Type == UI_INVENTORY_Player) //아이템 윈도우창 활성화면서 현재 플레이어의 인벤창을 볼시
+		{
+			pGameObject = pUILayer->Get_UI_InvenObject(UI_INVENTORY_E);
+			dynamic_cast<CUI*>(pGameObject)->Set_RenderOn(true);
+			dynamic_cast<CUI*>(pGameObject)->Set_fX2(20);
+			dynamic_cast<CUI*>(pGameObject)->Set_fY(550);
+			dynamic_cast<CUI*>(pGameObject)->Set_scaleX(0.5);
+			dynamic_cast<CUI*>(pGameObject)->Set_scaleY(0.5);
+
+
+			pGameObject = pUILayer->Get_UI_InvenObject(UI_INVENTORY_R);
+			dynamic_cast<CUI*>(pGameObject)->Set_RenderOn(true);
+			dynamic_cast<CUI*>(pGameObject)->Set_fX2(120);
+			dynamic_cast<CUI*>(pGameObject)->Set_fY(550);
+			dynamic_cast<CUI*>(pGameObject)->Set_scaleX(0.5);
+			dynamic_cast<CUI*>(pGameObject)->Set_scaleY(0.5);
+
+
+
+
+			if (dynamic_cast<CPlayer*>(Get_Object(L"GameLogic", OBJECT_PLAYER))->Get_ArmorEquip())
+			{
+				//플레이어 인벤 리스트중 아이템코드 일치하는 넘 찾아 그 아이템 코드 폰트 위치에 출력
+				pGameObject = pUILayer->Get_UI_InvenObject(UI_INVENTORY_EQUIP_Body);
+				dynamic_cast<CUI*>(pGameObject)->Set_RenderOn(true);
+				vector<ItemInfo>& PlayerItem = dynamic_cast<CPlayer*>(Get_Object(L"GameLogic", OBJECT_PLAYER))->Get_Inventory();
+
+
+				for (int i = 0; i < PlayerItem.size(); ++i)
+				{
+					if (PlayerItem[i].Item_Code == dynamic_cast<CPlayer*>(Get_Object(L"GameLogic", OBJECT_PLAYER))->Get_EquipArmorCode())
+					{
+						//lll
+						dynamic_cast<CUI*>(pGameObject)->Set_fX2(230);
+						dynamic_cast<CUI*>(pGameObject)->Set_fY(i * 30 + 200);
+						dynamic_cast<CUI*>(pGameObject)->Set_scaleX(0.4);
+						dynamic_cast<CUI*>(pGameObject)->Set_scaleY(0.3);
+						break;
+
+					}
+
+				}
+
+
+
+
+			}
+			if (!dynamic_cast<CPlayer*>(Get_Object(L"GameLogic", OBJECT_PLAYER))->Get_ArmorEquip())
+			{
+				pGameObject = pUILayer->Get_UI_InvenObject(UI_INVENTORY_EQUIP_Body);
+				dynamic_cast<CUI*>(pGameObject)->Set_RenderOn(false);
+			}
+
+
+			if (dynamic_cast<CPlayer*>(Get_Object(L"GameLogic", OBJECT_PLAYER))->Get_ArmEquip())
+			{
+				//플레이어 인벤 리스트중 아이템코드 일치하는 넘 찾아 그 아이템 코드 폰트 위치에 출력
+				pGameObject = pUILayer->Get_UI_InvenObject(UI_INVENTORY_EQUIP_Gauntlet);
+				dynamic_cast<CUI*>(pGameObject)->Set_RenderOn(true);
+				vector<ItemInfo>& PlayerItem = dynamic_cast<CPlayer*>(Get_Object(L"GameLogic", OBJECT_PLAYER))->Get_Inventory();
+
+
+				for (int i = 0; i < PlayerItem.size(); ++i)
+				{
+					if (PlayerItem[i].Item_Code == dynamic_cast<CPlayer*>(Get_Object(L"GameLogic", OBJECT_PLAYER))->Get_EquipGauntletCode())
+					{
+						dynamic_cast<CUI*>(pGameObject)->Set_fX2(230);
+						dynamic_cast<CUI*>(pGameObject)->Set_fY(i * 30 + 200);
+						dynamic_cast<CUI*>(pGameObject)->Set_scaleX(0.4);
+						dynamic_cast<CUI*>(pGameObject)->Set_scaleY(0.3);
+						break;
+
+					}
+
+				}
+
+
+
+
+			}
+			if (!dynamic_cast<CPlayer*>(Get_Object(L"GameLogic", OBJECT_PLAYER))->Get_ArmEquip())
+			{
+				pGameObject = pUILayer->Get_UI_InvenObject(UI_INVENTORY_EQUIP_Gauntlet);
+				dynamic_cast<CUI*>(pGameObject)->Set_RenderOn(false);
+			}
+
+
+
+			if (dynamic_cast<CPlayer*>(Get_Object(L"GameLogic", OBJECT_PLAYER))->Get_BootsEquip())
+			{
+				//플레이어 인벤 리스트중 아이템코드 일치하는 넘 찾아 그 아이템 코드 폰트 위치에 출력
+				pGameObject = pUILayer->Get_UI_InvenObject(UI_INVENTORY_EQUIP_Boots);
+				dynamic_cast<CUI*>(pGameObject)->Set_RenderOn(true);
+				vector<ItemInfo>& PlayerItem = dynamic_cast<CPlayer*>(Get_Object(L"GameLogic", OBJECT_PLAYER))->Get_Inventory();
+
+
+				for (int i = 0; i < PlayerItem.size(); ++i)
+				{
+					if (PlayerItem[i].Item_Code == dynamic_cast<CPlayer*>(Get_Object(L"GameLogic", OBJECT_PLAYER))->Get_EquipBootsCode())
+					{
+						dynamic_cast<CUI*>(pGameObject)->Set_fX2(230);
+						dynamic_cast<CUI*>(pGameObject)->Set_fY(i * 30 + 200);
+						dynamic_cast<CUI*>(pGameObject)->Set_scaleX(0.4);
+						dynamic_cast<CUI*>(pGameObject)->Set_scaleY(0.3);
+						break;
+
+					}
+
+				}
+
+
+
+
+			}
+			if (!dynamic_cast<CPlayer*>(Get_Object(L"GameLogic", OBJECT_PLAYER))->Get_BootsEquip())
+			{
+				pGameObject = pUILayer->Get_UI_InvenObject(UI_INVENTORY_EQUIP_Boots);
+				dynamic_cast<CUI*>(pGameObject)->Set_RenderOn(false);
+			}
+
+
+			if (dynamic_cast<CPlayer*>(Get_Object(L"GameLogic", OBJECT_PLAYER))->Get_bHelmetEquip())
+			{
+				//플레이어 인벤 리스트중 아이템코드 일치하는 넘 찾아 그 아이템 코드 폰트 위치에 출력
+				pGameObject = pUILayer->Get_UI_InvenObject(UI_INVENTORY_EQUIP_Helmet);
+				dynamic_cast<CUI*>(pGameObject)->Set_RenderOn(true);
+				vector<ItemInfo>& PlayerItem = dynamic_cast<CPlayer*>(Get_Object(L"GameLogic", OBJECT_PLAYER))->Get_Inventory();
+
+
+				for (int i = 0; i < PlayerItem.size(); ++i)
+				{
+					if (PlayerItem[i].Item_Code == dynamic_cast<CPlayer*>(Get_Object(L"GameLogic", OBJECT_PLAYER))->Get_EquipHelmetCode())
+					{
+						dynamic_cast<CUI*>(pGameObject)->Set_fX2(230);
+						dynamic_cast<CUI*>(pGameObject)->Set_fY(i * 30 + 200);
+						dynamic_cast<CUI*>(pGameObject)->Set_scaleX(0.4);
+						dynamic_cast<CUI*>(pGameObject)->Set_scaleY(0.3);
+						break;
+
+					}
+
+				}
+
+
+
+
+			}
+			if (!dynamic_cast<CPlayer*>(Get_Object(L"GameLogic", OBJECT_PLAYER))->Get_bHelmetEquip())
+			{
+				pGameObject = pUILayer->Get_UI_InvenObject(UI_INVENTORY_EQUIP_Helmet);
+				dynamic_cast<CUI*>(pGameObject)->Set_RenderOn(false);
+
+			}
+
+
+			if (dynamic_cast<CPlayer*>(Get_Object(L"GameLogic", OBJECT_PLAYER))->Get_bWeaponEquip())
+			{
+				//플레이어 인벤 리스트중 아이템코드 일치하는 넘 찾아 그 아이템 코드 폰트 위치에 출력
+				pGameObject = pUILayer->Get_UI_InvenObject(UI_INVENTORY_EQUIP_Weapon);
+				dynamic_cast<CUI*>(pGameObject)->Set_RenderOn(true);
+				vector<ItemInfo>& PlayerItem = dynamic_cast<CPlayer*>(Get_Object(L"GameLogic", OBJECT_PLAYER))->Get_Inventory();
+
+
+				for (int i = 0; i < PlayerItem.size(); ++i)
+				{
+					if (PlayerItem[i].Item_Code == dynamic_cast<CPlayer*>(Get_Object(L"GameLogic", OBJECT_PLAYER))->Get_EquipWeaponCode())
+					{
+						dynamic_cast<CUI*>(pGameObject)->Set_fX2(230);
+						dynamic_cast<CUI*>(pGameObject)->Set_fY(i * 30 + 200);
+						dynamic_cast<CUI*>(pGameObject)->Set_scaleX(0.4);
+						dynamic_cast<CUI*>(pGameObject)->Set_scaleY(0.3);
+						break;
+
+					}
+
+				}
+
+
+
+
+			}
+			if (!dynamic_cast<CPlayer*>(Get_Object(L"GameLogic", OBJECT_PLAYER))->Get_bWeaponEquip())
+			{
+				pGameObject = pUILayer->Get_UI_InvenObject(UI_INVENTORY_EQUIP_Weapon);
+				dynamic_cast<CUI*>(pGameObject)->Set_RenderOn(false);
+			}
+
+
+
+
+
+
+
+
+
+
+		}
+		if (Inven_Window_SelectKey == UI_INVENTORY_Window1 && Inven_ItemWindow_Type == UI_INVENTORY_NPC) //아이템 윈도우창 활성화면서 현재 플레이어의 인벤창을 볼시
+		{
+
+			pGameObject = pUILayer->Get_UI_InvenObject(UI_INVENTORY_E);
+			dynamic_cast<CUI*>(pGameObject)->Set_RenderOn(true);
+			dynamic_cast<CUI*>(pGameObject)->Set_fX2(20);
+			dynamic_cast<CUI*>(pGameObject)->Set_fY(550);
+			dynamic_cast<CUI*>(pGameObject)->Set_scaleX(0.5);
+			dynamic_cast<CUI*>(pGameObject)->Set_scaleY(0.5);
+
+
+			pGameObject = pUILayer->Get_UI_InvenObject(UI_INVENTORY_R);
+			dynamic_cast<CUI*>(pGameObject)->Set_RenderOn(true);
+			dynamic_cast<CUI*>(pGameObject)->Set_fX2(120);
+			dynamic_cast<CUI*>(pGameObject)->Set_fY(550);
+			dynamic_cast<CUI*>(pGameObject)->Set_scaleX(0.5);
+			dynamic_cast<CUI*>(pGameObject)->Set_scaleY(0.5);
+
+		}
+
+	
+}
+
+void CStage::Update_ObjectCulling(const _float & fTimeDelta)
+{
+	int  Naviindex = dynamic_cast<CPlayer*>(Get_Object(L"GameLogic", OBJECT_PLAYER))->Get_Navi()->Get_CurrentIndex();
+	m_iCurrentArea=Get_CurrentArea(Naviindex);
+	int ObjectArea = 0;
+
+	list<CGameObject*> pNPClist = Get_Layer(L"GameLogic")->Get_ObjectList(OBJECT_NPC);
+	list<CGameObject*> pGuardlist = Get_Layer(L"GameLogic")->Get_ObjectList(OBJECT_GuardMan);
+
+
+	for (auto&p: pNPClist)
+	{
+		int Naviindex = dynamic_cast<CNPC*>(p)->Get_NaviCom()->Get_CurrentIndex();
+		ObjectArea= Get_CurrentArea(Naviindex);
+
+
+		if (m_iCurrentArea == ObjectArea)
+			dynamic_cast<CNPC*>(p)->Set_RenderOn(true);
+		else
+			dynamic_cast<CNPC*>(p)->Set_RenderOn(false);
+
+
+	}
+
+	for (auto&p : pGuardlist)
+	{
+		int Naviindex2 = dynamic_cast<CGuardMan*>(p)->Get_NaviCom()->Get_CurrentIndex();
+		ObjectArea = Get_CurrentArea(Naviindex2);
+
+		if (m_iCurrentArea == ObjectArea)
+			dynamic_cast<CGuardMan*>(p)->Set_RenderOn(true);
+		else
+			dynamic_cast<CGuardMan*>(p)->Set_RenderOn(false);
+	}
+}
+
+void CStage::Render_InvenWindow()
+{
+	if (InvenKey) //아이템 세부창 활성화시, npc + player인지 플레이어 혼자인지  
+	{
+
+		if (Inven_Window_SelectKey == UI_INVENTORY_Window1 && Inven_ItemWindow_Type == UI_INVENTORY_Player)		//플레이어의 아이템 창 
+		{
+
+			TCHAR tPlayergold[50] = { '\0', };
+			wsprintf(tPlayergold, L"%d", dynamic_cast<CPlayer*>(Get_Layer(L"GameLogic")->Get_Object(OBJECT_PLAYER))->Get_Gold());
+
+			//여기선 플레이어의 인벤토리 무게량, 골드값 출력
+			Render_Font(L"Font_Window2", L"Carry Weight", &_vec2(480, 550), D3DXCOLOR(0.5, 0.5, 0.5, 1.f)); //\n 줄바꿈 가능 //0.5 0.5 0.5  1 회색
+
+			Render_Font(L"Font_Window2", L"24/300", &_vec2(610, 550), D3DXCOLOR(1, 1, 1, 1.f)); //\n 줄바꿈 가능 //0.5 0.5 0.5  1 회색
+
+
+			Render_Font(L"Font_Window2", L"Gold", &_vec2(680, 550), D3DXCOLOR(0.5, 0.5, 0.5, 1.f)); //\n 줄바꿈 가능 //0.5 0.5 0.5  1 회색
+
+			//dynamic_cast<CPlayer*>(Get_Layer(L"GameLogic")->Get_Object(OBJECT_PLAYER))
+
+			Render_Font(L"Font_Window2", tPlayergold, &_vec2(730, 550), D3DXCOLOR(1, 1, 1, 1.f)); //\n 줄바꿈 가능 //0.5 0.5 0.5  1 회색
+
+
+
+
+			if (!dynamic_cast<CPlayer*>(Get_Object(L"GameLogic", OBJECT_PLAYER))->Get_Inventory().empty())
+			{
+
+				vector<ItemInfo>& PlayerItem = dynamic_cast<CPlayer*>(Get_Object(L"GameLogic", OBJECT_PLAYER))->Get_Inventory();
+				TCHAR tStat[50] = { '\0', };
+				TCHAR tWeight[50] = { '\0', };
+				TCHAR tValue[50] = { '\0', };
+
+				//윈도우2번창 E 키,  R 키 출력!
+				//dynamic_cast<CUI*>(pGameObject)->Set_fX2(20);
+				//dynamic_cast<CUI*>(pGameObject)->Set_fY(550);
+				Render_Font(L"Font_Window2", L"Equip", &_vec2(40, 550), D3DXCOLOR(1, 1, 1, 1.f)); //\n 줄바꿈 가능 //0.5 0.5 0.5  1 회색
+
+				Render_Font(L"Font_Window2", L"Drop", &_vec2(140, 550), D3DXCOLOR(1, 1, 1, 1.f)); //\n 줄바꿈 가능 //0.5 0.5 0.5  1 회색
+
+
+
+
+				for (int i = 0; i < PlayerItem.size(); ++i)
+				{
+
+					wstring wstr(PlayerItem[i].Item_Name, &PlayerItem[i].Item_Name[50]);
+					wsprintf(tStat, L"%d", PlayerItem[i].Item_Stat);
+					wsprintf(tWeight, L"%d", PlayerItem[i].Item_Weight);
+					wsprintf(tValue, L"%d", PlayerItem[i].Item_Value);
+
+
+					if (InvenItemSelectKey == i)
+					{
+						Render_Font(L"Font_Inven", wstr.c_str(), &_vec2(240, i * 30 + 200), D3DXCOLOR(1, 1, 1, 1.f)); //\n 줄바꿈 가능 //0.5 0.5 0.5  1 회색
+						//아이템 윈도우창의 아이템 이름 출력
+
+
+						Render_Font(L"Font_ItemName", wstr.c_str(), &_vec2(525, 430), D3DXCOLOR(1, 1, 1, 1.f)); //\n 줄바꿈 가능 //0.5 0.5 0.5  1 회색
+						////아이템 정보창의 아이템 이름 출력
+						//
+						//
+						Render_Font(L"Font_ItemName", tStat, &_vec2(500, 460), D3DXCOLOR(1, 1, 1, 1.f)); //\n 줄바꿈 가능 //0.5 0.5 0.5  1 회색
+						////아이템 정보창의 아이템 스탯 출력
+						//
+						//
+						Render_Font(L"Font_ItemName", tWeight, &_vec2(630, 460), D3DXCOLOR(1, 1, 1, 1.f)); //\n 줄바꿈 가능 //0.5 0.5 0.5  1 회색
+						//
+						////아이템 정보창의 아이템 무게 출력
+						//
+						Render_Font(L"Font_ItemName", tValue, &_vec2(720, 460), D3DXCOLOR(1, 1, 1, 1.f)); //\n 줄바꿈 가능 //0.5 0.5 0.5  1 회색
+
+						//아이템 정보창의 아이템 가치 출력
+
+
+
+
+
+
+					}
+					else // 선택안 된 나머지 아이템 이름은 회색 출력
+					{
+						Render_Font(L"Font_Inven", wstr.c_str(), &_vec2(240, i * 30 + 200), D3DXCOLOR(0.5, 0.5, 0.5, 1.f)); //\n 줄바꿈 가능 //0.5 0.5 0.5  1 회색
+
+					}
+					//y값 490까지가 마지노선!
+
+					//일단 i=0번째부터 현재 선택한 아이템 표시-> selectkey를 설정해 해당하는 번째의 font만 흰색으로 출력!
+
+
+
+				}
+			}
+		}
+		if (Inven_Window_SelectKey == UI_INVENTORY_Window1 && Inven_ItemWindow_Type == UI_INVENTORY_NPC)	//NPC의 아이템 창 
+		{
+			TCHAR tPlayergold[50] = { '\0', };
+			wsprintf(tPlayergold, L"%d", dynamic_cast<CPlayer*>(Get_Layer(L"GameLogic")->Get_Object(OBJECT_PLAYER))->Get_Gold());
+
+			Render_Font(L"Font_Window2", L"Player Gold", &_vec2(410, 550), D3DXCOLOR(0.5, 0.5, 0.5, 1.f)); //\n 줄바꿈 가능 //0.5 0.5 0.5  1 회색
+
+			Render_Font(L"Font_Window2", tPlayergold, &_vec2(540, 550), D3DXCOLOR(1, 1, 1, 1.f)); //\n 줄바꿈 가능 //0.5 0.5 0.5  1 회색
+
+
+			Render_Font(L"Font_Window2", L"NPC Gold", &_vec2(650, 550), D3DXCOLOR(0.5, 0.5, 0.5, 1.f)); //\n 줄바꿈 가능 //0.5 0.5 0.5  1 회색
+
+			Render_Font(L"Font_Window2", L"1000", &_vec2(750, 550), D3DXCOLOR(1, 1, 1, 1.f)); //\n 줄바꿈 가능 //0.5 0.5 0.5  1 회색
+
+
+			//대화중인 npc의 아이템 목록을 출력!!! 
+			//대화중인 npc가 누군지 알아와  클래스는 NPC로 통일, Object_NPC의 리스트를 불러와 변수중에 npc타입이 먼지 보고 판별
+
+			list<CGameObject*> NPClist = Get_Layer(L"GameLogic")->Get_ObjectList(OBJECT_NPC);
+			list<CGameObject*>::iterator iter = NPClist.begin();
+			vector<ItemInfo> NPCItem;
+			for (; iter != NPClist.end(); iter++)
+			{
+				if (dynamic_cast<CNPC*>(*iter)->Get_NPC_Type() == dynamic_cast<CDialog*>(m_pDialog)->Get_NPC_Type())
+					NPCItem = dynamic_cast<CNPC*>(*iter)->Get_Inventory();
+			}
+
+			{
+
+				//vector<ItemInfo>& NPCItem = dynamic_cast<CPlayer*>(Get_Object(L"GameLogic", OBJECT_PLAYER))->Get_Inventory();
+				TCHAR tStat[50] = { '\0', };
+				TCHAR tWeight[50] = { '\0', };
+				TCHAR tValue[50] = { '\0', };
+				TCHAR tGold[50] = { '\0', };
+
+				//윈도우2번창 E 키,  R 키 출력!
+				//dynamic_cast<CUI*>(pGameObject)->Set_fX2(20);
+				//dynamic_cast<CUI*>(pGameObject)->Set_fY(550);
+				Render_Font(L"Font_Window2", L"Buy", &_vec2(40, 550), D3DXCOLOR(1, 1, 1, 1.f)); //\n 줄바꿈 가능 //0.5 0.5 0.5  1 회색
+
+				Render_Font(L"Font_Window2", L"Exit", &_vec2(140, 550), D3DXCOLOR(1, 1, 1, 1.f)); //\n 줄바꿈 가능 //0.5 0.5 0.5  1 회색
+
+
+
+
+				for (int i = 0; i < NPCItem.size(); ++i)
+				{
+
+					wstring wstr(NPCItem[i].Item_Name, &NPCItem[i].Item_Name[50]);
+					wsprintf(tStat, L"%d", NPCItem[i].Item_Stat);
+					wsprintf(tWeight, L"%d", NPCItem[i].Item_Weight);
+					wsprintf(tValue, L"%d", NPCItem[i].Item_Value);
+
+
+
+
+					if (InvenItemSelectKey == i)
+					{
+						wsprintf(tGold, L"%d", NPCItem[InvenItemSelectKey].Item_Value);
+
+
+						Render_Font(L"Font_Inven", wstr.c_str(), &_vec2(240, i * 30 + 200), D3DXCOLOR(1, 1, 1, 1.f)); //\n 줄바꿈 가능 //0.5 0.5 0.5  1 회색
+						//y값 490까지가 마지노선!
+
+
+
+
+						if (dynamic_cast<CUI*>(Get_Layer(L"UI_Inventory")->Get_UI_InvenObject(UI_INVENTORY_HowmanyWindow))->Get_RenderOn() == false)
+						{
+
+							Render_Font(L"Font_ItemName", wstr.c_str(), &_vec2(525, 430), D3DXCOLOR(1, 1, 1, 1.f)); //\n 줄바꿈 가능 //0.5 0.5 0.5  1 회색
+
+
+
+
+							Render_Font(L"Font_ItemName", tStat, &_vec2(500, 460), D3DXCOLOR(1, 1, 1, 1.f)); //\n 줄바꿈 가능 //0.5 0.5 0.5  1 회색
+							////아이템 정보창의 아이템 스탯 출력
+							//
+							//
+							Render_Font(L"Font_ItemName", tWeight, &_vec2(630, 460), D3DXCOLOR(1, 1, 1, 1.f)); //\n 줄바꿈 가능 //0.5 0.5 0.5  1 회색
+							//
+							////아이템 정보창의 아이템 무게 출력
+							//
+							Render_Font(L"Font_ItemName", tValue, &_vec2(720, 460), D3DXCOLOR(1, 1, 1, 1.f)); //\n 줄바꿈 가능 //0.5 0.5 0.5  1 회색
+
+							//아이템 정보창의 아이템 가치 출력
+
+						}
+						else
+						{
+							Render_Font(L"Font_ItemName", L"How many?", &_vec2(525, 410), D3DXCOLOR(1, 1, 1, 1.f)); //\n 줄바꿈 가능 //0.5 0.5 0.5  1 회색
+
+							Render_Font(L"Font_Window2", L"Yes", &_vec2(550, 480), D3DXCOLOR(0.5, 0.5, 0.5, 1.f)); //\n 줄바꿈 가능 //0.5 0.5 0.5  1 회색
+
+							Render_Font(L"Font_Window2", L"No", &_vec2(700, 480), D3DXCOLOR(0.5, 0.5, 0.5, 1.f)); //\n 줄바꿈 가능 //0.5 0.5 0.5  1 회색
+
+							//아래 윈도우2번창에 현재 선택한 아이템의 골드값을 플레이어 골드 옆에 표시해준다!
+							Render_Font(L"Font_Window2", L"(-", &_vec2(585, 550), D3DXCOLOR(1, 0, 0, 1.f)); //\n 줄바꿈 가능 //0.5 0.5 0.5  1 회색
+
+							Render_Font(L"Font_Window2", tGold, &_vec2(605, 550), D3DXCOLOR(1, 0, 0, 1.f)); //\n 줄바꿈 가능 //0.5 0.5 0.5  1 회색
+
+							Render_Font(L"Font_Window2", L")", &_vec2(630, 550), D3DXCOLOR(1, 0, 0, 1.f)); //\n 줄바꿈 가능 //0.5 0.5 0.5  1 회색
+
+							//Render_Font(L"Font_Window2", L"1000", &_vec2(540, 550), D3DXCOLOR(1, 1, 1, 1.f)); //\n 줄바꿈 가능 //0.5 0.5 0.5  1 회색
+
+
+						}
+
+
+
+
+					}
+					else // 선택안 된 나머지 아이템 이름은 회색 출력
+					{
+						Render_Font(L"Font_Inven", wstr.c_str(), &_vec2(240, i * 30 + 200), D3DXCOLOR(0.5, 0.5, 0.5, 1.f)); //\n 줄바꿈 가능 //0.5 0.5 0.5  1 회색
+
+					}
+
+				}
+
+
+			}
+		}
+
+
+
+
+
+	}
+
+}
+
+void CStage::Render_CraftWindow()
+{
+	if (CraftKey)
+	{
+
+		if (!dynamic_cast<CPlayer*>(Get_Object(L"GameLogic", OBJECT_PLAYER))->Get_Inventory().empty())
+
+		{
+			vector<ItemInfo>& PlayerItem = dynamic_cast<CPlayer*>(Get_Object(L"GameLogic", OBJECT_PLAYER))->Get_Inventory();
+			TCHAR tStat[50] = { '\0', };
+			TCHAR tWeight[50] = { '\0', };
+			TCHAR tValue[50] = { '\0', };
+
+
+			Render_Font(L"Font_Window2", L"Craft", &_vec2(40, 550), D3DXCOLOR(1, 1, 1, 1.f)); //\n 줄바꿈 가능 //0.5 0.5 0.5  1 회색
+
+			Render_Font(L"Font_Window2", L"Exit", &_vec2(140, 550), D3DXCOLOR(1, 1, 1, 1.f)); //\n 줄바꿈 가능 //0.5 0.5 0.5  1 회색
+
+
+
+			for (int i = 0; i < PlayerItem.size(); ++i)
+			{
+				Render_Font(L"Font_Window2", L"Requires :", &_vec2(550, 480), D3DXCOLOR(1, 1, 1, 1.f));
+
+				Render_Font(L"Font_Window2", L"MoonStone", &_vec2(550, 500), D3DXCOLOR(1, 1, 1, 1.f));
+
+
+
+				if (PlayerItem[i].Item_Type == ITEM_Type::ITEM_WEAPON || PlayerItem[i].Item_Type == ITEM_Type::ITEM_MISC)
+				{
+
+					wstring wstr(PlayerItem[i].Item_Name, &PlayerItem[i].Item_Name[50]);
+					wsprintf(tStat, L"%d", PlayerItem[i].Item_Stat);
+					wsprintf(tWeight, L"%d", PlayerItem[i].Item_Weight);
+					wsprintf(tValue, L"%d", PlayerItem[i].Item_Value);
+
+
+					if (InvenItemSelectKey == i)
+					{
+
+						Render_Font(L"Font_Inven", wstr.c_str(), &_vec2(240, i * 30 + 200), D3DXCOLOR(1, 1, 1, 1.f)); //\n 줄바꿈 가능 //0.5 0.5 0.5  1 회색
+						//아이템 윈도우창의 아이템 이름 출력
+
+						Render_Font(L"Font_ItemName", wstr.c_str(), &_vec2(475, 380), D3DXCOLOR(1, 1, 1, 1.f)); //\n 줄바꿈 가능 //0.5 0.5 0.5  1 회색
+
+						if (PlayerItem[i].Item_Type == ITEM_Type::ITEM_WEAPON)
+							Render_Font(L"Font_ItemName", L"(Legendary)", &_vec2(650, 380), D3DXCOLOR(1, 1, 1, 1.f)); //\n 줄바꿈 가능 //0.5 0.5 0.5  1 회색
+
+							//Render_Font(L"Font_ItemName", wstr.c_str(), &_vec2(525, 380), D3DXCOLOR(1, 1, 1, 1.f)); //\n 줄바꿈 가능 //0.5 0.5 0.5  1 회색
+
+
+
+							////아이템 정보창의 아이템 이름 출력
+							//
+							//
+						Render_Font(L"Font_ItemName", tStat, &_vec2(500, 410), D3DXCOLOR(1, 1, 1, 1.f)); //\n 줄바꿈 가능 //0.5 0.5 0.5  1 회색
+
+						if (PlayerItem[i].Item_Type == ITEM_Type::ITEM_WEAPON)
+							Render_Font(L"Font_ItemName", L"+100", &_vec2(500, 425), D3DXCOLOR(1, 0, 0, 1.f)); //\n 줄바꿈 가능 //0.5 0.5 0.5  1 회색
+
+							////아이템 정보창의 아이템 스탯 출력
+							//
+							//
+						Render_Font(L"Font_ItemName", tWeight, &_vec2(630, 410), D3DXCOLOR(1, 1, 1, 1.f)); //\n 줄바꿈 가능 //0.5 0.5 0.5  1 회색
+
+
+																										   //
+						////아이템 정보창의 아이템 무게 출력
+						//
+						Render_Font(L"Font_ItemName", tValue, &_vec2(720, 410), D3DXCOLOR(1, 1, 1, 1.f)); //\n 줄바꿈 가능 //0.5 0.5 0.5  1 회색
+
+						if (PlayerItem[i].Item_Type == ITEM_Type::ITEM_WEAPON)
+							Render_Font(L"Font_ItemName", L"+1000", &_vec2(720, 425), D3DXCOLOR(1, 0, 0, 1.f)); //\n 줄바꿈 가능 //0.5 0.5 0.5  1 회색
+
+						//아이템 정보창의 아이템 가치 출력
+
+
+					}
+					else
+					{
+						Render_Font(L"Font_Inven", wstr.c_str(), &_vec2(240, i * 30 + 200), D3DXCOLOR(0.5, 0.5, 0.5, 1.f)); //\n 줄바꿈 가능 //0.5 0.5 0.5  1 회색
+
+
+
+					}
+
+
+
+				}
+			}
+
+
+
+
+
+
+		}
+
+
+
+
+	}
+}
+
+void CStage::Render_QuestWindow()
+{
+	if (QuestKey)
+	{
+		int QuestCount = 0;
+
+
+		Render_Font(L"Font_Quest", L"QUESTS", &_vec2(140, 120), D3DXCOLOR(1, 1, 1, 1.f));
+
+
+		Render_Font(L"Font_Quest", L"OBJECTIVES", &_vec2(447, 347), D3DXCOLOR(1, 1, 1, 1.f));
+
+		vector<QuestInfo> Questlist = dynamic_cast<CDialog*>(m_pDialog)->Get_Questlist();
+
+		int QuestCompleteCount = 0;
+		for (auto p : Questlist)
+		{
+
+
+			if (p.Quest_State == QUEST_State::Quest_ON)
+			{
+				TCHAR Name[100] = { 0, };
+
+				MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, p.Quest_Name, strlen(p.Quest_Name), Name, 100);
+
+
+				Render_Font(L"Font_Quest", Name, &_vec2(100, 330 - QuestCount * 50), D3DXCOLOR(1, 1, 1, 1.f));
+
+				Render_Font(L"Font_ItemName", Name, &_vec2(400, 195), D3DXCOLOR(1, 1, 1, 1.f));
+
+				QuestCount++;
+
+				if (p.Quest_ID == 0)
+				{
+					Render_Font(L"Font_Inven", L"Go to SkyForge and deliver the BlackSmith's item", &_vec2(320, 380), D3DXCOLOR(1, 1, 1, 1.f)); //\n 줄바꿈 가능 //0.5 0.5 0.5  1 회색
+
+				}
+				if (p.Quest_ID == 1)
+				{
+					Render_Font(L"Font_Inven", L"Use reward items to strengthen your Weapons!", &_vec2(320, 380), D3DXCOLOR(1, 1, 1, 1.f)); //\n 줄바꿈 가능 //0.5 0.5 0.5  1 회색
+
+				}
+				if (p.Quest_ID == 2)
+				{
+					Render_Font(L"Font_Inven", L"Bring the unpaid money to the Guard", &_vec2(320, 380), D3DXCOLOR(1, 1, 1, 1.f)); //\n 줄바꿈 가능 //0.5 0.5 0.5  1 회색
+
+				}
+				if (p.Quest_ID == 3)
+				{
+					Render_Font(L"Font_Inven", L"Defeat the guards", &_vec2(320, 380), D3DXCOLOR(1, 1, 1, 1.f)); //\n 줄바꿈 가능 //0.5 0.5 0.5  1 회색
+
+				}
+				if (p.Quest_ID == 4)
+				{
+					Render_Font(L"Font_Inven", L"Defeat the Dragon", &_vec2(320, 380), D3DXCOLOR(1, 1, 1, 1.f)); //\n 줄바꿈 가능 //0.5 0.5 0.5  1 회색
+
+				}
+				if (p.Quest_ID == 5)
+				{
+					Render_Font(L"Font_Inven", L"Lure the Dragon into the Trap", &_vec2(320, 380), D3DXCOLOR(1, 1, 1, 1.f)); //\n 줄바꿈 가능 //0.5 0.5 0.5  1 회색
+
+				}
+
+
+
+			}
+			if (p.Quest_State == QUEST_State::Quest_Complete)
+			{
+				QuestCompleteCount++;
+
+				TCHAR Name[100] = { 0, };
+
+				MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, p.Quest_Name, strlen(p.Quest_Name), Name, 100);
+
+
+				Render_Font(L"Font_Quest", Name, &_vec2(100, 330 + QuestCompleteCount * 20), D3DXCOLOR(0.5, 0.5, 0.5, 1.f));
+
+			}
+		}
+
+
+	}
+}
+
+void CStage::Render_Dialog()
+{
+	if (!InvenKey)
+	{
+		int count = 0;
+		for (auto p : m_vecNPC_ColliderList)
+		{
+			if (p == true)
+			{
+				DialogCheck = true;
+				Render_Font(L"Font_Skyrim", L"Talk", &_vec2(450, 350), D3DXCOLOR(1, 1, 1, 1.f));
+				Render_Font(L"Font_Skyrim", dynamic_cast<CDialog*>(m_pDialog)->Get_NPC_Name().c_str(), &_vec2(420, 380), D3DXCOLOR(1, 1, 1, 1.f));
+
+				dynamic_cast<CPlayer*>(Get_Object(L"GameLogic", OBJECT_PLAYER))->Set_DialogON(true);
+
+				dynamic_cast<CUI*>(Get_Layer(L"UI_Inventory")->Get_UI_InvenObject(UI_INVENTORY_F))->Set_RenderOn(true);
+				dynamic_cast<CUI*>(Get_Layer(L"UI_Inventory")->Get_UI_InvenObject(UI_INVENTORY_F))->Set_fX2(420);
+				dynamic_cast<CUI*>(Get_Layer(L"UI_Inventory")->Get_UI_InvenObject(UI_INVENTORY_F))->Set_fY(350);
+
+				//InvenKey = true;
+				//Render_Font(L"Font_Skyrim", L"Talk", &_vec2(450, 350), D3DXCOLOR(1, 1, 1, 1.f));
+
+				count++;
+			}
+
+		}
+		if (count == 0)
+		{
+			DialogCheck = false;
+			dynamic_cast<CPlayer*>(Get_Object(L"GameLogic", OBJECT_PLAYER))->Set_DialogON(false);
+
+			dynamic_cast<CDialog*>(dynamic_cast<CPlayer*>(Get_Object(L"GameLogic", OBJECT_PLAYER))->Get_Dialog())->Set_RenderOn(false);
+
+
+			dynamic_cast<CUI*>(Get_Layer(L"UI_Inventory")->Get_UI_InvenObject(UI_INVENTORY_F))->Set_RenderOn(false);
+
+		}
+	}
+
+	if (CraftOn) //제련 오브젝트와 충돌 상태시 메시지 출력
+	{
+
+		Render_Font(L"Font_Skyrim", L"Craft", &_vec2(450, 350), D3DXCOLOR(1, 1, 1, 1.f));
+
+
+	}
+	if (m_bEKey && CraftKey) //강화 의사 묻는 윈도우창 들어갈 폰트 출력
+
+	{
+		Render_Font(L"Font_Quest", L"Do you want to strengthen this item?", &_vec2(250, 300), D3DXCOLOR(1, 1, 1, 1.f));
+
+		Render_Font(L"Font_Skyrim", L"Yes", &_vec2(300, 350), D3DXCOLOR(1, 1, 1, 1.f));
+
+		Render_Font(L"Font_Skyrim", L"No", &_vec2(450, 350), D3DXCOLOR(1, 1, 1, 1.f));
+
+	}
+
+	if (PullOn1 || PullOn2 || PullOn3)	//레버 접촉시 출력
+	{
+
+		Render_Font(L"Font_Skyrim", L"E: PULL", &_vec2(450, 350), D3DXCOLOR(1, 1, 1, 1.f));
+
+
+	}
+	//if (DragonInvenKey)
+//{
+//
+//	Render_Font(L"Font_Skyrim", L"A: Search", &_vec2(450, 350), D3DXCOLOR(1, 1, 1, 1.f));
+//
+//}
+}
+
+int CStage::Get_CurrentArea(int Naviindex)
+{
+	bool m_bArea1 = Naviindex >= 0 && Naviindex <= 18 || Naviindex >= 182 && Naviindex <= 199;
+	bool m_bArea2 = Naviindex >= 19 && Naviindex <= 73;
+	bool m_bArea3 = Naviindex >= 74 && Naviindex <= 128;
+	bool m_bArea4 = Naviindex >= 129 && Naviindex <= 181;
+
+	int CurrentArea = 0;
+
+	if (m_bArea1)
+	{
+		CurrentArea = 1;
+
+
+	}
+	else if (m_bArea2)
+	{
+		CurrentArea = 2;
+
+
+	}
+	else if (m_bArea3)
+	{
+		CurrentArea = 3;
+
+
+	}
+	else if (m_bArea4)
+	{
+		CurrentArea = 4;
+
+
+	}
+	return CurrentArea;
 }
 
 //_int CStage::Update_QuestState(const _float & fTimeDelta)

@@ -29,6 +29,14 @@ public:
 	virtual _int Update_Object(const _float& fTimeDelta) override;
 	virtual void Render_Object(void) override;
 
+
+
+
+
+
+	void	Set_Collider_WorldMatrix();
+
+
 	CColliderSphere*	Get_ColliderCom() {
 		return m_pColliderCom
 			;
@@ -71,12 +79,6 @@ public:
 		return m_bRightStop
 			;
 	}
-
-
-
-
-
-
 
 
 	bool	Get_ArmorFullEquip() { return m_bArmorFull; }

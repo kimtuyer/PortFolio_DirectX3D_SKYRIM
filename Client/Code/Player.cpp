@@ -30,17 +30,8 @@ HRESULT CPlayer::Ready_Object(void)
 	//m_pTransformCom->Set_Pos(16.04, 7, 33.15);
 	m_pTransformCom->Set_Pos(17.04, 7, 33.15);
 
-	//m_pTransformCom->Rotation(ROT_X, D3DXToRadian(180.f));
 
-	
 	m_pNaviCom->Set_CellIndex(0);
-
-	//m_pTransformCom->Set_Pos(56.94f, 12, 66.9);
-
-	//m_pNaviCom->Set_CellIndex(130);
-
-
-	//m_pMeshComNude->Set_AnimationIndex(54);
 	m_pColliderCom->Set_Radius(75);
 	m_pDialog_ColliderCom->Set_Radius(50);
 
@@ -49,9 +40,6 @@ HRESULT CPlayer::Ready_Object(void)
 
 	Set_HP(100);
 	Set_AttackStat(3);
-
-
-	//m_vecInventory.emplace_back()
 
 
 	return S_OK;
@@ -74,63 +62,11 @@ Engine::_int CPlayer::Update_Object(const _float& fTimeDelta)
 	}
 
 	CGameObject::Update_Object(fTimeDelta);
-
-	_vec3 vDir;
-	m_pTransformCom->Get_Info(INFO_LOOK, &vDir);
-	
-	const D3DXFRAME_DERIVED*	pFrame = m_pMeshComNude->Get_FrameByName("SkirtFBone02");
-	m_pBoneMatrix = &pFrame->CombinedTransformMatrix;
-
-
-	_matrix matScale, matScale2,matRev, matTrans, matTrans2, matRot, m_matCollWorld , m_matCollWorld2;
-	_vec3 worldbone = { m_pBoneMatrix->_41,m_pBoneMatrix->_42,m_pBoneMatrix->_43 };
-	D3DXVec3TransformCoord(&worldbone, &worldbone, m_pTransformCom->Get_WorldMatrix());
-
-		
-
-		D3DXMatrixScaling(&matScale, 0.01, 0.01, 0.01);
-		D3DXMatrixScaling(&matScale2, 0.01, 0.01, 0.01);
-
-		D3DXMatrixRotationY(&matRot, m_pTransformCom->m_vAngle.y);
-
-		D3DXMatrixTranslation(&matTrans, worldbone.x, worldbone.y, worldbone.z);
-		D3DXMatrixTranslation(&matTrans2, worldbone.x+10*vDir.x, worldbone.y + 10 * vDir.y, worldbone.z + 10 * vDir.z);
-
-		//D3DXMatrixRotationAxis(&matRev, &m_pTransformCom->m_vInfo[INFO::INFO_UP], m_pTransformCom->m_vAngle.y);
-				
-		m_matCollWorld = matScale * matRot*matTrans;//*matRev;
-		m_matCollWorld2= matScale * matRot*matTrans2;
-		
-		m_pColliderCom->Set_Matrix(m_matCollWorld);
-		m_pDialog_ColliderCom->Set_Matrix(m_matCollWorld2);
+	Set_Collider_WorldMatrix();
 
 
 	if(!m_bDialogState)
 	Key_Input(fTimeDelta);
-
-	if (GetAsyncKeyState(VK_F4) & 0x0001)
-	{
-		m_bDialogState = false;
-		dynamic_cast<CDynamicCamera*>(CManagement::GetInstance()->Get_Scene()->Get_Object(L"Environment", OBJECT_CAMERA)
-			)->Set_POV(OBJECT_PLAYER);
-	}
-
-
-	if (m_Action_State == CURRENT_ATTACKED)
-	{
-		//CSoundMgr::Get_Instance()->PlaySound(L"GeraltDialogue__000053CB_1.wav", CSoundMgr::PLAYER);
-		CSoundMgr::Get_Instance()->PlaySound(L"GeraltDialogue__000053D4_1.wav", CSoundMgr::PLAYER);
-
-		
-	}
-	//	m_pMeshComFull->Set_AnimationIndex(23);
-
-	if (m_Action_State == CURRENT_POWERATTACKED)
-	{
-		//CSoundMgr::Get_Instance()-> StopSound(CSoundMgr::PLAYER);
-		CSoundMgr::Get_Instance()->PlaySound(L"GeraltDialogue__000053D4_1.wav", CSoundMgr::PLAYER);
-		m_pMeshComNude->Set_AnimationIndex(24);
-	}
 
 
 	m_pMeshComNude->Play_Animation(fTimeDelta); 
@@ -154,6 +90,38 @@ void CPlayer::Render_Object(void)
 	m_pMeshComNude->Render_Meshes();
 
 
+}
+
+void CPlayer::Set_Collider_WorldMatrix()
+{
+	_vec3 vDir;
+	m_pTransformCom->Get_Info(INFO_LOOK, &vDir);
+
+	const D3DXFRAME_DERIVED*	pFrame = m_pMeshComNude->Get_FrameByName("SkirtFBone02");
+	m_pBoneMatrix = &pFrame->CombinedTransformMatrix;
+
+
+	_matrix matScale, matScale2, matRev, matTrans, matTrans2, matRot, m_matCollWorld, m_matCollWorld2;
+	_vec3 worldbone = { m_pBoneMatrix->_41,m_pBoneMatrix->_42,m_pBoneMatrix->_43 };
+	D3DXVec3TransformCoord(&worldbone, &worldbone, m_pTransformCom->Get_WorldMatrix());
+
+
+
+	D3DXMatrixScaling(&matScale, 0.01, 0.01, 0.01);
+	D3DXMatrixScaling(&matScale2, 0.01, 0.01, 0.01);
+
+	D3DXMatrixRotationY(&matRot, m_pTransformCom->m_vAngle.y);
+
+	D3DXMatrixTranslation(&matTrans, worldbone.x, worldbone.y, worldbone.z);
+	D3DXMatrixTranslation(&matTrans2, worldbone.x + 10 * vDir.x, worldbone.y + 10 * vDir.y, worldbone.z + 10 * vDir.z);
+
+	//D3DXMatrixRotationAxis(&matRev, &m_pTransformCom->m_vInfo[INFO::INFO_UP], m_pTransformCom->m_vAngle.y);
+
+	m_matCollWorld = matScale * matRot*matTrans;//*matRev;
+	m_matCollWorld2 = matScale * matRot*matTrans2;
+
+	m_pColliderCom->Set_Matrix(m_matCollWorld);
+	m_pDialog_ColliderCom->Set_Matrix(m_matCollWorld2);
 }
 
 HRESULT CPlayer::Add_Component(void)
@@ -224,6 +192,34 @@ void CPlayer::Key_Input(const _float& fTimeDelta)
 	//
 	//	m_bArmorFull = true;
 	//}
+	if (GetAsyncKeyState(VK_F4) & 0x0001)
+	{
+		m_bDialogState = false;
+		dynamic_cast<CDynamicCamera*>(CManagement::GetInstance()->Get_Scene()->Get_Object(L"Environment", OBJECT_CAMERA)
+			)->Set_POV(OBJECT_PLAYER);
+	}
+
+
+	if (m_Action_State == CURRENT_ATTACKED)
+	{
+		//CSoundMgr::Get_Instance()->PlaySound(L"GeraltDialogue__000053CB_1.wav", CSoundMgr::PLAYER);
+		CSoundMgr::Get_Instance()->PlaySound(L"GeraltDialogue__000053D4_1.wav", CSoundMgr::PLAYER);
+
+
+	}
+
+	if (m_Action_State == CURRENT_POWERATTACKED)
+	{
+		//CSoundMgr::Get_Instance()-> StopSound(CSoundMgr::PLAYER);
+		CSoundMgr::Get_Instance()->PlaySound(L"GeraltDialogue__000053D4_1.wav", CSoundMgr::PLAYER);
+		m_pMeshComNude->Set_AnimationIndex(24);
+	}
+
+
+
+
+
+
 
 	if (GetAsyncKeyState('T') & 0x0001)
 	{
@@ -255,14 +251,8 @@ void CPlayer::Key_Input(const _float& fTimeDelta)
 		if (!m_bMapKey)
 		{
 
-
-
-			_vec3	vPos, vDir;
-			m_pTransformCom->Get_Info(INFO_POS, &vPos);
-
-			//ScreenToClient()
-
-			//_vec2 vMouse=GetCursorPos()
+		_vec3	vPos, vDir;
+		m_pTransformCom->Get_Info(INFO_POS, &vPos);
 
 
 		m_bMapKey = true;
@@ -282,21 +272,21 @@ void CPlayer::Key_Input(const _float& fTimeDelta)
 		list<CGameObject*> pNPClist = CManagement::GetInstance()->Get_Scene()->Get_Layer(L"GameLogic")->Get_ObjectList(OBJECT_NPC);
 
 		vector<QuestInfo> vecQuest = dynamic_cast<CDialog*>(m_pDialog)->Get_Questlist();
-		int Next_QuestID = -1;
-		int Next_NpcCode = 0;
+		int iNext_QuestID = -1;
+		int iNext_NpcCode = 0;
 		for (auto p : vecQuest)
 		{
 			if (p.Quest_State==Quest_ON)
 			{
-				 Next_QuestID = p.Quest_ID + 1;
+				 iNext_QuestID = p.Quest_ID + 1;
 			}
-			if (Next_QuestID == p.Quest_ID)
-				Next_NpcCode = p.NPC_Code;
+			if (iNext_QuestID == p.Quest_ID)
+				iNext_NpcCode = p.NPC_Code;
 
 		}
 
 		for(auto p:pNPClist)
-			if (dynamic_cast<CNPC*>(p)->Get_NPC_Type() == Next_NpcCode)
+			if (dynamic_cast<CNPC*>(p)->Get_NPC_Type() == iNext_NpcCode)
 			{
 				vPos = dynamic_cast<CNPC*>(p)->Get_Transform()->m_vInfo[INFO::INFO_POS];
 				dynamic_cast<CUI*>(pMap)->Set_fX2(((vPos.x / 128) * 320) + 240);
@@ -335,21 +325,6 @@ void CPlayer::Key_Input(const _float& fTimeDelta)
 		}
 	}
 
-
-	//if (Get_DIKeyState(DIK_Z) & 0x80)
-	//{
-	//	//_vec3 vdir={}
-	//	m_pTransformCom->m_vInfo[INFO::INFO_POS].y += 5.f*fTimeDelta;
-	//
-	//
-	//}
-	//if (Get_DIKeyState(DIK_X) & 0x80)
-	//{
-	//	//_vec3 vdir={}
-	//	m_pTransformCom->m_vInfo[INFO::INFO_POS].y -= 5.f*fTimeDelta;
-	//
-	//
-	//}
 
 
 	if (Get_DIKeyState(DIK_W) & 0x80)	
