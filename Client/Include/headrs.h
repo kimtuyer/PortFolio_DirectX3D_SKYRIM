@@ -22,6 +22,9 @@
 #include <d3d9.h>
 #include <d3dx9.h>
 
+#include <stack>
+#include <queue>
+#include <deque>
 #include <vector>
 #include <list>
 #include <map>

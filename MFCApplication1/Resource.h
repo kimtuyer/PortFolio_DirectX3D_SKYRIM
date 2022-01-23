@@ -32,6 +32,7 @@
 #define IDC_BUTTON3                     1012
 #define IDC_TREE1                       1012
 #define IDC_EDIT7                       1013
+#define IDC_TREE3                       1013
 #define IDC_SPIN7                       1014
 #define IDC_EDIT8                       1015
 #define IDC_SPIN8                       1016
@@ -41,9 +42,13 @@
 #define IDC_SPIN10                      1020
 #define IDC_EDIT13                      1020
 #define IDC_EDIT11                      1021
+#define IDC_BUTTON13                    1021
 #define IDC_SPIN11                      1022
+#define IDC_BUTTON14                    1022
 #define IDC_EDIT12                      1023
+#define IDC_BUTTON15                    1023
 #define IDC_LIST2                       1024
+#define IDC_BUTTON16                    1024
 #define IDC_LIST3                       1025
 #define IDC_BUTTON4                     1026
 #define IDC_BUTTON5                     1027
@@ -53,10 +58,13 @@
 #define IDC_RADIO1                      1030
 #define IDC_RADIO2                      1031
 #define IDC_TREE2                       1031
+#define IDC_RADIO5                      1032
 #define IDC_BUTTON12                    1032
 #define IDC_RADIO3                      1033
 #define IDC_RADIO4                      1034
 #define IDC_SLIDER1                     1034
+#define IDC_EDIT14                      1035
+
 
 // Next default values for new objects
 // 

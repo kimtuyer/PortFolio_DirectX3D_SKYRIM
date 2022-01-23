@@ -29,9 +29,16 @@ private:
 private:
 	CCubeTex*				m_pBufferCom = nullptr;
 	CTexture*				m_pTextureCom = nullptr;
+
+	CTexture*				m_pTextureCom2 = nullptr;
+	CTexture*				m_pTextureCom3 = nullptr;
+	CTexture*				m_pTextureCom4 = nullptr;
+
+
 	CTransform*				m_pTransformCom = nullptr;
 	CRenderer*				m_pRendererCom = nullptr;
 
+	float					m_fTime = 0;
 public:
 	static CSkyBox*		Create(LPDIRECT3DDEVICE9 pGraphicDev);
 

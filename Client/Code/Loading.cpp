@@ -63,9 +63,13 @@ Engine::_uint CLoading::LoadingForStage(void)
 
 	FAILED_CHECK_RETURN(Ready_Proto(L"Proto_Texture_Terrain", CTexture::Create(m_pGraphicDev, L"../Bin/Resource/Texture/Terrain/wrfieldHighgrass01.dds", TYPE_NORMAL, 1)), E_FAIL);
 	FAILED_CHECK_RETURN(Ready_Proto(L"Proto_Texture_Terrain2", CTexture::Create(m_pGraphicDev, L"../Bin/Resource/Texture/Terrain/Terrain0.png", TYPE_NORMAL, 1)), E_FAIL);
-	FAILED_CHECK_RETURN(Ready_Proto(L"Proto_Texture_SkyBox", CTexture::Create(m_pGraphicDev, L"../Bin/Resource/Texture/SkyBox/sunrise.dds", TYPE_CUBE, 1)), E_FAIL);  //sky_day_clear_09 //evening1 //night  //sunrise
+	
+	FAILED_CHECK_RETURN(Ready_Proto(L"Proto_Texture_SkyBox_Sun", CTexture::Create(m_pGraphicDev, L"../Bin/Resource/Texture/SkyBox/sky_day_clear_09.dds", TYPE_CUBE, 1)), E_FAIL);  //sky_day_clear_09 //evening1 //night  //sunrise
+	FAILED_CHECK_RETURN(Ready_Proto(L"Proto_Texture_SkyBox_After", CTexture::Create(m_pGraphicDev, L"../Bin/Resource/Texture/SkyBox/evening1.dds", TYPE_CUBE, 1)), E_FAIL);
+	FAILED_CHECK_RETURN(Ready_Proto(L"Proto_Texture_SkyBox_Night", CTexture::Create(m_pGraphicDev, L"../Bin/Resource/Texture/SkyBox/night.dds", TYPE_CUBE, 1)), E_FAIL);
 	
 	FAILED_CHECK_RETURN(Ready_Proto(L"Proto_Texture_UI", CTexture::Create(m_pGraphicDev, L"../Bin/Resource/Texture/UI/Bar.png", TYPE_NORMAL, 1)), E_FAIL);
+
 
 	FAILED_CHECK_RETURN(Ready_Proto(L"Proto_Texture_HPBar", CTexture::Create(m_pGraphicDev, L"../Bin/Resource/Texture/UI/HpBar10.png", TYPE_NORMAL, 1)), E_FAIL);
 	FAILED_CHECK_RETURN(Ready_Proto(L"Proto_Texture_MPBar", CTexture::Create(m_pGraphicDev, L"../Bin/Resource/Texture/UI/MpBar10.png", TYPE_NORMAL, 1)), E_FAIL);
@@ -185,7 +189,7 @@ Engine::_uint CLoading::LoadingForStage(void)
 
 	FAILED_CHECK_RETURN(Ready_Proto(L"Proto_Mesh_Tree", CStaticMesh::Create(m_pGraphicDev, L"../Bin/Resource/Mesh/StaticMesh/Tree/", L"Tree01.X")), E_FAIL);
 	//FAILED_CHECK_RETURN(Ready_Proto(L"Proto_Mesh_Stone",CStaticMesh::Create(m_pGraphicDev, L"../Bin/Resource/Mesh/StaticMesh/bridge/", L"DragonBridge.X")), E_FAIL);
-	FAILED_CHECK_RETURN(Ready_Proto(L"Proto_Mesh_Navi", CNaviMesh::Create(m_pGraphicDev,L"../../MFCApplication1/Data/NaviTest43.dat")), E_FAIL);
+	FAILED_CHECK_RETURN(Ready_Proto(L"Proto_Mesh_Navi", CNaviMesh::Create(m_pGraphicDev,L"../../MFCApplication1/Data/NaviTest43.dat", L"../../MFCApplication1/Data/WP.dat")), E_FAIL);
 //
 //#pragma region PLAYER
 	FAILED_CHECK_RETURN(Ready_Proto(L"Proto_Mesh_Sword", CStaticMesh::Create(m_pGraphicDev, L"../Bin/Resource/Mesh/StaticMesh/Sword/", L"elvengreatSword.X")), E_FAIL); 

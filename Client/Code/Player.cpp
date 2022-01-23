@@ -7,7 +7,7 @@
 CPlayer::CPlayer(LPDIRECT3DDEVICE9 pGraphicDev)
 	: CGameObject(pGraphicDev)
 {
-
+	
 }
 
 CPlayer::CPlayer(const CPlayer& rhs)
@@ -137,7 +137,7 @@ HRESULT CPlayer::Add_Component(void)
 	NULL_CHECK_RETURN(pComponent, E_FAIL);
 	m_mapComponent[ID_STATIC].emplace(L"Com_MeshFull", pComponent);
 
-
+	
 
 	// NaviMesh
 	pComponent = m_pNaviCom = dynamic_cast<CNaviMesh*>(Clone_Proto(L"Proto_Mesh_Navi"));

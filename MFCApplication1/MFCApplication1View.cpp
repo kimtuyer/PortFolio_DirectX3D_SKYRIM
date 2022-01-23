@@ -939,141 +939,212 @@ void CMFCApplication1View::OnLButtonDown(UINT nFlags, CPoint point)
 
 	if (m_iCellindex != 0) //0번 이후 1번째 삼각형
 	{
+		int num = pForm2->m_pNaviTab.m_iRadio;
+		if (pForm2->m_pNaviTab.m_Radio_WP.GetCheck() == BST_CHECKED) //Way_Point선택
+		{
+
+
+			_vec3 A = m_vecMousePos.front() - m_vecPoint[0]->vPoint[CCell::POINT_A];
+			_vec3 B = m_vecMousePos.front() - m_vecPoint[0]->vPoint[CCell::POINT_B];
+			_vec3 C = m_vecMousePos.front() - m_vecPoint[0]->vPoint[CCell::POINT_C];
+			float MinDist= D3DXVec3Length(&A) + D3DXVec3Length(&B) + D3DXVec3Length(&C);
+			int		iIndex = 0;
+			for (int i = 0; i < m_vecPoint.size(); i++)
+			{
+
+				_vec3 A = m_vecMousePos.front() - m_vecPoint[i]->vPoint[CCell::POINT_A];
+				_vec3 B = m_vecMousePos.front() - m_vecPoint[i]->vPoint[CCell::POINT_B];
+				_vec3 C = m_vecMousePos.front() - m_vecPoint[i]->vPoint[CCell::POINT_C];
+
+				float Dist_A = D3DXVec3Length(&A)+ D3DXVec3Length(&B)+ D3DXVec3Length(&C);
+				if (i > 0 && MinDist > Dist_A)
+				{
+					MinDist = Dist_A;
+					iIndex = i;
+				}
+
+			}
+			m_pCell = m_pNaviMesh->Get_Cell(iIndex);
+
+			A = m_pCell->MFC_Get_Point(CCell::POINT_A);
+			B = m_pCell->MFC_Get_Point(CCell::POINT_B);
+			C = m_pCell->MFC_Get_Point(CCell::POINT_C);
+
+			_vec3 MidPoint = { A.x + B.x + C.x / 3  , A.y + B.y + C.y / 3  , A.z + B.z + C.z / 3 };
+
+			m_vecWayPoint.push_back(WayPointInfo(MidPoint, m_iWayPointIndex++, iIndex));		
+
+			//pView->m_pNaviMesh->Insert_WayPointSell(m_pCell);
+			pView->m_pNaviMesh->Get_Cell(iIndex)->Set_color({ 255,0,255,1 });
+			//m_vecWayPointIndex.push_back(iIndex);
+
 		
-		m_pCell = m_pNaviMesh->Get_Cell(m_iCellindex - 1);
+			//찾은 인덱스값 트리에 넘기고, 해당 셀 색깔 표시
+			CString b;
+			b.Format(_T("%d"), iIndex);
 
-		_vec3 CellPos = m_pCell->MFC_Get_Point(CCell::POINT_A);
+			HTREEITEM hRoot2;
+			hRoot2 = pForm2->m_pNaviTab.m_ctrl_WayPointTree.InsertItem(b, TVI_ROOT, TVI_LAST);
 
-		_vec3 A = m_vecMousePos.front() - m_pCell->MFC_Get_Point(CCell::POINT_A);
-		_vec3 B = m_vecMousePos.front() - m_pCell->MFC_Get_Point(CCell::POINT_B);
-		_vec3 C = m_vecMousePos.front() - m_pCell->MFC_Get_Point(CCell::POINT_C);
 
-		float Dist_A = D3DXVec3Length(&A);
-		float Dist_B = D3DXVec3Length(&B);
-		float Dist_C = D3DXVec3Length(&C);
+			//HTREEITEM hChild1;
+			//hChild1 = pForm2->m_pNaviTab.m_ctrl_WayPointTree.InsertItem(L"0", hRoot2, TVI_LAST);
+			////HTREEITEM hStatic;
+			//hChild1 = pForm2->m_pNaviTab.m_ctrl_WayPointTree.InsertItem(L"1", hRoot2, TVI_LAST);
+			//hChild1 = pForm2->m_pNaviTab.m_ctrl_WayPointTree.InsertItem(L"2", hRoot2, TVI_LAST);
 
-		pair<float, float> mm = minmax({ Dist_A ,Dist_B ,Dist_C });
 
-		if (mm.second == Dist_A)
-		{
-
-			float mm = min(Dist_B, Dist_C);
-
-			m_pCell = CCell::Create(m_pGraphicDev, m_iCellindex, m_pCell->Get_Point(CCell::POINT_B), &m_vecMousePos.front(), m_pCell->Get_Point(CCell::POINT_C));
-			m_pNaviMesh->Insert_Sell(m_pCell);
-
-			m_vecPoint.emplace_back(new CellInfo(m_pCell->MFC_Get_Point(CCell::POINT_A), m_pCell->MFC_Get_Point(CCell::POINT_B),
-			m_pCell->MFC_Get_Point(CCell::POINT_C), m_iCellindex));
-
-			
-			//else
-			//{
-			//	m_pCell = CCell::Create(m_pGraphicDev, m_iCellindex, m_pCell->Get_Point(CCell::POINT_C), &m_vecMousePos.front(), m_pCell->Get_Point(CCell::POINT_B));
-			//	m_pNaviMesh->Insert_Sell(m_pCell);
-			//
-			//	//CellInfo CInfo;
-			//	//CInfo.vPoint[CLine::POINT_START] = m_pCell->MFC_Get_Point(CCell::POINT_C);
-			//	//CInfo.vPoint[CLine::POINT_FINISH] = m_vecMousePos.front();
-			//	//CInfo.vPoint[CLine::POINT_END] = m_pCell->MFC_Get_Point(CCell::POINT_B);
-			//	//CInfo.CellIndex = m_iCellindex;
-			//	//
-			//	//m_vecPoint.push_back(&CInfo);
-			//	m_vecPoint.emplace_back(new CellInfo(m_pCell->MFC_Get_Point(CCell::POINT_A), m_pCell->MFC_Get_Point(CCell::POINT_B),
-			//		m_pCell->MFC_Get_Point(CCell::POINT_C), m_iCellindex));
-			//
-			//}
 
 
 		}
+		
+		else if (pForm2->m_pNaviTab.m_Radio1.GetCheck() == BST_CHECKED) //Cell_Point
 
-		else if (mm.second == Dist_B)
 		{
-			float mm = min(Dist_A, Dist_C);
 
-			//if (mm == Dist_A)
-			//{
-			//	m_pCell = CCell::Create(m_pGraphicDev, m_iCellindex, m_pCell->Get_Point(CCell::POINT_A), &m_vecMousePos.front(), m_pCell->Get_Point(CCell::POINT_C));
-			//	m_pNaviMesh->Insert_Sell(m_pCell);
-			//
-			//	//CellInfo CInfo;
-			//	//CInfo.vPoint[CLine::POINT_START] = m_pCell->MFC_Get_Point(CCell::POINT_A);
-			//	//CInfo.vPoint[CLine::POINT_FINISH] = m_vecMousePos.front();
-			//	//CInfo.vPoint[CLine::POINT_END] = m_pCell->MFC_Get_Point(CCell::POINT_C);
-			//	//CInfo.CellIndex = m_iCellindex;
-			//	//
-			//	//m_vecPoint.push_back(&CInfo);
-			//	m_vecPoint.emplace_back(new CellInfo(m_pCell->MFC_Get_Point(CCell::POINT_A), m_pCell->MFC_Get_Point(CCell::POINT_B),
-			//		m_pCell->MFC_Get_Point(CCell::POINT_C), m_iCellindex));
-			//
-			//}
-			//else
+
+
+
+
+			m_pCell = m_pNaviMesh->Get_Cell(m_iCellindex - 1);
+
+			_vec3 CellPos = m_pCell->MFC_Get_Point(CCell::POINT_A);
+
+			_vec3 A = m_vecMousePos.front() - m_pCell->MFC_Get_Point(CCell::POINT_A);
+			_vec3 B = m_vecMousePos.front() - m_pCell->MFC_Get_Point(CCell::POINT_B);
+			_vec3 C = m_vecMousePos.front() - m_pCell->MFC_Get_Point(CCell::POINT_C);
+
+			float Dist_A = D3DXVec3Length(&A);
+			float Dist_B = D3DXVec3Length(&B);
+			float Dist_C = D3DXVec3Length(&C);
+
+			pair<float, float> mm = minmax({ Dist_A ,Dist_B ,Dist_C });
+
+			if (mm.second == Dist_A)
 			{
-				m_pCell = CCell::Create(m_pGraphicDev, m_iCellindex, m_pCell->Get_Point(CCell::POINT_C), &m_vecMousePos.front(), m_pCell->Get_Point(CCell::POINT_A));
+
+				float mm = min(Dist_B, Dist_C);
+
+				m_pCell = CCell::Create(m_pGraphicDev, m_iCellindex, m_pCell->Get_Point(CCell::POINT_B), &m_vecMousePos.front(), m_pCell->Get_Point(CCell::POINT_C));
 				m_pNaviMesh->Insert_Sell(m_pCell);
 
-				//CellInfo CInfo;
-				//CInfo.vPoint[CLine::POINT_START] = m_pCell->MFC_Get_Point(CCell::POINT_C);
-				//CInfo.vPoint[CLine::POINT_FINISH] = m_vecMousePos.front();
-				//CInfo.vPoint[CLine::POINT_END] = m_pCell->MFC_Get_Point(CCell::POINT_A);
-				//CInfo.CellIndex = m_iCellindex;
-				//
-				//m_vecPoint.push_back(&CInfo);
 				m_vecPoint.emplace_back(new CellInfo(m_pCell->MFC_Get_Point(CCell::POINT_A), m_pCell->MFC_Get_Point(CCell::POINT_B),
 					m_pCell->MFC_Get_Point(CCell::POINT_C), m_iCellindex));
+
+
+				//else
+				//{
+				//	m_pCell = CCell::Create(m_pGraphicDev, m_iCellindex, m_pCell->Get_Point(CCell::POINT_C), &m_vecMousePos.front(), m_pCell->Get_Point(CCell::POINT_B));
+				//	m_pNaviMesh->Insert_Sell(m_pCell);
+				//
+				//	//CellInfo CInfo;
+				//	//CInfo.vPoint[CLine::POINT_START] = m_pCell->MFC_Get_Point(CCell::POINT_C);
+				//	//CInfo.vPoint[CLine::POINT_FINISH] = m_vecMousePos.front();
+				//	//CInfo.vPoint[CLine::POINT_END] = m_pCell->MFC_Get_Point(CCell::POINT_B);
+				//	//CInfo.CellIndex = m_iCellindex;
+				//	//
+				//	//m_vecPoint.push_back(&CInfo);
+				//	m_vecPoint.emplace_back(new CellInfo(m_pCell->MFC_Get_Point(CCell::POINT_A), m_pCell->MFC_Get_Point(CCell::POINT_B),
+				//		m_pCell->MFC_Get_Point(CCell::POINT_C), m_iCellindex));
+				//
+				//}
+
+
 			}
 
-		}
-		else if (mm.second == Dist_C)
-		{
-			float mm = min(Dist_A, Dist_B);
-
-			//if (mm == Dist_A)
+			else if (mm.second == Dist_B)
 			{
-				m_pCell = CCell::Create(m_pGraphicDev, m_iCellindex, m_pCell->Get_Point(CCell::POINT_A), &m_vecMousePos.front(), m_pCell->Get_Point(CCell::POINT_B));
-				m_pNaviMesh->Insert_Sell(m_pCell);
+				float mm = min(Dist_A, Dist_C);
 
-				//CellInfo CInfo;
-				//CInfo.vPoint[CLine::POINT_START] = m_pCell->MFC_Get_Point(CCell::POINT_A);
-				//CInfo.vPoint[CLine::POINT_FINISH] = m_vecMousePos.front();
-				//CInfo.vPoint[CLine::POINT_END] = m_pCell->MFC_Get_Point(CCell::POINT_B);
-				//CInfo.CellIndex = m_iCellindex;
+				//if (mm == Dist_A)
+				//{
+				//	m_pCell = CCell::Create(m_pGraphicDev, m_iCellindex, m_pCell->Get_Point(CCell::POINT_A), &m_vecMousePos.front(), m_pCell->Get_Point(CCell::POINT_C));
+				//	m_pNaviMesh->Insert_Sell(m_pCell);
 				//
-				//m_vecPoint.push_back(&CInfo);
-				m_vecPoint.emplace_back(new CellInfo(m_pCell->MFC_Get_Point(CCell::POINT_A), m_pCell->MFC_Get_Point(CCell::POINT_B),
-					m_pCell->MFC_Get_Point(CCell::POINT_C), m_iCellindex));
+				//	//CellInfo CInfo;
+				//	//CInfo.vPoint[CLine::POINT_START] = m_pCell->MFC_Get_Point(CCell::POINT_A);
+				//	//CInfo.vPoint[CLine::POINT_FINISH] = m_vecMousePos.front();
+				//	//CInfo.vPoint[CLine::POINT_END] = m_pCell->MFC_Get_Point(CCell::POINT_C);
+				//	//CInfo.CellIndex = m_iCellindex;
+				//	//
+				//	//m_vecPoint.push_back(&CInfo);
+				//	m_vecPoint.emplace_back(new CellInfo(m_pCell->MFC_Get_Point(CCell::POINT_A), m_pCell->MFC_Get_Point(CCell::POINT_B),
+				//		m_pCell->MFC_Get_Point(CCell::POINT_C), m_iCellindex));
+				//
+				//}
+				//else
+				{
+					m_pCell = CCell::Create(m_pGraphicDev, m_iCellindex, m_pCell->Get_Point(CCell::POINT_C), &m_vecMousePos.front(), m_pCell->Get_Point(CCell::POINT_A));
+					m_pNaviMesh->Insert_Sell(m_pCell);
+
+					//CellInfo CInfo;
+					//CInfo.vPoint[CLine::POINT_START] = m_pCell->MFC_Get_Point(CCell::POINT_C);
+					//CInfo.vPoint[CLine::POINT_FINISH] = m_vecMousePos.front();
+					//CInfo.vPoint[CLine::POINT_END] = m_pCell->MFC_Get_Point(CCell::POINT_A);
+					//CInfo.CellIndex = m_iCellindex;
+					//
+					//m_vecPoint.push_back(&CInfo);
+					m_vecPoint.emplace_back(new CellInfo(m_pCell->MFC_Get_Point(CCell::POINT_A), m_pCell->MFC_Get_Point(CCell::POINT_B),
+						m_pCell->MFC_Get_Point(CCell::POINT_C), m_iCellindex));
+				}
+
 			}
-			//else
-			//{
-			//	m_pCell = CCell::Create(m_pGraphicDev, m_iCellindex, m_pCell->Get_Point(CCell::POINT_B), &m_vecMousePos.front(), m_pCell->Get_Point(CCell::POINT_A));
-			//	m_pNaviMesh->Insert_Sell(m_pCell);
-			//
-			//	//CellInfo CInfo;
-			//	//CInfo.vPoint[CLine::POINT_START] = m_pCell->MFC_Get_Point(CCell::POINT_B);
-			//	//CInfo.vPoint[CLine::POINT_FINISH] = m_vecMousePos.front();
-			//	//CInfo.vPoint[CLine::POINT_END] = m_pCell->MFC_Get_Point(CCell::POINT_A);
-			//	//CInfo.CellIndex = m_iCellindex;
-			//	//
-			//	//m_vecPoint.push_back(&CInfo);
-			//	m_vecPoint.emplace_back(new CellInfo(m_pCell->MFC_Get_Point(CCell::POINT_A), m_pCell->MFC_Get_Point(CCell::POINT_B),
-			//		m_pCell->MFC_Get_Point(CCell::POINT_C), m_iCellindex));
-			//}
+			else if (mm.second == Dist_C)
+			{
+				float mm = min(Dist_A, Dist_B);
+
+				//if (mm == Dist_A)
+				{
+					m_pCell = CCell::Create(m_pGraphicDev, m_iCellindex, m_pCell->Get_Point(CCell::POINT_A), &m_vecMousePos.front(), m_pCell->Get_Point(CCell::POINT_B));
+					m_pNaviMesh->Insert_Sell(m_pCell);
+
+					//CellInfo CInfo;
+					//CInfo.vPoint[CLine::POINT_START] = m_pCell->MFC_Get_Point(CCell::POINT_A);
+					//CInfo.vPoint[CLine::POINT_FINISH] = m_vecMousePos.front();
+					//CInfo.vPoint[CLine::POINT_END] = m_pCell->MFC_Get_Point(CCell::POINT_B);
+					//CInfo.CellIndex = m_iCellindex;
+					//
+					//m_vecPoint.push_back(&CInfo);
+					m_vecPoint.emplace_back(new CellInfo(m_pCell->MFC_Get_Point(CCell::POINT_A), m_pCell->MFC_Get_Point(CCell::POINT_B),
+						m_pCell->MFC_Get_Point(CCell::POINT_C), m_iCellindex));
+				}
+				//else
+				//{
+				//	m_pCell = CCell::Create(m_pGraphicDev, m_iCellindex, m_pCell->Get_Point(CCell::POINT_B), &m_vecMousePos.front(), m_pCell->Get_Point(CCell::POINT_A));
+				//	m_pNaviMesh->Insert_Sell(m_pCell);
+				//
+				//	//CellInfo CInfo;
+				//	//CInfo.vPoint[CLine::POINT_START] = m_pCell->MFC_Get_Point(CCell::POINT_B);
+				//	//CInfo.vPoint[CLine::POINT_FINISH] = m_vecMousePos.front();
+				//	//CInfo.vPoint[CLine::POINT_END] = m_pCell->MFC_Get_Point(CCell::POINT_A);
+				//	//CInfo.CellIndex = m_iCellindex;
+				//	//
+				//	//m_vecPoint.push_back(&CInfo);
+				//	m_vecPoint.emplace_back(new CellInfo(m_pCell->MFC_Get_Point(CCell::POINT_A), m_pCell->MFC_Get_Point(CCell::POINT_B),
+				//		m_pCell->MFC_Get_Point(CCell::POINT_C), m_iCellindex));
+				//}
+
+			}
+
+
+			CString a;
+			a.Format(_T("%d"), m_iCellindex);
+
+			HTREEITEM hRoot;
+			hRoot = pForm2->m_pNaviTab.m_ctrl_NaviTree.InsertItem(a, TVI_ROOT, TVI_LAST);
+
+
+			HTREEITEM hChild;
+			hChild = pForm2->m_pNaviTab.m_ctrl_NaviTree.InsertItem(L"0", hRoot, TVI_LAST);
+			//HTREEITEM hStatic;
+			hChild = pForm2->m_pNaviTab.m_ctrl_NaviTree.InsertItem(L"1", hRoot, TVI_LAST);
+			hChild = pForm2->m_pNaviTab.m_ctrl_NaviTree.InsertItem(L"2", hRoot, TVI_LAST);
+
+			m_iCellindex++;
+
 
 		}
 
-		CString a;
-		a.Format(_T("%d"), m_iCellindex);
-
-		HTREEITEM hRoot;
-		hRoot = pForm2->m_pNaviTab.m_ctrl_NaviTree.InsertItem(a, TVI_ROOT, TVI_LAST);
-
-
-		HTREEITEM hChild;
-		hChild = pForm2->m_pNaviTab.m_ctrl_NaviTree.InsertItem(L"0", hRoot, TVI_LAST);
-		//HTREEITEM hStatic;
-		hChild = pForm2->m_pNaviTab.m_ctrl_NaviTree.InsertItem(L"1", hRoot, TVI_LAST);
-		hChild = pForm2->m_pNaviTab.m_ctrl_NaviTree.InsertItem(L"2", hRoot, TVI_LAST);
-
-		m_iCellindex++;
 		m_vecMousePos.clear();
 
 

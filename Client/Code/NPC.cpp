@@ -25,38 +25,41 @@ HRESULT CNPC::Ready_Object(void)
 {
 	//FAILED_CHECK_RETURN(Add_Component(), E_FAIL);
 	FAILED_CHECK_RETURN(CGameObject::Ready_Object(), E_FAIL);
-
-	m_pTransformCom->Set_Scale(0.01f, 0.01f, 0.01f);
-	m_pTransformCom->Set_Pos(66.44, 7, 36.32);
 	
-	m_pNaviCom->Set_CellIndex(39);
+	m_pState = NPCState_Mealtime::Create();
+	//ChangeState(m_pState->normal);
+	m_pTransformCom->Set_Scale(0.01f, 0.01f, 0.01f);
+	m_pTransformCom->Set_Pos(m_vStartLoc.x, m_vStartLoc.y, m_vStartLoc.z);
+	m_pNaviCom->Set_CellIndex(m_iStartIndex);
 	m_pMeshCom->Set_AnimationIndex(0);
 	m_pColliderCom->Set_Radius(75);
 	Set_HP(1);
 
-	//m_pMeshCom->Set_AnimationIndex(13);
 
 	return S_OK;
 }
 
 Engine::_int CNPC::Update_Object(const _float& fTimeDelta)
 {
-	if (m_bRenderOn)
-	{
 
+	{
+		m_fAniTime += fTimeDelta;
 
 		CGameObject::Update_Object(fTimeDelta);
+
+		m_pState->Update_State(*this, fTimeDelta);
+
 		_vec3 vPos = m_pTransformCom->m_vInfo[INFO_POS];
-		CComponent* m_PlayerTransform = dynamic_cast<CPlayer*>(m_pPlayer)->Get_Component(L"Com_Transform", ID_DYNAMIC);
-		const _vec3 vPlayerPos = dynamic_cast<CTransform*>(m_PlayerTransform)->m_vInfo[INFO::INFO_POS];
+		//CComponent* m_PlayerTransform = dynamic_cast<CPlayer*>(m_pPlayer)->Get_Component(L"Com_Transform", ID_DYNAMIC);
+		//const _vec3 vPlayerPos = dynamic_cast<CTransform*>(m_PlayerTransform)->m_vInfo[INFO::INFO_POS];
+		//
+		//m_pTransformCom->Chase_Target_Navi(&vPlayerPos, vPos); //현재 위치에 방향 회전만 계산
 
-		m_pTransformCom->Chase_Target_Navi(&vPlayerPos, vPos); //현재 위치에 방향 회전만 계산
-
-
+		/////////////////////////////////움직임-모션
 
 
 		const D3DXFRAME_DERIVED*	pFrame = m_pMeshCom->Get_FrameByName("SkirtFBone02");
-		m_pBoneMatrix = &pFrame->CombinedTransformMatrix;
+		m_pBoneMatrix = &pFrame->CombinedTransformMatrix;	
 
 
 		_matrix matScale, matRev, matTrans, matRot, m_matCollWorld;
@@ -73,6 +76,11 @@ Engine::_int CNPC::Update_Object(const _float& fTimeDelta)
 
 		m_matCollWorld = matScale * matRot*matTrans;//*matRev;
 		m_pColliderCom->Set_Matrix(m_matCollWorld);
+
+
+		//자신 중심뼈 정보 받아와 충돌 구체 형성///////////////////////////////////////////////////////
+
+
 
 		int quest = dynamic_cast<CDialog*>(CManagement::GetInstance()->Get_Scene()->Get_Object(L"UI", OBJECT_Dialog))
 			->Get_QuestState(4);
@@ -146,15 +154,17 @@ Engine::_int CNPC::Update_Object(const _float& fTimeDelta)
 		}
 
 
+		if (m_bRenderOn)
+		{
 
 
 		m_bDraw = m_pOptimizationCom->Isin_FrustumForObject(&vPos);
 		if (false == m_bDraw)
 			return 0;
 
-		m_pMeshCom->Play_Animation(fTimeDelta);
 
 		Add_RenderGroup(RENDER_NONALPHA, this);
+		} 
 	}
 	return 0;
 }
@@ -164,7 +174,8 @@ void CNPC::Render_Object(void)
 	if (m_bRenderOn)
 	{
 
-
+	m_pMeshCom->Play_Animation(m_fAniTime);
+	m_fAniTime = 0.f;
 		
 
 
@@ -172,12 +183,120 @@ void CNPC::Render_Object(void)
 
 	m_pGraphicDev->SetTransform(D3DTS_WORLD, m_pTransformCom->Get_WorldMatrix());
 
-	//m_pNaviCom->Render_NaviMesh();
+	m_pNaviCom->Render_NaviMesh();
 
 
 	m_pMeshCom->Render_Meshes();
 
 	}
+
+}
+
+void CNPC::Set_PathList(_vec3 vDestPos, const _float & fTimeDelta)
+{
+	if (m_sPathlist.size() > 0)
+		m_sPathlist.pop();
+
+	m_bPath = true;
+	
+	_vec3 vCurPos = m_pTransformCom->m_vInfo[INFO::INFO_POS];
+	_vec3 vNextPos{};
+	
+	_vec3 vPos = { vDestPos - vCurPos };
+	float fDist = D3DXVec3Length(&vPos);
+
+
+	vector<WayPointInfo*>* vecWayPointCell = m_pNaviCom->Get_WayPointlist();
+	vector<_vec3> vecFirstList;
+	vector<_vec3> vecSecondList;
+
+	float fStartMin = 0;
+	float fDestMin = 0;
+	int index = 0;
+	int Destindex = 0;
+	for (int i = 0; i < vecWayPointCell->size(); i++)
+	{
+		_vec3 vStart = vecWayPointCell->at(i)->vWayPoint - vCurPos;
+		_vec3 vDest = vecWayPointCell->at(i)->vWayPoint - vDestPos;
+		float fStartDist = D3DXVec3Length(&vStart);
+		float fDestDist = D3DXVec3Length(&vDest);
+
+		if (i == 0) {
+			fStartMin = fStartDist; fDestMin = fDestDist;
+		}
+		if (fStartMin > fStartDist)
+		{
+			fStartMin = fStartDist;
+			index = i;
+		}
+		if (fDestMin > fDestDist)
+		{
+			fDestMin = fDestDist;
+			Destindex = i;
+		}
+
+
+	}
+	if (fStartMin > fDist) //waypoint 보다 목적지가 더 가까울 경우
+	{
+		m_sPathlist.push(vDestPos);
+		return;
+
+	}
+	else { //waypoint를 통한 목적지 이동
+
+		float fDist1 = 0, fDist2 = 0;
+
+		for (int i = index; i < vecWayPointCell->size(); i++)
+		{
+			if (i <= Destindex)
+			{
+				fDist1 += D3DXVec3Length(&vecWayPointCell->at(i)->vWayPoint);
+				vecFirstList.push_back(vecWayPointCell->at(i)->vWayPoint);
+
+			}
+		}
+		for (int i = index; i < vecWayPointCell->size(); i--)
+		{
+			vecSecondList.push_back(vecWayPointCell->at(i)->vWayPoint);
+			fDist2 += D3DXVec3Length(&vecWayPointCell->at(i)->vWayPoint);
+			if (i == 0) { i = vecWayPointCell->size() - 1; }
+			if (i == Destindex) { break; }
+
+		}
+		if (fDist1 > fDist2 ) {
+
+			for (auto&p : vecSecondList)
+				Insert_Pathlist(p);
+		}
+		else
+		{
+			for (auto&p : vecFirstList)
+				Insert_Pathlist(p);
+			if (vecFirstList.empty())
+			{
+				for (auto&p : vecSecondList)
+				Insert_Pathlist(p);
+
+			}
+
+
+		}
+
+
+		Insert_Pathlist(vDestPos); //최종 목적지 삽입
+	}
+
+
+
+}
+
+
+void CNPC::ChangeState(CNPC_State * new_state)
+{
+	
+	m_pState = new_state;
+
 
 }
 

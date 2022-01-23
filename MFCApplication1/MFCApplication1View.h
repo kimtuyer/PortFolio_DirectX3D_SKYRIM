@@ -134,6 +134,10 @@ public:
 	_vec3 m_vMousePos[CLine::POINT_END];
 
 	vector<Engine::CellInfo*> m_vecPoint;
+	//vector<Engine::CellInfo*> m_vecWayPoint;
+	vector<int> m_vecWayPointIndex;
+	vector<Engine::WayPointInfo>m_vecWayPoint;
+	int m_iWayPointIndex = 0;
 
 
 

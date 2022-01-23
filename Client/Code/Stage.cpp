@@ -45,7 +45,7 @@ HRESULT CStage::Ready_Scene(void)
 
 
 	{
-		wstring wstrFilePath = L"../../MFCApplication1/Data/Whiterun1554.dat";
+		wstring wstrFilePath = L"../../MFCApplication1/Data/Whiterun1555.dat";
 		HANDLE hFile = CreateFile(wstrFilePath.c_str(), GENERIC_READ, 0, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
 		if (INVALID_HANDLE_VALUE == hFile)
 			return;
@@ -4294,6 +4294,7 @@ HRESULT CStage::Ready_GameLogic_Layer(const _tchar * pLayerTag)
 	CGameObject*			pGameObject = nullptr;
 	CGameObject*			pWeaponObject = nullptr;
 	CGameObject*			pPlayer = nullptr;
+	//CPlayer*				pPlayer = nullptr;
 
 
 	CLayer*		pUILayer = Get_Layer(L"UI");
@@ -4691,15 +4692,21 @@ HRESULT CStage::Ready_GameLogic_Layer(const _tchar * pLayerTag)
 	
 	}
 	
-	
+
 	pGameObject = CNPC::Create(m_pGraphicDev,L"Proto_Mesh_BlackSmith");
 	NULL_CHECK_RETURN(pGameObject, E_FAIL);
 	dynamic_cast<CNPC*>(pGameObject)->Set_Player(pPlayer);
 	dynamic_cast<CNPC*>(pGameObject)->Set_NPC_Type(NPC_Type::NPC_Blacksmith);
 	dynamic_cast<CNPC*>(pGameObject)->Set_NPC_Name(L"Adrianne Avenicci");
 	dynamic_cast<CNPC*>(pGameObject)->Set_RenderOn(true);
-	dynamic_cast<CNPC*>(pGameObject)->Get_Transform()->Set_Pos(22.54, 7, 30.2);
-	dynamic_cast<CNPC*>(pGameObject)->Get_NaviCom()->Set_CellIndex(6);
+
+	dynamic_cast<CNPC*>(pGameObject)->Set_StartLoc(22.54, 7, 30.2);
+	dynamic_cast<CNPC*>(pGameObject)->Set_StartIndex(6);
+
+	dynamic_cast<CNPC*>(pGameObject)->Set_HomeLoc(31.4,7,26.57);
+	dynamic_cast<CNPC*>(pGameObject)->Set_HomeIndex(11);
+	dynamic_cast<CNPC*>(pGameObject)->Ready_Object();
+
 	FAILED_CHECK_RETURN(pLayer->Add_GameObject(OBJECT_NPC, pGameObject), E_FAIL);
 
 
@@ -4710,8 +4717,13 @@ HRESULT CStage::Ready_GameLogic_Layer(const _tchar * pLayerTag)
 	dynamic_cast<CNPC*>(pGameObject)->Set_NPC_Name(L"Graymane");
 	dynamic_cast<CNPC*>(pGameObject)->Set_RenderOn(true);
 
-	dynamic_cast<CNPC*>(pGameObject)->Get_Transform()->Set_Pos(59.76, 7, 26.52);
-	dynamic_cast<CNPC*>(pGameObject)->Get_NaviCom()->Set_CellIndex(54);
+	dynamic_cast<CNPC*>(pGameObject)->Set_StartLoc(59.76, 7, 26.52);
+	dynamic_cast<CNPC*>(pGameObject)->Set_StartIndex(54);
+
+	dynamic_cast<CNPC*>(pGameObject)->Set_HomeLoc(60.8,7,24.2);
+	dynamic_cast<CNPC*>(pGameObject)->Set_HomeIndex(30);
+	dynamic_cast<CNPC*>(pGameObject)->Ready_Object();
+
 	FAILED_CHECK_RETURN(pLayer->Add_GameObject(OBJECT_NPC, pGameObject), E_FAIL);
 
 
@@ -4722,35 +4734,39 @@ HRESULT CStage::Ready_GameLogic_Layer(const _tchar * pLayerTag)
 	dynamic_cast<CNPC*>(pGameObject)->Set_NPC_Name(L"Carlotta");
 	dynamic_cast<CNPC*>(pGameObject)->Set_RenderOn(true);
 
-	dynamic_cast<CNPC*>(pGameObject)->Get_Transform()->Set_Pos(57.42, 7, 39.10);
-	dynamic_cast<CNPC*>(pGameObject)->Get_NaviCom()->Set_CellIndex(46);
+	dynamic_cast<CNPC*>(pGameObject)->Set_StartLoc(57.42, 7, 39.10);
+	dynamic_cast<CNPC*>(pGameObject)->Set_StartIndex(46);
+	dynamic_cast<CNPC*>(pGameObject)->Set_HomeLoc(24.f, 12, 60.3f);
+	dynamic_cast<CNPC*>(pGameObject)->Set_HomeIndex(167);
+	dynamic_cast<CNPC*>(pGameObject)->Ready_Object();
+
 	FAILED_CHECK_RETURN(pLayer->Add_GameObject(OBJECT_NPC, pGameObject), E_FAIL);
 
 
 
-	pGameObject = CNPC::Create(m_pGraphicDev, L"Proto_Mesh_Yarl");
-	NULL_CHECK_RETURN(pGameObject, E_FAIL);
-	dynamic_cast<CNPC*>(pGameObject)->Set_Player(pPlayer);
-	dynamic_cast<CNPC*>(pGameObject)->Set_NPC_Type(NPC_Type::NPC_Yarl);
-	dynamic_cast<CNPC*>(pGameObject)->Set_NPC_Name(L"Yarl");
-	dynamic_cast<CNPC*>(pGameObject)->Set_RenderOn(true);
-
-	dynamic_cast<CNPC*>(pGameObject)->Get_Transform()->Set_Pos(79, 23, 107);
-	dynamic_cast<CNPC*>(pGameObject)->Get_NaviCom()->Set_CellIndex(124);
-	FAILED_CHECK_RETURN(pLayer->Add_GameObject(OBJECT_NPC, pGameObject), E_FAIL);
-
-
-
-	pGameObject = CNPC::Create(m_pGraphicDev, L"Proto_Mesh_Tulius");
-	NULL_CHECK_RETURN(pGameObject, E_FAIL);
-	dynamic_cast<CNPC*>(pGameObject)->Set_Player(pPlayer);
-	dynamic_cast<CNPC*>(pGameObject)->Set_NPC_Type(NPC_Type::NPC_Tulius);
-	dynamic_cast<CNPC*>(pGameObject)->Set_NPC_Name(L"Tulius");
-	dynamic_cast<CNPC*>(pGameObject)->Set_RenderOn(false);
-	
-	dynamic_cast<CNPC*>(pGameObject)->Get_Transform()->Set_Pos(62.43f, 12, 75.21f);
-	dynamic_cast<CNPC*>(pGameObject)->Get_NaviCom()->Set_CellIndex(87);
-	FAILED_CHECK_RETURN(pLayer->Add_GameObject(OBJECT_NPC, pGameObject), E_FAIL);
+	//pGameObject = CNPC::Create(m_pGraphicDev, L"Proto_Mesh_Yarl");
+	//NULL_CHECK_RETURN(pGameObject, E_FAIL);
+	//dynamic_cast<CNPC*>(pGameObject)->Set_Player(pPlayer);
+	//dynamic_cast<CNPC*>(pGameObject)->Set_NPC_Type(NPC_Type::NPC_Yarl);
+	//dynamic_cast<CNPC*>(pGameObject)->Set_NPC_Name(L"Yarl");
+	//dynamic_cast<CNPC*>(pGameObject)->Set_RenderOn(true);
+	//
+	//dynamic_cast<CNPC*>(pGameObject)->Get_Transform()->Set_Pos(79, 23, 107);
+	//dynamic_cast<CNPC*>(pGameObject)->Get_NaviCom()->Set_CellIndex(124);
+	//FAILED_CHECK_RETURN(pLayer->Add_GameObject(OBJECT_NPC, pGameObject), E_FAIL);
+	//
+	//
+	//
+	//pGameObject = CNPC::Create(m_pGraphicDev, L"Proto_Mesh_Tulius");
+	//NULL_CHECK_RETURN(pGameObject, E_FAIL);
+	//dynamic_cast<CNPC*>(pGameObject)->Set_Player(pPlayer);
+	//dynamic_cast<CNPC*>(pGameObject)->Set_NPC_Type(NPC_Type::NPC_Tulius);
+	//dynamic_cast<CNPC*>(pGameObject)->Set_NPC_Name(L"Tulius");
+	//dynamic_cast<CNPC*>(pGameObject)->Set_RenderOn(false);
+	//
+	//dynamic_cast<CNPC*>(pGameObject)->Get_Transform()->Set_Pos(62.43f, 12, 75.21f);
+	//dynamic_cast<CNPC*>(pGameObject)->Get_NaviCom()->Set_CellIndex(87);
+	//FAILED_CHECK_RETURN(pLayer->Add_GameObject(OBJECT_NPC, pGameObject), E_FAIL);
 
 
 

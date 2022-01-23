@@ -33,7 +33,23 @@ HRESULT CSkyBox::Ready_Object(void)
 
 Engine::_int CSkyBox::Update_Object(const _float& fTimeDelta)
 {
+	m_fTime += fTimeDelta;
 	CGameObject::Update_Object(fTimeDelta);
+
+	if (m_fTime >= 5.f)
+	{
+		m_pTextureCom = dynamic_cast<CTexture*>(Clone_Proto(L"Proto_Texture_SkyBox_After"));
+	}
+	if (m_fTime >= 10.f)
+	{
+		m_pTextureCom = dynamic_cast<CTexture*>(Clone_Proto(L"Proto_Texture_SkyBox_Night"));
+
+	}
+	if (m_fTime >= 15.f){		
+		m_fTime = 0.f;
+		m_pTextureCom = dynamic_cast<CTexture*>(Clone_Proto(L"Proto_Texture_SkyBox_Sun"));
+
+	}
 
 	_matrix		matCamWorld;
 	// 뷰스페이스 변환 행렬을 얻어옴
@@ -74,9 +90,17 @@ HRESULT CSkyBox::Add_Component(void)
 	m_mapComponent[ID_STATIC].emplace(L"Com_Buffer", pComponent);
 
 	// texture
-	pComponent = m_pTextureCom = dynamic_cast<CTexture*>(Clone_Proto(L"Proto_Texture_SkyBox"));
+	pComponent = m_pTextureCom = dynamic_cast<CTexture*>(Clone_Proto(L"Proto_Texture_SkyBox_Sun"));
 	NULL_CHECK_RETURN(pComponent, E_FAIL);
 	m_mapComponent[ID_STATIC].emplace(L"Com_Texture", pComponent);
+
+	pComponent = m_pTextureCom2 = dynamic_cast<CTexture*>(Clone_Proto(L"Proto_Texture_SkyBox_After"));
+	NULL_CHECK_RETURN(pComponent, E_FAIL);
+	m_mapComponent[ID_STATIC].emplace(L"Com_Texture2", pComponent);
+
+	pComponent = m_pTextureCom3 = dynamic_cast<CTexture*>(Clone_Proto(L"Proto_Texture_SkyBox_Night"));
+	NULL_CHECK_RETURN(pComponent, E_FAIL);
+	m_mapComponent[ID_STATIC].emplace(L"Com_Texture3", pComponent);
 
 
 	// Transform

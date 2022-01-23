@@ -4,6 +4,12 @@
 #include "GameObject.h"
 #include "Define.h"
 #include "Player.h"
+#include "CNPC_State.h"
+#include "NPCState_Mealtime.h"
+#include "NPCState_Normal.h"
+#include "NPCState_GoHome.h"
+#include "NPCState_Battle.h"
+
 BEGIN(Engine)
 
 class CDynamicMesh;
@@ -27,6 +33,8 @@ public:
 	virtual HRESULT Ready_Object(void) override;
 	virtual _int Update_Object(const _float& fTimeDelta) override;
 	virtual void Render_Object(void) override;
+
+	void	Set_PathList(_vec3 vDestPos, const _float& fTimeDelta);
 
 	void	Set_Player(CGameObject* pObj) { m_pPlayer = pObj; }
 	CGameObject* Get_Player() { return m_pPlayer; }
@@ -57,10 +65,36 @@ public:
 	void				Set_RenderOn(bool check) { m_bRenderOn = check; }
 	_bool				Get_RenderOn() { return m_bRenderOn; }
 
+	
+	 _vec3				Get_HomeLoc() { return m_vHomeLoc; }
+	 _vec3				Get_BarLoc() { return m_vBarLoc; }
+	 _vec3			   Get_StartLoc() { return m_vStartLoc; }
+
+	void				Set_HomeLoc(float x, float y, float z) { m_vHomeLoc = {x,y,z}; }
+	void				Set_HomeIndex(int index) { m_iHomeIndex = index; }
+
+	void				Set_StartLoc(float x, float y, float z) { m_vStartLoc = { x,y,z }; }
+	void				Set_StartIndex(int index) { m_iStartIndex = index; }
+
+
+
+	CNPC_State*			m_pState = nullptr;
+	void				ChangeState(CNPC_State* new_state);
+
+	queue<_vec3>*		Get_PathList() { return &m_sPathlist; }
+	void				Insert_Pathlist(_vec3& vPos) { m_sPathlist.push(vPos); }
+
+	bool				Get_FindPath() { return m_bPath; }
+	void				Set_FindPath() { m_bPath = false; }
+	_float					SetUp_OnTerrain(void);
+
+
+
+
+
 private:
 	HRESULT					Add_Component(wstring Mesh);
 	void					Key_Input(const _float& fTimeDelta);
-	_float					SetUp_OnTerrain(void);
 	_vec3					PickUp_OnTerrain(void);
 
 private:
@@ -85,6 +119,20 @@ private:
 	_bool					m_bRenderOn = false;
 	_bool					m_bDraw = false;
 
+
+	bool					m_bPath = false;
+	_vec3					m_vBarLoc = { 67.15f,7.f,30.4f };
+	_int					m_iBarIndex = 35;
+
+	_vec3					m_vHomeLoc = {};
+	_int					m_iHomeIndex = 0;
+
+	_vec3					m_vStartLoc = {};
+	_int					m_iStartIndex = 0;
+
+	float					m_fAniTime =0.f;
+
+	queue<_vec3>			m_sPathlist;
 
 public:
 	static CNPC*		Create(LPDIRECT3DDEVICE9 pGraphicDev,wstring Mesh);

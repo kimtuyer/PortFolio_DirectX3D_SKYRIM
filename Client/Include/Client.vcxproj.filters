@@ -97,6 +97,9 @@
     <Filter Include="Sound">
       <UniqueIdentifier>{b1b2d1ce-16de-4723-a9e2-433f400ed7eb}</UniqueIdentifier>
     </Filter>
+    <Filter Include="02. GameObject\02. Monster\00.NPC\State">
+      <UniqueIdentifier>{a0af8f92-37fb-4e5b-a3b1-fc88b426d484}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
@@ -240,6 +243,21 @@
     <ClInclude Include="headrs.h">
       <Filter>98. 헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="..\Code\CNPC_State.h">
+      <Filter>02. GameObject\02. Monster\00.NPC\State</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Code\NPCState_Normal.h">
+      <Filter>02. GameObject\02. Monster\00.NPC\State</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Code\NPCState_Battle.h">
+      <Filter>02. GameObject\02. Monster\00.NPC\State</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Code\NPCState_GoHome.h">
+      <Filter>02. GameObject\02. Monster\00.NPC\State</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Code\NPCState_Mealtime.h">
+      <Filter>02. GameObject\02. Monster\00.NPC\State</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -367,6 +385,21 @@
     </ClCompile>
     <ClCompile Include="..\Code\CSoundMgr.cpp">
       <Filter>Sound</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Code\CNPC_State.cpp">
+      <Filter>02. GameObject\02. Monster\00.NPC\State</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Code\NPCState_Normal.cpp">
+      <Filter>02. GameObject\02. Monster\00.NPC\State</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Code\NPCState_Battle.cpp">
+      <Filter>02. GameObject\02. Monster\00.NPC\State</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Code\NPCState_GoHome.cpp">
+      <Filter>02. GameObject\02. Monster\00.NPC\State</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Code\NPCState_Mealtime.cpp">
+      <Filter>02. GameObject\02. Monster\00.NPC\State</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

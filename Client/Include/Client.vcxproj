@@ -163,6 +163,7 @@
     <ClInclude Include="..\Code\Breath.h" />
     <ClInclude Include="..\Code\CItem.h" />
     <ClInclude Include="..\Code\CItemObject.h" />
+    <ClInclude Include="..\Code\CNPC_State.h" />
     <ClInclude Include="..\Code\CSoundMgr.h" />
     <ClInclude Include="..\Code\CStatic_Object.h" />
     <ClInclude Include="..\Code\Define.h" />
@@ -184,6 +185,10 @@
     <ClInclude Include="..\Code\Monster_draugr.h" />
     <ClInclude Include="..\Code\Mp.h" />
     <ClInclude Include="..\Code\NPC.h" />
+    <ClInclude Include="..\Code\NPCState_Battle.h" />
+    <ClInclude Include="..\Code\NPCState_GoHome.h" />
+    <ClInclude Include="..\Code\NPCState_Mealtime.h" />
+    <ClInclude Include="..\Code\NPCState_Normal.h" />
     <ClInclude Include="..\Code\Player.h" />
     <ClInclude Include="..\Code\PlayerArmor.h" />
     <ClInclude Include="..\Code\PlayerBoots.h" />
@@ -211,6 +216,7 @@
     <ClCompile Include="..\Code\Breath.cpp" />
     <ClCompile Include="..\Code\CItem.cpp" />
     <ClCompile Include="..\Code\CItemObject.cpp" />
+    <ClCompile Include="..\Code\CNPC_State.cpp" />
     <ClCompile Include="..\Code\CSoundMgr.cpp" />
     <ClCompile Include="..\Code\CStatic_Object.cpp" />
     <ClCompile Include="..\Code\Dialog.cpp" />
@@ -231,6 +237,10 @@
     <ClCompile Include="..\Code\Monster_draugr.cpp" />
     <ClCompile Include="..\Code\Mp.cpp" />
     <ClCompile Include="..\Code\NPC.cpp" />
+    <ClCompile Include="..\Code\NPCState_Battle.cpp" />
+    <ClCompile Include="..\Code\NPCState_GoHome.cpp" />
+    <ClCompile Include="..\Code\NPCState_Mealtime.cpp" />
+    <ClCompile Include="..\Code\NPCState_Normal.cpp" />
     <ClCompile Include="..\Code\Player.cpp" />
     <ClCompile Include="..\Code\PlayerArmor.cpp" />
     <ClCompile Include="..\Code\PlayerBoots.cpp" />

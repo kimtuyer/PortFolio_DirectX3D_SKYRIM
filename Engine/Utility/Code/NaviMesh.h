@@ -18,6 +18,16 @@ public:
 
 	///////////////////////////////////
 	void				Insert_Sell(CCell* pCell) { m_vecCell.push_back(pCell); }
+	void				Insert_WayPointSell(WayPointInfo* pCell) { m_vecWayPoint.emplace_back(pCell); }
+	void				Insert_WayPointIndex(const _ulong& dwindex) { m_vecWayPointIndex.push_back(dwindex); }
+
+
+	vector<int>*			Get_Wayvector() { return &m_vecWayPointIndex; }
+	vector<WayPointInfo*>*		Get_WayPointlist() { return &m_vecWayPoint; }
+	WayPointInfo*				Get_WayPoint(int WayPointIndex) {
+		return m_vecWayPoint[WayPointIndex];
+	}
+
 	CCell*				Get_Cell(const _ulong& dwindex) {return m_vecCell[dwindex]; }
 	void				MFC_PopCell() {	if(!m_vecCell.empty()) m_vecCell.pop_back(); }
 
@@ -54,7 +64,7 @@ public:
 
 
 public:
-	HRESULT				Ready_NaviMesh(const wstring & wstrFilePath);
+	HRESULT				Ready_NaviMesh(const wstring & wstrFilePath, const wstring & wstrWayPointFilePath);
 
 
 
@@ -76,10 +86,13 @@ private:
 
 private:
 	vector<CCell*>			m_vecCell;
+	vector<Engine::WayPointInfo*>m_vecWayPoint;
+	vector<int>				m_vecWayPointIndex;
+
 	_ulong					m_dwIndex;
 
 public:
-	static CNaviMesh*		Create(LPDIRECT3DDEVICE9 pGraphicDev, const _tchar* pFilePath);
+	static CNaviMesh*		Create(LPDIRECT3DDEVICE9 pGraphicDev, const _tchar* pFilePath, const _tchar* wstrWayPointFilePath);
 
 	static CNaviMesh*		MFC_Create(LPDIRECT3DDEVICE9 pGraphicDev);
 

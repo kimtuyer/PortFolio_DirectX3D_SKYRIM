@@ -35,10 +35,15 @@ void CTab_Navi::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_TREE1, m_ctrl_NaviTree);
 	DDX_Control(pDX, IDC_RADIO1, m_Radio1);
 	DDX_Radio(pDX, IDC_RADIO1, m_iRadio);
+	//DDX_Radio(pDX, IDC_RADIO3, m_iRadio_WP);
+
 	DDX_Control(pDX, IDC_EDIT13, m_edit_CellIndex);
 	DDX_Control(pDX, IDC_EDIT8, m_edit_X);
 	DDX_Control(pDX, IDC_EDIT9, m_edit_Y);
 	DDX_Control(pDX, IDC_EDIT10, m_edit_Z);
+	DDX_Control(pDX, IDC_TREE3, m_ctrl_WayPointTree);
+	DDX_Control(pDX, IDC_RADIO5, m_Radio_WP);
+	DDX_Control(pDX, IDC_EDIT14, m_edit_WayPoint);
 }
 
 
@@ -50,6 +55,12 @@ BEGIN_MESSAGE_MAP(CTab_Navi, CDialogEx)
 	ON_BN_CLICKED(IDC_BUTTON2, &CTab_Navi::OnBnClickedButton_Update)
 	ON_BN_CLICKED(IDC_RADIO1, &CTab_Navi::OnBnClickedRadio1_Select_CelltoPoint)
 	ON_BN_CLICKED(IDC_BUTTON11, &CTab_Navi::OnBnClickedButton_PosEdit)
+	ON_BN_CLICKED(IDC_BUTTON13, &CTab_Navi::OnBnClickedButton_WayPoint_Add)
+	ON_BN_CLICKED(IDC_BUTTON14, &CTab_Navi::OnBnClickedButton_WayPoint_Delete)
+	ON_NOTIFY(TVN_SELCHANGED, IDC_TREE3, &CTab_Navi::OnTvnSelchangedTree_WayPoint)
+	//ON_BN_CLICKED(IDC_RADIO5, &CTab_Navi::OnBnClickedRadio5)
+	ON_BN_CLICKED(IDC_BUTTON15, &CTab_Navi::OnBnClickedButton_WP_Save)
+	ON_BN_CLICKED(IDC_BUTTON16, &CTab_Navi::OnBnClickedButton_WP_Load)
 END_MESSAGE_MAP()
 
 
@@ -445,7 +456,7 @@ void CTab_Navi::OnBnClickedButton_PosEdit()
 		_vec3 vPoint;
 
 		switch (childindex)
-		{
+		{	
 		case CCell::POINT::POINT_A:
 			
 
@@ -459,6 +470,10 @@ void CTab_Navi::OnBnClickedButton_PosEdit()
 			vPoint.z = _ttof(cPoint);
 
 			pView->m_pNaviMesh->Set_PointPos(cellindex, CCell::POINT::POINT_A, vPoint);
+			pView->m_vecPoint[cellindex]->CellIndex = cellindex;
+			pView->m_vecPoint[cellindex]->vPoint[CCell::POINT::POINT_A]= vPoint;
+			
+
 
 			break;
 		case CCell::POINT::POINT_B:
@@ -473,7 +488,8 @@ void CTab_Navi::OnBnClickedButton_PosEdit()
 			vPoint.z = _ttof(cPoint);
 
 			pView->m_pNaviMesh->Set_PointPos(cellindex, CCell::POINT::POINT_B, vPoint);
-
+			pView->m_vecPoint[cellindex]->CellIndex = cellindex;
+			pView->m_vecPoint[cellindex]->vPoint[CCell::POINT::POINT_B] = vPoint;
 			break;
 		case CCell::POINT::POINT_C:
 
@@ -487,7 +503,8 @@ void CTab_Navi::OnBnClickedButton_PosEdit()
 			vPoint.z = _ttof(cPoint);
 
 			pView->m_pNaviMesh->Set_PointPos(cellindex, CCell::POINT::POINT_C, vPoint);
-
+			pView->m_vecPoint[cellindex]->CellIndex = cellindex;
+			pView->m_vecPoint[cellindex]->vPoint[CCell::POINT::POINT_C] = vPoint;
 			break;
 		default:
 			break;
@@ -498,4 +515,298 @@ void CTab_Navi::OnBnClickedButton_PosEdit()
 	}
 	UpdateData(FALSE);
 
+}
+
+
+void CTab_Navi::OnBnClickedButton_WayPoint_Add()
+{
+	UpdateData(TRUE);
+	CMainFrame* pMain = dynamic_cast<CMainFrame*>(::AfxGetApp()->GetMainWnd());
+	CMFCApplication1View* pView = dynamic_cast<CMFCApplication1View*>(pMain->m_MainSplitter.GetPane(0, 1));
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+	CString index;
+	int wayindex = 0;
+	m_edit_WayPoint.GetWindowTextW(index);
+	wayindex = _ttoi(index);
+
+	pView->m_pNaviMesh->Get_Cell(wayindex)->Set_color({ 255,0,255,1 });
+
+	
+	_vec3 A = pView->m_pNaviMesh->Get_Cell(wayindex)->MFC_Get_Point(CCell::POINT_A);
+	_vec3 B = pView->m_pNaviMesh->Get_Cell(wayindex)->MFC_Get_Point(CCell::POINT_B);
+	_vec3 C = pView->m_pNaviMesh->Get_Cell(wayindex)->MFC_Get_Point(CCell::POINT_C);
+
+	_vec3 MidPoint = { (A.x + B.x + C.x) / 3  ,( A.y + B.y + C.y) / 3  ,( A.z + B.z + C.z )/ 3 };
+	
+	int size = pView->m_vecWayPoint.size();
+	pView->m_vecWayPoint.push_back(WayPointInfo(MidPoint, size, wayindex));
+
+	//pView->m_vecWayPointIndex.push_back(wayindex);
+
+
+	CString b;
+	b.Format(_T("%d"), wayindex);
+
+	HTREEITEM hRoot2;
+	hRoot2 = m_ctrl_WayPointTree.InsertItem(b, TVI_ROOT, TVI_LAST);
+
+
+
+	UpdateData(FALSE);
+
+}
+
+
+void CTab_Navi::OnBnClickedButton_WayPoint_Delete()
+{
+	UpdateData(TRUE);
+	//int iIndex = m_DynamicList.GetCurSel();
+
+	HTREEITEM hItem = m_ctrl_WayPointTree.GetSelectedItem();
+	CString str_Mesh = m_ctrl_WayPointTree.GetItemText(hItem);
+
+	//HTREEITEM selectItem = pNMTreeView->itemNew.hItem;
+	//CString str_cindex = m_ctrl_WayPointTree.GetItemText(selectItem);
+	//별도 적용 버튼 만들어, 입력시 선택된 인덱스의 수치값을 가져와
+	//다시 Set_
+
+	int index = _ttoi(str_Mesh);
+
+	
+	//int index = 0;
+	//str_Mesh.Format(_T("%d"), index);
+
+
+	CMainFrame* pMain = dynamic_cast<CMainFrame*>(::AfxGetApp()->GetMainWnd());
+	CMFCApplication1View* pView = dynamic_cast<CMFCApplication1View*>(pMain->m_MainSplitter.GetPane(0, 1));
+
+
+
+
+	vector<Engine::WayPointInfo>::iterator iter = pView->m_vecWayPoint.begin();
+	for (int i=0; iter != pView->m_vecWayPoint.end(); i++)
+	{
+		if (index == (*iter).CellIndex)
+		{
+			iter=pView->m_vecWayPoint.erase(iter);
+		}
+		else
+		{
+			iter++;
+		}
+
+
+	}
+	
+
+	m_ctrl_WayPointTree.DeleteItem(hItem);
+	pView->m_pNaviMesh->Get_Cell(index)->Set_color({ 255,255,255,1 });
+
+
+
+
+
+
+
+
+
+
+
+	UpdateData(FALSE);
+}
+
+
+void CTab_Navi::OnTvnSelchangedTree_WayPoint(NMHDR *pNMHDR, LRESULT *pResult)
+{
+	UpdateData(TRUE);
+
+	LPNMTREEVIEW pNMTreeView = reinterpret_cast<LPNMTREEVIEW>(pNMHDR);
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+	*pResult = 0;
+
+
+	CMainFrame* pMain = dynamic_cast<CMainFrame*>(::AfxGetApp()->GetMainWnd());
+	CMFCApplication1View* pView = dynamic_cast<CMFCApplication1View*>(pMain->m_MainSplitter.GetPane(0, 1));
+
+
+	//child 역시 인식 가능!
+	HTREEITEM selectItem = pNMTreeView->itemNew.hItem;
+	CString str_cindex = m_ctrl_WayPointTree.GetItemText(selectItem);
+	//별도 적용 버튼 만들어, 입력시 선택된 인덱스의 수치값을 가져와
+	//다시 Set_
+
+	int index = _ttoi(str_cindex);
+
+
+	//for (int i = 0; i < pView->m_iCellindex; ++i)
+	//{
+	//	pView->m_pNaviMesh->Get_Cell(i)->Set_color({ 255,0,0,0.8 });
+
+	if (m_iRadio == 0)
+	{
+
+
+
+		pView->m_pNaviMesh->Get_Cell(index)->Set_color({ 255,255,255,1 });
+		//cellindex = -1;
+		//childindex = -1;
+
+	}
+	//else if (m_iRadio == 1) //각 셀의 특정 인덱스 번호를 선택할시 
+	//{
+	//	CString index;
+	//	m_edit_CellIndex.GetWindowTextW(index);
+	//	cellindex = _ttoi(index);
+	//
+	//	HTREEITEM selectItem = pNMTreeView->itemNew.hItem;
+	//	CString str_cindex = m_ctrl_NaviTree.GetItemText(selectItem); //자식의 인덱스 번호
+	//	childindex = _ttoi(str_cindex);
+	//	//float fValue = _tstof(strValue);
+	//
+	//
+	//	CString cPoint;
+	//	_vec3 vPoint;
+	//
+	//	
+	//
+	//
+	//	//HTREEITEM Root = m_ctrl_NaviTree.GetItem()
+	//
+	//}
+
+
+
+
+
+	//}
+
+
+
+
+
+
+
+
+
+
+	UpdateData(FALSE);
+}
+
+
+void CTab_Navi::OnBnClickedRadio5()
+{
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+}
+
+
+void CTab_Navi::OnBnClickedButton_WP_Save()
+{
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+	CFileDialog Dlg(FALSE, // 다른이름으로 저장. 만약 TRUE 파일 열기. 
+		L"dat",// 디폴트 확장자 
+		L"*.dat",// 디폴트 파일 이름 
+		OFN_OVERWRITEPROMPT);// 덮어쓸때 경고 메시지 띄어주겠다. 
+
+	TCHAR szCurDir[MAX_PATH]{};
+
+	GetCurrentDirectory(MAX_PATH, szCurDir);
+	PathRemoveFileSpec(szCurDir);
+	lstrcat(szCurDir, L"\\Data");
+
+	Dlg.m_ofn.lpstrInitialDir = szCurDir;
+	if (IDOK == Dlg.DoModal())
+	{
+		CString wstrFilePath = Dlg.GetPathName();
+		HANDLE hFile = CreateFile(wstrFilePath.GetString(), GENERIC_WRITE, 0, nullptr, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr);
+		if (INVALID_HANDLE_VALUE == hFile)
+			return;
+
+		CMainFrame* pMain = dynamic_cast<CMainFrame*>(::AfxGetApp()->GetMainWnd());
+		CMFCApplication1View* pView = dynamic_cast<CMFCApplication1View*>(pMain->m_MainSplitter.GetPane(0, 1));
+
+		vector<WayPointInfo>vecCellObject = pView->m_vecWayPoint;
+
+		DWORD dwByte = 0;
+		for (auto& pTile : vecCellObject)
+			WriteFile(hFile, &pTile, sizeof(WayPointInfo), &dwByte, nullptr);
+
+		CloseHandle(hFile);
+	}
+}
+
+
+void CTab_Navi::OnBnClickedButton_WP_Load()
+{
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+	CFileDialog Dlg(TRUE, // 다른이름으로 저장. 만약 TRUE 파일 열기. 
+		L"dat",// 디폴트 확장자 
+		L"*.dat",// 디폴트 파일 이름 
+		OFN_OVERWRITEPROMPT);// 덮어쓸때 경고 메시지 띄어주겠다. 
+	TCHAR szCurDir[MAX_PATH]{};
+	GetCurrentDirectory(MAX_PATH, szCurDir);
+	PathRemoveFileSpec(szCurDir);
+	lstrcat(szCurDir, L"\\Data");
+	Dlg.m_ofn.lpstrInitialDir = szCurDir;
+
+	if (IDOK == Dlg.DoModal())
+	{
+		CString wstrFilePath = Dlg.GetPathName();
+		HANDLE hFile = CreateFile(wstrFilePath.GetString(), GENERIC_READ, 0, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
+		if (INVALID_HANDLE_VALUE == hFile)
+			return;
+		CMainFrame* pMain = dynamic_cast<CMainFrame*>(::AfxGetApp()->GetMainWnd());
+		CMFCApplication1View* pView = dynamic_cast<CMFCApplication1View*>(pMain->m_MainSplitter.GetPane(0, 1));
+		CForm* pForm2 = dynamic_cast<CForm*>(pMain->m_MainSplitter.GetPane(0, 0));
+
+
+
+		DWORD dwByte = 0;
+		int pTileCount = 0;
+		//int pTile = 0;
+
+		pView->m_vecWayPoint.clear();
+		//pView->m_pNaviMesh->MFC_ReleaseCell();
+		//pView->m_vecPoint.clear();
+		//pView->m_vecMousePos.clear(); //이전에 찍어서 가진 정보 있을경우 clear
+
+
+		while (true)
+		{
+			_tagWayPointInfo pTile;
+			ReadFile(hFile, &pTile, sizeof(WayPointInfo), &dwByte, nullptr);
+
+			if (0 == dwByte)
+			{
+				//Safe_Delete(pTile);
+				break;
+			}
+
+			//pView->m_iCellindex = pTileCount;
+
+			pView->m_vecWayPoint.push_back(pTile);;
+			pView->m_pNaviMesh->Get_Cell(pTile.CellIndex)->Set_color({ 255,0,255,1 });
+
+		
+			CString a;
+			a.Format(_T("%d"), pTile.CellIndex);
+				
+			HTREEITEM hRoot;
+			hRoot = pForm2->m_pNaviTab.m_ctrl_WayPointTree.InsertItem(a, TVI_ROOT, TVI_LAST);
+
+
+			//HTREEITEM hChild;
+			//hChild = pForm2->m_pNaviTab.m_ctrl_NaviTree.InsertItem(L"0_index", hRoot, TVI_LAST);
+			////HTREEITEM hStatic;
+			//hChild = pForm2->m_pNaviTab.m_ctrl_NaviTree.InsertItem(L"1_index", hRoot, TVI_LAST);
+			//hChild = pForm2->m_pNaviTab.m_ctrl_NaviTree.InsertItem(L"2_index", hRoot, TVI_LAST);
+
+
+			++pTileCount;
+
+		}
+
+		//pView->m_iCellindex++;
+		pView->Invalidate(FALSE);
+		CloseHandle(hFile);
+	}
 }

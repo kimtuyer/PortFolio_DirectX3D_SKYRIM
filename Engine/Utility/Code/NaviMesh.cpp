@@ -13,9 +13,15 @@ Engine::CNaviMesh::CNaviMesh(const CNaviMesh& rhs)
 	:CComponent(rhs)
 	, m_dwIndex(rhs.m_dwIndex)
 	, m_vecCell(rhs.m_vecCell)
+	,m_vecWayPoint(rhs.m_vecWayPoint)
 {
 	for (auto& iter : m_vecCell)
 		iter->AddRef();
+
+
+
+
+
 }
 
 Engine::CNaviMesh::~CNaviMesh(void)
@@ -23,12 +29,17 @@ Engine::CNaviMesh::~CNaviMesh(void)
 	CNaviMesh::Free();
 }
 
-HRESULT Engine::CNaviMesh::Ready_NaviMesh(const wstring & wstrFilePath)
+HRESULT Engine::CNaviMesh::Ready_NaviMesh(const wstring & wstrFilePath, const wstring & wstrWayPointFilePath)
 {
 
 	HANDLE hFile = CreateFile(wstrFilePath.c_str(), GENERIC_READ, 0, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
 	if (INVALID_HANDLE_VALUE == hFile)
 		return E_FAIL;
+
+	HANDLE hFile2 = CreateFile(wstrWayPointFilePath.c_str(), GENERIC_READ, 0, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
+	if (INVALID_HANDLE_VALUE == hFile2)
+		return E_FAIL;
+
 
 	DWORD dwbyte = 0;
 	int pTileCount = 0;
@@ -57,6 +68,42 @@ HRESULT Engine::CNaviMesh::Ready_NaviMesh(const wstring & wstrFilePath)
 	CloseHandle(hFile);
 
 	FAILED_CHECK_RETURN(Link_Cell(), E_FAIL);
+
+
+
+	dwbyte = 0;
+	//int pTileCount = 0;
+
+	WayPointInfo* pIndex= nullptr;
+	//TILE* pTile = nullptr; 
+	while (true)
+	{
+		pIndex = new WayPointInfo;
+
+		ReadFile(hFile2, pIndex, sizeof(WayPointInfo), &dwbyte, nullptr);
+		if (0 == dwbyte)
+		{
+			Safe_Delete(pIndex);
+			break;
+		}
+
+
+		//CCell* pCell = CCell::Create(m_pGraphicDev, pTile->CellIndex, &pTile->vPoint[0], &pTile->vPoint[1], &pTile->vPoint[2]);
+		//pView->m_pNaviMesh->Insert_Sell(pCell);
+
+		m_vecWayPoint.emplace_back(pIndex);
+
+		//++pTileCount;
+	}
+	CloseHandle(hFile2);
+
+
+	//for (auto p : m_vecWayPointIndex)
+	//	m_vecWayPoint_Cell.push_back(m_vecCell[p]);
+
+
+
+
 
 
 	
@@ -101,11 +148,11 @@ void Engine::CNaviMesh::Render_NaviMesh(D3DXCOLOR color)
 }
 
 
-CNaviMesh* Engine::CNaviMesh::Create(LPDIRECT3DDEVICE9 pGraphicDev, const _tchar* pFilePath)
+CNaviMesh* Engine::CNaviMesh::Create(LPDIRECT3DDEVICE9 pGraphicDev, const _tchar* pFilePath, const _tchar* wstrWayPointFilePath)
 {
 	CNaviMesh*	pInstance = new CNaviMesh(pGraphicDev);
 
-	if (FAILED(pInstance->Ready_NaviMesh(pFilePath)))
+	if (FAILED(pInstance->Ready_NaviMesh(pFilePath, wstrWayPointFilePath)))
 		Safe_Release(pInstance);
 
 	return pInstance;

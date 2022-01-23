@@ -43,6 +43,26 @@ namespace Engine
 
 	}CellInfo;
 
+	typedef struct _tagWayPointInfo
+	{
+		_vec3 vWayPoint;
+		int WapointIndex = 0;
+		int CellIndex = 0;
+
+		_tagWayPointInfo() {};
+
+		_tagWayPointInfo(_vec3 A, int WPindex, int index)
+		{
+			vWayPoint = A;
+			WapointIndex = WPindex;
+			CellIndex = index;
+
+		};
+
+	}WayPointInfo;
+
+
+
 
 
 	typedef struct _tagItemInfo
